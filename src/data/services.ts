@@ -1,0 +1,163 @@
+import type { Service } from "@/types";
+
+export const services: Service[] = [
+  {
+    id: "venue-rental",
+    slug: "venue-rental",
+    name: { en: "Venue Rental", bn: "ভেন্যু ভাড়া", ar: "تأجير المكان", zh: "场地租赁" },
+    tagline: {
+      en: "South Asia's largest convention space",
+      bn: "দক্ষিণ এশিয়ার সবচেয়ে বড় কনভেনশন স্পেস",
+      ar: "أكبر مساحة مؤتمرات في جنوب آسيا",
+      zh: "南亚最大会议场地",
+    },
+    description: {
+      en: "From intimate seminars to mega conventions, our six halls accommodate every scale of event with world-class facilities, flexible floor plans, and a dedicated event coordination team.",
+      bn: "ছোট সেমিনার থেকে মেগা কনভেনশন পর্যন্ত, আমাদের ছয়টি হল বিশ্বমানের সুবিধা নিয়ে প্রতিটি আকারের ইভেন্ট আয়োজন করতে পারে।",
+      ar: "من الندوات الصغيرة إلى المؤتمرات الكبرى، تستوعب قاعاتنا الست كل نطاق من الفعاليات.",
+      zh: "从小型研讨会到大型会议，我们的六个大厅可满足各种规模活动的需求。",
+    },
+    icon: "Buildings",
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=95&w=3840",
+    features: [
+      { en: "4 large convention halls + 2 specialty halls", bn: "৪টি বড় কনভেনশন হল + ২টি বিশেষ হল" },
+      { en: "10,000+ total guest capacity", bn: "মোট ১০,০০০+ অতিথি ধারণক্ষমতা" },
+      { en: "2,000+ parking spaces", bn: "২,০০০+ পার্কিং স্পেস" },
+      { en: "On 300 ft. Purbachal Express Highway", bn: "৩০০ ফুট পূর্বাচল এক্সপ্রেস হাইওয়েতে" },
+    ],
+    isSample: false,
+  },
+  {
+    id: "catering",
+    slug: "catering",
+    name: { en: "Catering", bn: "ক্যাটারিং", ar: "خدمات التموين", zh: "餐饮服务" },
+    tagline: {
+      en: "Quality-assured cuisine for every occasion",
+      bn: "প্রতিটি অনুষ্ঠানের জন্য মান-নিশ্চিত রন্ধনপ্রণালী",
+      ar: "مأكولات مضمونة الجودة لكل مناسبة",
+      zh: "每个场合的品质保证美食",
+    },
+    description: {
+      en: "ICCB operates its own state-of-the-art kitchen staffed by experienced chefs. We serve authentic Mughal, Continental, and multi-cuisine menus with strict quality control from farm to table.",
+      bn: "আইসিসিবি অভিজ্ঞ শেফদের নিয়ে নিজস্ব আধুনিক রান্নাঘর পরিচালনা করে।",
+      ar: "يدير ICCB مطبخه الحديث بطاقم من الطهاة ذوي الخبرة.",
+      zh: "ICCB拥有自己的现代化厨房，配备经验丰富的厨师团队。",
+    },
+    icon: "ForkKnife",
+    image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=95&w=3840",
+    features: [
+      { en: "Own modern kitchen facility", bn: "নিজস্ব আধুনিক রান্নাঘর সুবিধা" },
+      { en: "Mughal, Continental, Multi-cuisine", bn: "মোঘল, কন্টিনেন্টাল, মাল্টি-কুইজিন" },
+      { en: "Strict quality control", bn: "কঠোর মান নিয়ন্ত্রণ" },
+      { en: "Per-head or package pricing", bn: "প্রতি জনপ্রতি বা প্যাকেজ মূল্য" },
+    ],
+    isSample: false,
+  },
+  {
+    id: "decoration",
+    slug: "decoration",
+    name: { en: "Decoration", bn: "সাজসজ্জা", ar: "الديكور", zh: "装饰服务" },
+    tagline: {
+      en: "Transform any space into a masterpiece",
+      bn: "যেকোনো স্থানকে একটি মাস্টারপিসে পরিণত করুন",
+      ar: "حوّل أي مكان إلى تحفة فنية",
+      zh: "将任何空间变成杰作",
+    },
+    description: {
+      en: "Our in-house decoration team creates stunning environments for weddings, galas, corporate events, and exhibitions. From classic elegance to royal grandeur, we craft the perfect atmosphere.",
+      bn: "আমাদের ইন-হাউস ডেকোরেশন টিম বিয়ে, গালা, কর্পোরেট ইভেন্ট এবং প্রদর্শনীর জন্য অসাধারণ পরিবেশ তৈরি করে।",
+      ar: "يبتكر فريق الديكور الداخلي لدينا بيئات مذهلة للأعراس والمناسبات.",
+      zh: "我们的内部装饰团队为婚礼、晚会、企业活动和展览创造令人惊叹的环境。",
+    },
+    icon: "Sparkle",
+    image: "https://images.unsplash.com/photo-1519167758481-83f29c2df87?auto=format&fit=crop&q=95&w=3840",
+    features: [
+      { en: "Classic, Premium & Royal tiers", bn: "ক্লাসিক, প্রিমিয়াম এবং রয়্যাল টায়ার" },
+      { en: "Floral, lighting & draping", bn: "ফুলের সজ্জা, আলোকসজ্জা এবং ড্রেপিং" },
+      { en: "Stage & backdrop design", bn: "মঞ্চ ও ব্যাকড্রপ ডিজাইন" },
+      { en: "Custom themed setups", bn: "কাস্টম থিমড সেটআপ" },
+    ],
+    isSample: false,
+  },
+  {
+    id: "event-management",
+    slug: "event-management",
+    name: { en: "Event Management", bn: "ইভেন্ট ম্যানেজমেন্ট", ar: "إدارة الفعاليات", zh: "活动管理" },
+    tagline: {
+      en: "End-to-end event execution by experts",
+      bn: "বিশেষজ্ঞদের দ্বারা শুরু থেকে শেষ পর্যন্ত ইভেন্ট বাস্তবায়ন",
+      ar: "تنفيذ الفعاليات من البداية إلى النهاية",
+      zh: "专业团队提供全程活动执行",
+    },
+    description: {
+      en: "ICCB's experienced event management team handles everything from conceptualization to execution — logistics, AV, security, registration, media, and post-event reporting.",
+      bn: "আইসিসিবির অভিজ্ঞ ইভেন্ট ম্যানেজমেন্ট টিম ধারণা থেকে বাস্তবায়ন পর্যন্ত সবকিছু পরিচালনা করে।",
+      ar: "يتولى فريق إدارة الفعاليات المتمرس في ICCB كل شيء من التصور إلى التنفيذ.",
+      zh: "ICCB经验丰富的活动管理团队处理从概念到执行的一切事务。",
+    },
+    icon: "CalendarCheck",
+    image: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&q=95&w=3840",
+    features: [
+      { en: "Dedicated event coordinator", bn: "নিবেদিত ইভেন্ট কোঅর্ডিনেটর" },
+      { en: "AV & technical production", bn: "এভি ও টেকনিক্যাল প্রোডাকশন" },
+      { en: "Security & crowd management", bn: "নিরাপত্তা ও জনতা ব্যবস্থাপনা" },
+      { en: "Registration & guest management", bn: "রেজিস্ট্রেশন ও অতিথি ব্যবস্থাপনা" },
+    ],
+    isSample: false,
+  },
+  {
+    id: "heritage-restaurant",
+    slug: "heritage-restaurant",
+    name: { en: "Heritage Restaurant", bn: "হেরিটেজ রেস্টুরেন্ট", ar: "مطعم التراث", zh: "传统餐厅" },
+    tagline: {
+      en: "Mughal-inspired dining — opened June 2021",
+      bn: "মোঘল অনুপ্রাণিত ডাইনিং — জুন ২০২১ সালে খোলা হয়েছে",
+      ar: "تناول الطعام بأسلوب مغولي — افتُتح في يونيو 2021",
+      zh: "莫卧儿风格用餐体验 — 2021年6月开业",
+    },
+    description: {
+      en: "ICCB Heritage Restaurant offers an authentic Mughal-themed dining experience within the convention complex, opened in June 2021. Featuring royal ambiance, traditional recipes, and impeccable service.",
+      bn: "আইসিসিবি হেরিটেজ রেস্টুরেন্ট জুন ২০২১ সালে খোলা হয়েছে। এটি কনভেনশন কমপ্লেক্সের মধ্যে একটি খাঁটি মোঘল থিমযুক্ত ডাইনিং অভিজ্ঞতা প্রদান করে।",
+      ar: "يقدم مطعم ICCB التراثي تجربة طعام مغولية الطراز أُفتُتح في يونيو 2021.",
+      zh: "ICCB传统餐厅于2021年6月开业，提供正宗莫卧儿风格用餐体验。",
+    },
+    icon: "Crown",
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=95&w=3840",
+    features: [
+      { en: "Authentic Mughal theme & decor", bn: "খাঁটি মোঘল থিম এবং সাজসজ্জা" },
+      { en: "Traditional & fusion recipes", bn: "ঐতিহ্যবাহী ও ফিউশন রেসিপি" },
+      { en: "Private dining rooms available", bn: "প্রাইভেট ডাইনিং রুম উপলব্ধ" },
+      { en: "Opened June 2021", bn: "জুন ২০২১ সালে উদ্বোধন" },
+    ],
+    isSample: false,
+  },
+  {
+    id: "expo-support",
+    slug: "expo-support",
+    name: { en: "Expo & Trade Fair Support", bn: "এক্সপো ও ট্রেড ফেয়ার সাপোর্ট", ar: "دعم المعارض والمعارض التجارية", zh: "博览会与贸易展支持" },
+    tagline: {
+      en: "Bangladesh's premier exhibition destination",
+      bn: "বাংলাদেশের প্রধান প্রদর্শনী গন্তব্য",
+      ar: "وجهة المعارض الرائدة في بنغلاديش",
+      zh: "孟加拉国首要展览目的地",
+    },
+    description: {
+      en: "ICCB Expo Village is Bangladesh's largest dedicated exhibition space. We offer comprehensive trade fair support — booth design, logistics, exhibitor services, international buyer matching, and media coverage.",
+      bn: "আইসিসিবি এক্সপো ভিলেজ বাংলাদেশের বৃহত্তম নিবেদিত প্রদর্শনী স্থান।",
+      ar: "قرية ICCB للمعارض هي أكبر مساحة معارض متخصصة في بنغلاديش.",
+      zh: "ICCB博览村是孟加拉国最大的专属展览空间。",
+    },
+    icon: "Package",
+    image: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&q=95&w=3840",
+    features: [
+      { en: "Modular exhibition booth system", bn: "মডুলার এক্সিবিশন বুথ সিস্টেম" },
+      { en: "International buyer & media support", bn: "আন্তর্জাতিক ক্রেতা ও মিডিয়া সাপোর্ট" },
+      { en: "Freight handling & logistics", bn: "ফ্রেইট হ্যান্ডলিং ও লজিস্টিক্স" },
+      { en: "Dedicated expo coordination team", bn: "নিবেদিত এক্সপো কোঅর্ডিনেশন টিম" },
+    ],
+    isSample: false,
+  },
+];
+
+export const getServiceBySlug = (slug: string): Service | undefined =>
+  services.find((s) => s.slug === slug);

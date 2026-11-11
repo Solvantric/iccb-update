@@ -1,0 +1,240 @@
+{
+  "site": {
+    "name": "ICCB",
+    "fullName": "International Convention City Bashundhara",
+    "tagline": "South Asia's Largest Event Venue",
+    "description": "ICCB — International Convention City Bashundhara, Dhaka. South Asia's largest convention centre for expos, conferences, weddings, concerts, and corporate events.",
+    "since": "Since 2015",
+    "location": "Dhaka, Bangladesh"
+  },
+  "nav": {
+    "about": "About",
+    "whyIccb": "Why ICCB",
+    "venues": "Venues",
+    "expoZone": "Expo Zone",
+    "services": "Services",
+    "gallery": "Gallery",
+    "contact": "Contact",
+    "makeEnquiry": "Make an Enquiry",
+    "bookNow": "Book Now",
+    "menu": "Menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "hero": {
+    "checkAvailability": "Check Availability",
+    "eventType": "Event Type",
+    "date": "Date",
+    "guests": "Guests",
+    "slides": {
+      "grandHall": {
+        "headline": "WHERE THE WORLD MEETS IN DHAKA",
+        "sub": "South Asia's largest event venue · 4 halls · 10,000+ guests"
+      },
+      "expo": {
+        "headline": "WHERE INDUSTRIES EXHIBIT",
+        "sub": "Bangladesh's premier international exhibition destination"
+      },
+      "conference": {
+        "headline": "WORLD-CLASS CONFERENCE FACILITIES",
+        "sub": "Multilingual, international-standard conventions for 400–2,500 delegates"
+      },
+      "wedding": {
+        "headline": "YOUR DREAM OCCASION, PERFECTED",
+        "sub": "Elegant banquet settings for 600–1,800 guests"
+      },
+      "concert": {
+        "headline": "STAGE THE EXTRAORDINARY",
+        "sub": "Professional acoustics, lighting, and staging for 2,500+"
+      }
+    }
+  },
+  "stats": {
+    "halls": "Convention halls",
+    "guests": "Guests at a time",
+    "since": "Since",
+    "expoVillage": "Expo Village"
+  },
+  "venues": {
+    "title": "Our Venues",
+    "subtitle": "Six world-class spaces for every event scale",
+    "explore": "Explore Venues",
+    "requestQuote": "Request a Quote",
+    "capacity": "Up to {count} guests",
+    "viewAll": "View all halls",
+    "compare": "Compare halls"
+  },
+  "expo": {
+    "title": "Where Industries Exhibit",
+    "subtitle": "Bangladesh's premier international trade fair destination",
+    "planExpo": "Plan Your Expo",
+    "exhibitorEnquiry": "Exhibitor Enquiry",
+    "upcoming": "Upcoming",
+    "stats": {
+      "editions": "Annual editions",
+      "exhibitors": "International exhibitors",
+      "visitors": "Annual visitors"
+    }
+  },
+  "services": {
+    "title": "Our Services",
+    "subtitle": "Complete event solutions under one roof",
+    "viewMenu": "View Menu",
+    "learnMore": "Learn More"
+  },
+  "booking": {
+    "title": "Check Availability & Get an Estimate",
+    "calendar": "Availability Calendar",
+    "calculator": "Budget Estimate",
+    "reserve": "Reserve This Date",
+    "sendEnquiry": "Send as Enquiry",
+    "downloadPdf": "Download Estimate (PDF)",
+    "shareWhatsapp": "Share on WhatsApp",
+    "disclaimer": "This is an estimate, not a quotation. Final price is confirmed by ICCB.",
+    "legend": {
+      "available": "Available",
+      "reserved": "Reserved — on hold",
+      "booked": "Booked",
+      "closed": "Closed / Past"
+    },
+    "shifts": {
+      "lunch": "Lunch Shift",
+      "dinner": "Dinner Shift",
+      "fullday": "Full Day"
+    },
+    "currency": {
+      "bdt": "BDT (৳)",
+      "usd": "USD ($)"
+    }
+  },
+  "forms": {
+    "name": "Full Name",
+    "organization": "Organization",
+    "phone": "Phone Number",
+    "email": "Email Address",
+    "eventType": "Event Type",
+    "guests": "Expected Guests",
+    "date": "Preferred Date",
+    "notes": "Additional Notes",
+    "submit": "Submit",
+    "sending": "Sending…",
+    "success": "Thank you! We'll be in touch shortly.",
+    "error": "Something went wrong. Please try again or call us.",
+    "consent": "I consent to ICCB storing my information to process this enquiry.",
+    "organizerType": "Organizer Type",
+    "preferredContact": "Preferred Contact Time",
+    "language": "Preferred Language"
+  },
+  "eventTypes": {
+    "conference": "Conference",
+    "exhibition": "Exhibition / Trade Fair",
+    "wedding": "Wedding / Social",
+    "concert": "Concert / Show",
+    "corporate": "Corporate Event",
+    "seminar": "Seminar / Training",
+    "expo": "Expo",
+    "other": "Other"
+  },
+  "chatbot": {
+    "title": "ICCB Assistant",
+    "online": "Online",
+    "placeholder": "Type a message…",
+    "quickReplies": {
+      "availability": "Check availability",
+      "expoEnquiry": "Expo enquiry",
+      "cateringMenu": "Catering menu",
+      "talkHuman": "Talk to a human"
+    },
+    "handoff": "Connecting you to our team on WhatsApp…",
+    "disclaimer": "Prices and availability must be confirmed by an ICCB sales manager."
+  },
+  "footer": {
+    "about": "About ICCB",
+    "venues": "Venues",
+    "services": "Services",
+    "contact": "Contact",
+    "newsletter": "Stay updated",
+    "newsletterPlaceholder": "Your email address",
+    "subscribe": "Subscribe",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "copyright": "© 2026 ICCB — International Convention City Bashundhara. All rights reserved.",
+    "bashundharaGroup": "A Bashundhara Group Property"
+  },
+  "cta": {
+    "planEvent": "Planning an event?",
+    "holdDate": "Let's hold your date.",
+    "makeEnquiry": "Make an Enquiry",
+    "whatsapp": "Chat on WhatsApp"
+  },
+  "dashboard": {
+    "overview": "Overview",
+    "leads": "Leads",
+    "queries": "Queries Inbox",
+    "bookings": "Bookings & Availability",
+    "analytics": "Analytics",
+    "radar": "Opportunity Radar",
+    "chats": "Chats",
+    "content": "Content",
+    "settings": "Settings",
+    "users": "Users & Roles",
+    "auditLog": "Audit Log",
+    "signOut": "Sign Out",
+    "sample": "Sample",
+    "hot": "Hot",
+    "notifications": "Notifications"
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "An error occurred",
+    "noData": "No data yet",
+    "viewAll": "View all",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "export": "Export",
+    "download": "Download",
+    "share": "Share",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "learnMore": "Learn more",
+    "readMore": "Read more",
+    "seeAll": "See all",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "skipToContent": "Skip to main content",
+    "lightMode": "Light mode",
+    "darkMode": "Dark mode",
+    "language": "Language"
+  },
+  "contact": {
+    "booking": "Booking Office",
+    "catering": "Catering Enquiries",
+    "address": "Kuril Bishwa Road, Next to 300 ft. Purbachal Express Highway, Dhaka 1229",
+    "getDirections": "Get Directions",
+    "openMaps": "Open in Maps",
+    "hours": "Office Hours",
+    "hoursValue": "Sunday–Thursday: 9:00 AM – 6:00 PM",
+    "phone": "Phone",
+    "email": "Email"
+  },
+  "seo": {
+    "homeTitle": "ICCB — International Convention City Bashundhara, Dhaka",
+    "homeDescription": "South Asia's largest event venue. 4 convention halls, 10,000+ guest capacity. Expos, conferences, weddings, concerts. Book your date at ICCB, Dhaka.",
+    "venuesTitle": "Venues & Convention Halls",
+    "venuesDescription": "Explore ICCB's 6 world-class convention halls in Dhaka. Theatre capacity 400–2,500. Gulnaksha, Pushpoguchcho, Rajdarshan, and more.",
+    "bookingTitle": "Check Availability & Book",
+    "bookingDescription": "Check real-time availability for ICCB convention halls. Get instant budget estimates for your event. Reserve your date online."
+  }
+}

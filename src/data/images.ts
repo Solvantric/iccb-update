@@ -1,0 +1,150 @@
+export interface ImageMeta {
+  src: string;
+  alt: { en: string; bn?: string; ar?: string; zh?: string };
+  photographer?: string;
+  source?: string;
+  width: number;
+  height: number;
+  blurDataURL?: string;
+}
+
+export const heroSlides: Array<ImageMeta & { id: string }> = [
+  {
+    id: "grand-hall",
+    src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "Grand convention hall at ICCB with stage lighting", bn: "আইসিসিবিতে গ্র্যান্ড কনভেনশন হল" },
+    photographer: "Sangga Rima Roman Selia",
+    source: "Unsplash",
+    width: 3840,
+    height: 2560,
+  },
+  {
+    id: "expo",
+    src: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "Expo and trade fair floor at ICCB", bn: "আইসিসিবিতে এক্সপো ও ট্রেড ফেয়ার ফ্লোর" },
+    photographer: "Nastuh Abootalebi",
+    source: "Unsplash",
+    width: 3840,
+    height: 2560,
+  },
+  {
+    id: "conference",
+    src: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "International conference setup with stage lighting", bn: "স্টেজ লাইটিং সহ আন্তর্জাতিক সম্মেলন সেটআপ" },
+    photographer: "Samuel Pereira",
+    source: "Unsplash",
+    width: 3840,
+    height: 2560,
+  },
+  {
+    id: "wedding",
+    src: "https://images.unsplash.com/photo-1519167758481-83f29c8a4f4a?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "Luxury South Asian wedding banquet at ICCB", bn: "আইসিসিবিতে বিলাসবহুল দক্ষিণ এশীয় বিবাহ ভোজ" },
+    photographer: "Photos by Lanty",
+    source: "Unsplash",
+    width: 3840,
+    height: 2560,
+  },
+  {
+    id: "concert",
+    src: "https://images.unsplash.com/photo-1529543544282-ea669407fca3?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "Concert with stage lighting at ICCB", bn: "আইসিসিবিতে স্টেজ লাইটিং সহ কনসার্ট" },
+    photographer: "Yvette de Wit",
+    source: "Unsplash",
+    width: 3840,
+    height: 2560,
+  },
+];
+
+export const galleryImages: Array<ImageMeta & { id: string; category: string }> = [
+  {
+    id: "g1",
+    src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "Convention hall setup" },
+    category: "halls",
+    photographer: "Sangga Rima Roman Selia",
+    source: "Unsplash",
+    width: 3840,
+    height: 800,
+  },
+  {
+    id: "g2",
+    src: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "Expo floor" },
+    category: "expo",
+    photographer: "Nastuh Abootalebi",
+    source: "Unsplash",
+    width: 3840,
+    height: 800,
+  },
+  {
+    id: "g3",
+    src: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "Conference setup" },
+    category: "conferences",
+    photographer: "Samuel Pereira",
+    source: "Unsplash",
+    width: 3840,
+    height: 800,
+  },
+  {
+    id: "g4",
+    src: "https://images.unsplash.com/photo-1519167758481-83f29c8a4f4a?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "Wedding banquet" },
+    category: "weddings",
+    photographer: "Photos by Lanty",
+    source: "Unsplash",
+    width: 3840,
+    height: 800,
+  },
+  {
+    id: "g5",
+    src: "https://images.unsplash.com/photo-1529543544282-ea669407fca3?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "Concert lighting" },
+    category: "concerts",
+    photographer: "Yvette de Wit",
+    source: "Unsplash",
+    width: 3840,
+    height: 800,
+  },
+  {
+    id: "g6",
+    src: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "Catering plating" },
+    category: "catering",
+    photographer: "Jay Wennington",
+    source: "Unsplash",
+    width: 3840,
+    height: 800,
+  },
+  {
+    id: "g7",
+    src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "Heritage restaurant dining" },
+    category: "restaurant",
+    photographer: "Paul Hanaoka",
+    source: "Unsplash",
+    width: 3840,
+    height: 800,
+  },
+  {
+    id: "g8",
+    src: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "Exhibition booths" },
+    category: "expo",
+    photographer: "Nastuh Abootalebi",
+    source: "Unsplash",
+    width: 3840,
+    height: 1067,
+  },
+  {
+    id: "g9",
+    src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=95&w=3840",
+    alt: { en: "ICCB exterior architecture" },
+    category: "architecture",
+    photographer: "Sangga Rima Roman Selia",
+    source: "Unsplash",
+    width: 3840,
+    height: 1067,
+  },
+];
