@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/lib/i18n/routing";
-import { HeroSlider } from "@/components/sections/HeroSlider";
-import { StatsStrip } from "@/components/sections/StatsStrip";
-import { VenuesHighlight } from "@/components/sections/VenuesHighlight";
-import { HallSlider } from "@/components/sections/HallSlider";
+import { HeroSlider, BookingCard } from "@/components/sections/HeroSlider";
+import { ServiceStrip } from "@/components/sections/ServiceStrip";
+import { VenueCards } from "@/components/sections/VenueCards";
 import { ExpoZone } from "@/components/sections/ExpoZone";
-import { ServicesHighlight } from "@/components/sections/ServicesHighlight";
+import { VenturesSlider } from "@/components/sections/VenturesSlider";
+import { MenuBento } from "@/components/sections/MenuBento";
 import { WhyICCB } from "@/components/sections/WhyICCB";
-import { VideoBlock } from "@/components/sections/VideoBlock";
 import { GallerySlider } from "@/components/sections/GallerySlider";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { GettingHere } from "@/components/sections/GettingHere";
@@ -53,17 +52,29 @@ export default async function HomePage({
   return (
     <>
       <HomeJsonLd />
+      {/* 1. Hero carousel */}
       <HeroSlider locale={locale} />
-      <StatsStrip />
-      <VenuesHighlight locale={locale} />
-      <HallSlider locale={locale} />
+      {/* 2. Booking card overlap (desktop only) */}
+      <BookingCard locale={locale} />
+      {/* 3. Service strip */}
+      <ServiceStrip locale={locale} />
+      {/* 4. Venue cards */}
+      <VenueCards locale={locale} />
+      {/* 5. Expo zone */}
       <ExpoZone locale={locale} />
-      <ServicesHighlight locale={locale} />
+      {/* 6. Ventures diagonal panel slider */}
+      <VenturesSlider locale={locale} />
+      {/* 7. Menu bento */}
+      <MenuBento locale={locale} />
+      {/* 8. Why ICCB */}
       <WhyICCB />
-      <VideoBlock />
+      {/* 9. Gallery */}
       <GallerySlider locale={locale} />
+      {/* 10. Testimonials */}
       <Testimonials />
+      {/* 11. Getting here */}
       <GettingHere />
+      {/* 12. Final CTA */}
       <FinalCTA locale={locale} />
     </>
   );

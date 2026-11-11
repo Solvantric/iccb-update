@@ -25,9 +25,20 @@ function getFirstDayOfMonth(year: number, month: number) {
 }
 
 export function CalendarPage() {
-  const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth());
+  const [year, setYear] = useState(2026);
+  const [month, setMonth] = useState(10); // November
+  const [todayDate, setTodayDate] = useState(1);
+  const [todayMonth, setTodayMonth] = useState(10);
+  const [todayYear, setTodayYear] = useState(2026);
+
+  useEffect(() => {
+    const now = new Date();
+    setYear(now.getFullYear());
+    setMonth(now.getMonth());
+    setTodayDate(now.getDate());
+    setTodayMonth(now.getMonth());
+    setTodayYear(now.getFullYear());
+  }, []);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -97,7 +108,7 @@ export function CalendarPage() {
             {cells.map((day, idx) => {
               const dayBookings = day ? bookingsForDay(day) : [];
               const dateStr = day ? `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}` : null;
-              const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+              const isToday = day === todayDate && month === todayMonth && year === todayYear;
               const isSelected = dateStr === selected;
 
               return (

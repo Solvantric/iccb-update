@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   SquaresFour, Users, CalendarCheck, ChartBar, Envelope,
@@ -41,11 +42,11 @@ export function DashboardSidebar({ open, onToggle }: Props) {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 h-14 border-b border-[var(--line)]">
-        <div className="w-7 h-7 rounded-lg bg-[var(--accent)] flex items-center justify-center flex-shrink-0">
-          <span className="text-white text-[11px] font-bold">I</span>
+        <div className="relative w-7 h-7 flex-shrink-0">
+          <Image src="https://res.cloudinary.com/sgufp9aq/image/upload/v1794418824/iccb-logo.png" alt="ICCB" fill className="object-contain" />
         </div>
         {open && (
-          <span className="font-display text-sm text-white font-light tracking-widest uppercase truncate">
+          <span className="text-sm text-white font-semibold tracking-wider uppercase truncate">
             ICCB CRM
           </span>
         )}

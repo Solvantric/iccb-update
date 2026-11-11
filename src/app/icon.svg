@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Outer ring -->
+  <circle cx="60" cy="60" r="58" stroke="#E24F5F" stroke-width="3"/>
+  <!-- Inner fill -->
+  <circle cx="60" cy="60" r="52" fill="#E24F5F"/>
+  <!-- Globe grid lines -->
+  <circle cx="60" cy="60" r="52" fill="none" stroke="white" stroke-width="0.8" stroke-dasharray="4 3" opacity="0.3"/>
+  <ellipse cx="60" cy="60" rx="26" ry="52" fill="none" stroke="white" stroke-width="0.8" opacity="0.25"/>
+  <line x1="8" y1="60" x2="112" y2="60" stroke="white" stroke-width="0.8" opacity="0.25"/>
+  <line x1="60" y1="8" x2="60" y2="112" stroke="white" stroke-width="0.8" opacity="0.25"/>
+  <!-- ICCB Text -->
+  <text x="60" y="52" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="white" letter-spacing="3">ICCB</text>
+  <text x="60" y="68" text-anchor="middle" font-family="Arial, sans-serif" font-size="5.5" font-weight="400" fill="white" letter-spacing="1.5" opacity="0.9">INTERNATIONAL CONVENTION</text>
+  <text x="60" y="76" text-anchor="middle" font-family="Arial, sans-serif" font-size="5.5" font-weight="400" fill="white" letter-spacing="1.5" opacity="0.9">CITY BASHUNDHARA</text>
+  <!-- Bottom decorative line -->
+  <line x1="30" y1="84" x2="90" y2="84" stroke="white" stroke-width="0.8" opacity="0.5"/>
+</svg>

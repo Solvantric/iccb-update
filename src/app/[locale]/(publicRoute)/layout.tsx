@@ -20,7 +20,7 @@ export default async function PublicLayout({
 
   return (
     <ToastProvider>
-      <Header locale={locale} transparent />
+      <Header locale={locale} />
       <main id="main-content" className="flex-1">
         {children}
       </main>
