@@ -58,7 +58,7 @@ export default async function WhyICCBPage({ params }: { params: Promise<{ locale
   const locale = (routing.locales.includes(rawLocale as Locale) ? rawLocale : "en") as Locale;
 
   return (
-    <div className="pt-20 md:pt-24">
+    <div className="pt-[88px] sm:pt-[112px]">
       {/* Hero */}
       <section className="relative h-[50vh] min-h-[320px] overflow-hidden">
         <Image
@@ -152,7 +152,7 @@ export default async function WhyICCBPage({ params }: { params: Promise<{ locale
                   <Link
                     href="/booking"
                     locale={locale}
-                    className="flex items-center justify-center gap-2 bg-[var(--accent)] text-white rounded-full py-4 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] py-4 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors"
                   >
                     Check Availability
                     <ArrowRight size={14} weight="bold" />

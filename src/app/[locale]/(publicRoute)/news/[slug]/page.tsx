@@ -37,7 +37,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const others = newsArticles.filter((a) => a.id !== article.id);
 
   return (
-    <div className="pt-20 md:pt-24">
+    <div className="pt-[88px] sm:pt-[112px]">
       {/* Hero */}
       <div className="relative h-[45vh] min-h-[280px] overflow-hidden">
         <Image
@@ -51,7 +51,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70" />
         <div className="absolute bottom-0 inset-x-0 px-[clamp(1rem,4vw,3rem)] pb-8">
           <div className="max-w-[1440px] mx-auto">
-            <span className="text-[10px] uppercase tracking-wider text-white bg-[var(--accent)] px-3 py-1.5 rounded-full font-medium">
+            <span className="text-[10px] uppercase tracking-wider text-white bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px px-3 py-1.5 rounded-[var(--radius-btn)] font-bold">
               {article.category}
             </span>
             <h1 className="display-lg text-white mt-3 max-w-3xl">{article.title.en}</h1>
@@ -129,7 +129,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
                 <Link
                   href="/booking"
                   locale={locale}
-                  className="flex items-center justify-center gap-2 bg-[var(--accent)] text-white rounded-full py-3 text-[11px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors"
+                  className="flex items-center justify-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] py-3 text-[11px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors"
                 >
                   Check Availability
                   <ArrowRight size={12} weight="bold" />

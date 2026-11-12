@@ -1,86 +1,80 @@
 "use client";
-import { useCallback } from "react";
-import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import { Link } from "@/lib/i18n/navigation";
 import type { Locale } from "@/lib/i18n/routing";
-import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
+import { ArrowRight } from "@phosphor-icons/react";
 import { galleryImages } from "@/data/images";
-import { RevealBlock } from "@/components/motion/RevealBlock";
+import { FadeUp } from "@/components/motion/primitives";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 interface GallerySliderProps {
   locale: Locale;
 }
 
-export function GallerySlider({ locale }: GallerySliderProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: "start", slidesToScroll: 1 },
-    [Autoplay({ delay: 4000, stopOnMouseEnter: true })]
-  );
+/** Seconds for one full loop of the strip — lower is faster. */
+const LOOP_SECONDS = 60;
 
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+export function GallerySlider({ locale }: GallerySliderProps) {
+  // Two copies side by side; the track slides by half its width for a seamless loop.
+  const strip = [...galleryImages, ...galleryImages];
 
   return (
     <section className="bg-[var(--bg-soft)] py-[clamp(4rem,10vw,9rem)] overflow-hidden">
-      <div className="max-w-[1440px] mx-auto px-[clamp(1rem,4vw,3rem)]">
-        <div className="flex justify-between items-center mb-10">
-          <RevealBlock>
-            <div>
-              <span className="meta-label">(GALLERY)</span>
-              <h2 className="display-md text-[var(--ink)] mt-2">MOMENTS AT ICCB</h2>
-            </div>
-          </RevealBlock>
-          <div className="flex items-center gap-4">
-            <div className="flex gap-2">
-              <button
-                onClick={scrollPrev}
-                aria-label="Previous"
-                className="w-10 h-10 rounded-full border border-[var(--line)] text-[var(--ink-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors flex items-center justify-center"
-              >
-                <ArrowLeft size={16} weight="light" />
-              </button>
-              <button
-                onClick={scrollNext}
-                aria-label="Next"
-                className="w-10 h-10 rounded-full border border-[var(--line)] text-[var(--ink-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors flex items-center justify-center"
-              >
-                <ArrowRight size={16} weight="light" />
-              </button>
-            </div>
-            <Link
-              href="/gallery"
-              locale={locale}
-              className="text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--ink-muted)] hover:text-[var(--accent)] transition-colors hidden sm:block"
-            >
-              View Gallery →
-            </Link>
-          </div>
-        </div>
+      <div className="container-site">
+        <FadeUp>
+          <SectionHeading
+            eyebrow="Gallery"
+            title="Moments at"
+            highlight="ICCB"
+            description="From international expos and high-level summits to grand weddings and live concerts — step inside the halls where Bangladesh gathers, celebrates and does business."
+          />
+        </FadeUp>
+      </div>
 
-        <div className="embla" ref={emblaRef}>
-          <div className="embla__container gap-4">
-            {galleryImages.map((img) => (
-              <div
-                key={img.id}
-                className="embla__slide"
-                style={{ flex: "0 0 calc(50% - 8px)" }}
+      {/* Continuous left → right strip; pauses on hover. Spacing uses margin (not gap) so the -50% loop is seamless. */}
+      <FadeUp delay={0.1} className="mt-12">
+        <div className="group/strip relative" aria-label="ICCB photo gallery">
+          <div
+            className="logo-marquee-reverse flex w-max group-hover/strip:[animation-play-state:paused]"
+            style={{ animationDuration: `${LOOP_SECONDS}s` }}
+          >
+            {strip.map((img, i) => (
+              <figure
+                key={`${img.id}-${i}`}
+                aria-hidden={i >= galleryImages.length}
+                className="group/photo relative h-[260px] sm:h-[340px] lg:h-[420px] aspect-[4/3] me-4 flex-shrink-0 overflow-hidden rounded-[var(--radius-card)] bg-[var(--bg-deep)]"
               >
-                <div className="relative overflow-hidden aspect-[4/3]">
-                  <Image
-                    src={img.src}
-                    alt={img.alt.en}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover hover:scale-105 transition-transform duration-700"
-                  />
-                </div>
-              </div>
+                <Image
+                  src={img.src}
+                  alt={i < galleryImages.length ? img.alt.en : ""}
+                  fill
+                  sizes="(max-width: 640px) 350px, (max-width: 1024px) 460px, 560px"
+                  className="object-cover transition-transform duration-700 ease-out group-hover/photo:scale-105"
+                />
+                {/* Caption on hover */}
+                <figcaption className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/75 via-black/30 to-transparent translate-y-full opacity-0 transition-all duration-500 ease-out group-hover/photo:translate-y-0 group-hover/photo:opacity-100">
+                  <span className="block h-[3px] w-8 bg-[var(--accent)] mb-2" />
+                  <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-white/70">
+                    {img.category}
+                  </span>
+                  <span className="block text-[15px] font-semibold text-white leading-snug">
+                    {img.alt.en}
+                  </span>
+                </figcaption>
+              </figure>
             ))}
           </div>
+          {/* Soft edge fades */}
+          <div className="pointer-events-none absolute inset-y-0 start-0 w-16 sm:w-32 bg-gradient-to-r from-[var(--bg-soft)] to-transparent z-10 rtl:bg-gradient-to-l" />
+          <div className="pointer-events-none absolute inset-y-0 end-0 w-16 sm:w-32 bg-gradient-to-l from-[var(--bg-soft)] to-transparent z-10 rtl:bg-gradient-to-r" />
         </div>
-      </div>
+      </FadeUp>
+
+      <FadeUp delay={0.15} className="mt-12 flex justify-center">
+        <Link href="/gallery" locale={locale} className="btn btn-secondary whitespace-nowrap">
+          View Gallery <ArrowRight size={14} weight="bold" />
+        </Link>
+      </FadeUp>
     </section>
   );
 }

@@ -2,6 +2,7 @@ export const instant = false;
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingDock } from "@/components/layout/FloatingDock";
+import { ScrollTopButton } from "@/components/layout/ScrollTopButton";
 import { CookieBanner } from "@/components/layout/CookieBanner";
 import { ChatWidget } from "@/components/chatbot/ChatWidget";
 import { ToastProvider } from "@/components/ui/Toast";
@@ -26,6 +27,7 @@ export default async function PublicLayout({
       </main>
       <Footer locale={locale} />
       <FloatingDock />
+      <ScrollTopButton />
       <ChatWidget locale={locale} />
       <CookieBanner />
     </ToastProvider>

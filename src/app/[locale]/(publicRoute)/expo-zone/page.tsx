@@ -4,6 +4,7 @@ import { Link } from "@/lib/i18n/navigation";
 import type { Locale } from "@/lib/i18n/routing";
 import { routing } from "@/lib/i18n/routing";
 import { expoEvents, clientLogos } from "@/data/expo";
+import { PartnerLogo } from "@/components/ui/PartnerLogo";
 import { RevealBlock, RevealGroup, RevealItem } from "@/components/motion/RevealBlock";
 import { ArrowRight, CalendarBlank, MapPin, Users } from "@phosphor-icons/react/dist/ssr";
 
@@ -39,7 +40,7 @@ export default async function ExpoZonePage({ params }: { params: Promise<{ local
   const locale = (routing.locales.includes(rawLocale as Locale) ? rawLocale : "en") as Locale;
 
   return (
-    <div className="pt-20 md:pt-24">
+    <div className="pt-[88px] sm:pt-[112px]">
       {/* Hero */}
       <section className="relative h-[55vh] min-h-[380px] overflow-hidden">
         <Image
@@ -152,14 +153,14 @@ export default async function ExpoZonePage({ params }: { params: Promise<{ local
                       <Link
                         href="/enquiry"
                         locale={locale}
-                        className="flex-1 text-center py-2.5 bg-[var(--accent)] text-white rounded-full text-[11px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors"
+                        className="flex-1 text-center py-2.5 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] text-[11px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors"
                       >
                         Exhibit Here
                       </Link>
                       <Link
                         href={`/booking`}
                         locale={locale}
-                        className="flex-1 text-center py-2.5 border border-[var(--line)] text-[var(--ink)] rounded-full text-[11px] font-medium tracking-[0.12em] uppercase hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+                        className="flex-1 text-center py-2.5 border-2 border-[var(--accent)] text-[var(--ink)] rounded-[var(--radius-btn)] text-[11px] font-bold tracking-[0.12em] uppercase hover:bg-[var(--accent)] hover:text-white transition-colors"
                       >
                         Check Dates
                       </Link>
@@ -206,19 +207,7 @@ export default async function ExpoZonePage({ params }: { params: Promise<{ local
         <div className="relative overflow-hidden mb-3">
           <div className="logo-marquee flex gap-3" style={{ animationDuration: "30s", width: "max-content" }}>
             {[...clientLogos, ...clientLogos].map((logo, i) => (
-              <div
-                key={`r1-${logo.id}-${i}`}
-                title={logo.name}
-                className="flex-shrink-0 h-16 px-5 rounded-xl border flex items-center justify-center gap-2"
-                style={{ background: logo.bg, borderColor: `${logo.color}30`, minWidth: 140 }}
-              >
-                <span className="text-[13px] font-bold tracking-[0.04em]" style={{ color: logo.color }}>
-                  {logo.abbr}
-                </span>
-                <span className="text-[11px] hidden sm:block opacity-70" style={{ color: logo.color }}>
-                  {logo.name.length > 14 ? logo.name.slice(0, 14) + "…" : logo.name}
-                </span>
-              </div>
+              <PartnerLogo key={`r1-${logo.id}-${i}`} logo={logo} />
             ))}
           </div>
           <div className="absolute inset-y-0 start-0 w-24 bg-gradient-to-r from-[var(--bg)] to-transparent pointer-events-none z-10" />
@@ -228,19 +217,7 @@ export default async function ExpoZonePage({ params }: { params: Promise<{ local
         <div className="relative overflow-hidden">
           <div className="logo-marquee-reverse flex gap-3" style={{ animationDuration: "24s", width: "max-content" }}>
             {[...clientLogos.slice(6), ...clientLogos, ...clientLogos.slice(0, 6)].map((logo, i) => (
-              <div
-                key={`r2-${logo.id}-${i}`}
-                title={logo.name}
-                className="flex-shrink-0 h-16 px-5 rounded-xl border flex items-center justify-center gap-2"
-                style={{ background: logo.bg, borderColor: `${logo.color}30`, minWidth: 140 }}
-              >
-                <span className="text-[13px] font-bold tracking-[0.04em]" style={{ color: logo.color }}>
-                  {logo.abbr}
-                </span>
-                <span className="text-[11px] hidden sm:block opacity-70" style={{ color: logo.color }}>
-                  {logo.name.length > 14 ? logo.name.slice(0, 14) + "…" : logo.name}
-                </span>
-              </div>
+              <PartnerLogo key={`r2-${logo.id}-${i}`} logo={logo} />
             ))}
           </div>
           <div className="absolute inset-y-0 start-0 w-24 bg-gradient-to-r from-[var(--bg)] to-transparent pointer-events-none z-10" />
@@ -287,7 +264,7 @@ export default async function ExpoZonePage({ params }: { params: Promise<{ local
               <Link
                 href="/enquiry"
                 locale={locale}
-                className="inline-flex items-center gap-2 bg-[var(--accent)] text-white rounded-full px-8 py-4 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors"
+                className="inline-flex items-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] px-8 py-4 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors"
               >
                 Send Expo Enquiry
                 <ArrowRight size={14} weight="bold" />
@@ -295,7 +272,7 @@ export default async function ExpoZonePage({ params }: { params: Promise<{ local
               <Link
                 href="/contact"
                 locale={locale}
-                className="inline-flex items-center gap-2 border border-[var(--ink)] text-[var(--ink)] rounded-full px-8 py-4 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--ink)] hover:text-[var(--bg)] transition-colors"
+                className="inline-flex items-center gap-2 border-2 border-[var(--accent)] text-[var(--ink)] rounded-[var(--radius-btn)] px-8 py-4 text-[12px] font-bold tracking-[0.12em] uppercase hover:bg-[var(--accent)] hover:text-white transition-colors"
               >
                 Contact Expo Team
               </Link>

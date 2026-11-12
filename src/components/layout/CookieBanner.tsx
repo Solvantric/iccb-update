@@ -30,7 +30,7 @@ export function CookieBanner() {
       <div className="flex gap-3 flex-shrink-0">
         <button
           onClick={accept}
-          className="bg-[var(--accent)] text-white rounded-full px-5 py-2 text-[12px] font-medium tracking-wider uppercase hover:bg-[var(--accent-hover)] transition-colors"
+          className="bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] px-5 py-2 text-[12px] font-bold tracking-wider uppercase hover:brightness-110 transition-colors"
         >
           Accept
         </button>

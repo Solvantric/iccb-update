@@ -68,7 +68,7 @@ export default function EnquiryPage() {
 
   if (submitted) {
     return (
-      <div className="pt-20 md:pt-24 min-h-[60vh] flex items-center justify-center px-4">
+      <div className="pt-[88px] sm:pt-[112px] min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <CheckCircle size={56} className="text-[var(--status-success)] mx-auto mb-5" weight="light" />
           <h2 className="font-display text-3xl text-[var(--ink)] font-light uppercase mb-3">Enquiry Received!</h2>
@@ -84,7 +84,7 @@ export default function EnquiryPage() {
   }
 
   return (
-    <div className="pt-20 md:pt-24">
+    <div className="pt-[88px] sm:pt-[112px]">
       {/* Page header */}
       <section className="bg-[var(--bg-soft)] py-12 border-b border-[var(--line)]">
         <div className="max-w-[1440px] mx-auto px-[clamp(1rem,4vw,3rem)]">
@@ -200,7 +200,7 @@ export default function EnquiryPage() {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="w-full flex items-center justify-center gap-2 bg-[var(--accent)] text-white rounded-full py-4 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors"
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] py-4 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors"
                 >
                   Next: Contact Info
                   <ArrowRight size={14} weight="bold" />
@@ -265,7 +265,7 @@ export default function EnquiryPage() {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="flex-1 py-4 border border-[var(--line)] text-[var(--ink)] rounded-full text-[12px] font-medium tracking-[0.12em] uppercase hover:border-[var(--ink)] transition-colors"
+                    className="flex-1 py-4 border-2 border-[var(--accent)] text-[var(--ink)] rounded-[var(--radius-btn)] text-[12px] font-bold tracking-[0.12em] uppercase hover:border-[var(--ink)] transition-colors"
                   >
                     Back
                   </button>
@@ -273,7 +273,7 @@ export default function EnquiryPage() {
                     type="button"
                     onClick={handleNext}
                     disabled={!form.name || !form.phone}
-                    className="flex-[2] flex items-center justify-center gap-2 bg-[var(--accent)] text-white rounded-full py-4 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                    className="flex-[2] flex items-center justify-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] py-4 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   >
                     Next: Review
                     <ArrowRight size={14} weight="bold" />
@@ -314,14 +314,14 @@ export default function EnquiryPage() {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="flex-1 py-4 border border-[var(--line)] text-[var(--ink)] rounded-full text-[12px] font-medium tracking-[0.12em] uppercase hover:border-[var(--ink)] transition-colors"
+                    className="flex-1 py-4 border-2 border-[var(--accent)] text-[var(--ink)] rounded-[var(--radius-btn)] text-[12px] font-bold tracking-[0.12em] uppercase hover:border-[var(--ink)] transition-colors"
                   >
                     Edit
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-[2] flex items-center justify-center gap-2 bg-[var(--accent)] text-white rounded-full py-4 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
+                    className="flex-[2] flex items-center justify-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] py-4 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors disabled:opacity-50"
                   >
                     {loading ? "Submitting…" : "Submit Enquiry"}
                     <ArrowRight size={14} weight="bold" />

@@ -1,6 +1,5 @@
 import { Link } from "@/lib/i18n/navigation";
 import type { Locale } from "@/lib/i18n/routing";
-import { RevealBlock } from "@/components/motion/RevealBlock";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 
 function WhatsAppIcon({ size = 16 }: { size?: number }) {
@@ -19,40 +18,31 @@ export function FinalCTA({ locale }: FinalCTAProps) {
   const wa = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "8801991197719";
 
   return (
-    <section className="bg-[var(--accent)] py-[clamp(4rem,8vw,7rem)]">
-      <div className="max-w-[1440px] mx-auto px-[clamp(1rem,4vw,3rem)] text-center">
-        <RevealBlock>
-          <span className="text-white/60 text-[11px] tracking-[0.18em] uppercase block mb-4">
-            (GET IN TOUCH)
-          </span>
-          <h2 className="font-display text-white font-light uppercase leading-tight mb-6"
-            style={{ fontSize: "clamp(2.5rem, 5vw, 5rem)" }}
+    <section className="bg-[var(--accent)] py-4">
+      <div className="container-site flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6">
+        <p className="text-white text-[14px] md:text-[15px] font-medium text-center md:text-start">
+          <span className="text-white/60 text-[11px] tracking-[0.18em] uppercase me-3">Get in touch</span>
+          Planning an event? Let&apos;s hold your date.
+        </p>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <Link
+            href="/enquiry"
+            locale={locale}
+            className="inline-flex items-center gap-2 bg-white text-[var(--accent)] rounded-[var(--radius-btn)] px-4 py-2 text-[12px] font-bold tracking-[0.1em] uppercase hover:bg-white/90 transition-colors"
           >
-            Planning an event?<br />Let&apos;s hold your date.
-          </h2>
-          <p className="text-white/70 text-[16px] mb-10 max-w-lg mx-auto">
-            Our team responds within 2 hours. Talk to a sales manager, check availability, or just say hello.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/enquiry"
-              locale={locale}
-              className="inline-flex items-center justify-center gap-2 bg-white text-[var(--accent)] rounded-full px-8 py-4 text-[13px] font-medium tracking-[0.12em] uppercase hover:bg-white/90 transition-colors"
-            >
-              Make an Enquiry
-              <ArrowRight size={14} weight="bold" />
-            </Link>
-            <a
-              href={`https://wa.me/${wa}?text=${encodeURIComponent("Hello, I'd like to plan an event at ICCB.")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 border border-white/40 text-white rounded-full px-8 py-4 text-[13px] font-medium tracking-[0.12em] uppercase hover:bg-white/10 hover:border-white transition-colors"
-            >
-              <WhatsAppIcon size={16} />
-              Chat on WhatsApp
-            </a>
-          </div>
-        </RevealBlock>
+            Make an Enquiry
+            <ArrowRight size={12} weight="bold" className="rtl:-scale-x-100" />
+          </Link>
+          <a
+            href={`https://wa.me/${wa}?text=${encodeURIComponent("Hello, I'd like to plan an event at ICCB.")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 border border-white/50 text-white rounded-[var(--radius-btn)] px-4 py-2 text-[12px] font-bold tracking-[0.1em] uppercase hover:bg-white/10 hover:border-white transition-colors"
+          >
+            <WhatsAppIcon size={14} />
+            WhatsApp
+          </a>
+        </div>
       </div>
     </section>
   );

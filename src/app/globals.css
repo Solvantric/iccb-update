@@ -1,18 +1,21 @@
 @import "tailwindcss";
 
 /* ─── Design Tokens ──────────────────────────────────────────────────────── */
+/* Palette follows the Bashundhara Group red/white system:
+   brand red #EB2127 · deep red #AC090A · ink #000 · slate copy #30333F
+   charcoal #6D6E71 · fog #F1F2F2 · mist #E9EAEA                         */
 @theme inline {
-  --color-brand-50:  #FEF2F3;
-  --color-brand-100: #FDE3E6;
-  --color-brand-200: #FBCCD2;
-  --color-brand-300: #F6A4AE;
-  --color-brand-400: #EE7483;
-  --color-brand-500: #E24F5F;
-  --color-brand-600: #CE3447;
-  --color-brand-700: #AD2739;
-  --color-brand-800: #912336;
-  --color-brand-900: #7C2134;
-  --color-brand-950: #450D18;
+  --color-brand-50:  #FEF2F2;
+  --color-brand-100: #FDE3E4;
+  --color-brand-200: #FBCBCD;
+  --color-brand-300: #F7A3A6;
+  --color-brand-400: #F16A6E;
+  --color-brand-500: #EB2127;
+  --color-brand-600: #D11319;
+  --color-brand-700: #AC090A;
+  --color-brand-800: #8C0C0F;
+  --color-brand-900: #740F12;
+  --color-brand-950: #400405;
 
   --color-bg:           var(--bg);
   --color-bg-soft:      var(--bg-soft);
@@ -26,34 +29,39 @@
   --color-accent:       var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-text:  var(--accent-text);
+  --color-accent-deep:  var(--accent-deep);
   --color-on-accent:    var(--on-accent);
 
-  --font-display: var(--font-noto), "Noto Sans", system-ui, sans-serif;
-  --font-sans:    var(--font-noto), "Noto Sans", system-ui, sans-serif;
+  /* Oswald for display, Inter for text; Noto families cover bn / ar / zh glyphs */
+  --font-display: var(--font-oswald), var(--font-noto-bengali), var(--font-noto-arabic), var(--font-noto-sc), var(--font-noto), system-ui, sans-serif;
+  --font-sans:    var(--font-inter), var(--font-noto-bengali), var(--font-noto-arabic), var(--font-noto-sc), var(--font-noto), system-ui, sans-serif;
 
   --radius-pill:      9999px;
-  --radius-btn:       6px;
+  --radius-btn:       4px;
   --radius-card:      4px;
-  --radius-card-lg:   8px;
-  --radius-input:     6px;
+  --radius-card-lg:   6px;
+  --radius-input:     4px;
   --radius-dash-card: 10px;
 }
 
 /* ─── Light mode ─────────────────────────────────────────────────────────── */
 :root {
   --bg:           #FFFFFF;
-  --bg-soft:      #F7F7F8;
-  --bg-tint:      #FEF2F3;
-  --bg-deep:      #1C1A1F;        /* only used in dark-photo overlays & dashboard */
+  --bg-soft:      #F1F2F2;
+  --bg-tint:      #FEF2F2;
+  --bg-deep:      #15171C;        /* only used in dark-photo overlays & dashboard */
   --surface:      #FFFFFF;
-  --ink:          #2B2A2E;
-  --ink-body:     #55525A;
-  --ink-muted:    #8A8790;
-  --line:         #E8E6EA;
-  --accent:       #E24F5F;
-  --accent-hover: #CE3447;
-  --accent-text:  #AD2739;
+  --ink:          #000000;
+  --ink-body:     #30333F;
+  --ink-muted:    #6D6E71;
+  --line:         #E9EAEA;
+  --accent:       #EB2127;
+  --accent-hover: #D11319;
+  --accent-text:  #D11319;
+  --accent-deep:  #AC090A;
   --on-accent:    #FFFFFF;
+  --accent-glow:  color-mix(in srgb, #EB2127 18%, transparent);
+  --shadow-card:  0 18px 40px -18px color-mix(in srgb, #30333F 28%, transparent);
 
   --status-reserved-bg:    #FEF3C7;
   --status-reserved-color: #F59E0B;
@@ -66,19 +74,22 @@
 
 /* ─── Dark mode ──────────────────────────────────────────────────────────── */
 .dark {
-  --bg:           #111013;
-  --bg-soft:      #18151A;
-  --bg-tint:      #1E1821;
-  --bg-deep:      #0C0A0E;
-  --surface:      #1C191F;
-  --ink:          #F3F0F5;
-  --ink-body:     #C8C3CC;
-  --ink-muted:    #8A8790;
-  --line:         #2E2A32;
-  --accent:       #E24F5F;
-  --accent-hover: #EE7483;
-  --accent-text:  #EE7483;
+  --bg:           #0E0F11;
+  --bg-soft:      #15171A;
+  --bg-tint:      #1F1213;
+  --bg-deep:      #08090A;
+  --surface:      #17191C;
+  --ink:          #F5F5F5;
+  --ink-body:     #C4C6CC;
+  --ink-muted:    #8E9096;
+  --line:         #262A30;
+  --accent:       #EB2127;
+  --accent-hover: #F04A4F;
+  --accent-text:  #FF5A5F;
+  --accent-deep:  #AC090A;
   --on-accent:    #FFFFFF;
+  --accent-glow:  color-mix(in srgb, #EB2127 28%, transparent);
+  --shadow-card:  0 18px 40px -18px rgba(0, 0, 0, 0.7);
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
@@ -99,26 +110,29 @@ body {
 }
 
 /* ─── Locale font overrides ──────────────────────────────────────────────── */
-[lang="bn"] { font-family: var(--font-noto-bengali), var(--font-noto), sans-serif; }
-[lang="ar"] { font-family: var(--font-noto-arabic), var(--font-noto), sans-serif; }
-[lang="zh"] { font-family: var(--font-noto-sc), var(--font-noto), sans-serif; }
+[lang="bn"] { font-family: var(--font-noto-bengali), var(--font-inter), sans-serif; }
+[lang="ar"] { font-family: var(--font-noto-arabic), var(--font-inter), sans-serif; }
+[lang="zh"] { font-family: var(--font-noto-sc), var(--font-inter), sans-serif; }
 
+@layer components {
 /* ─── Typography Scale ───────────────────────────────────────────────────── */
-/* Primary heading (h1 / hero) */
+/* Primary heading (h1 / hero) — Oswald, uppercase, tight */
 .text-hero {
+  font-family: var(--font-display);
   font-size: clamp(2.5rem, 6vw, 5.25rem);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.02;
+  text-transform: uppercase;
   color: var(--ink);
 }
 
-/* Section heading (h2) */
+/* Section heading (h2) — Inter bold, tight tracking */
 .text-h2 {
   font-size: clamp(2rem, 4vw, 3.25rem);
   font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
   color: var(--ink);
 }
 
@@ -126,17 +140,36 @@ body {
 .text-h3 {
   font-size: clamp(1.375rem, 2vw, 1.75rem);
   font-weight: 700;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.01em;
   line-height: 1.2;
   color: var(--ink);
 }
 
-/* Eyebrow / meta label */
-.text-eyebrow,
+/* Eyebrow — red, bold, wide tracking, leading red dash */
+.text-eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+.text-eyebrow::before {
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  width: 22px;
+  height: 2px;
+  margin-inline-end: 10px;
+  margin-top: -2px;
+  background: currentColor;
+}
+
+/* Meta label — muted form / data label */
 .meta-label {
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-muted);
 }
@@ -145,25 +178,26 @@ body {
 .display-xl {
   font-size: clamp(2.5rem, 6vw, 5.25rem);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.025em;
   line-height: 1.1;
 }
 .display-lg {
   font-size: clamp(2rem, 4vw, 3.25rem);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.025em;
   line-height: 1.1;
 }
 .display-md {
   font-size: clamp(1.375rem, 2vw, 1.75rem);
   font-weight: 700;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.01em;
   line-height: 1.2;
 }
 
 /* RTL: no uppercase / letter-spacing on labels */
 [dir="rtl"] .text-eyebrow,
 [dir="rtl"] .meta-label,
+[dir="rtl"] .text-hero,
 [dir="rtl"] .display-xl,
 [dir="rtl"] .display-lg,
 [dir="rtl"] .display-md {
@@ -171,51 +205,79 @@ body {
   letter-spacing: 0;
 }
 
+/* Big red step / index number (01, 02 …) */
+.num-accent {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 0.85;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ─── Buttons ────────────────────────────────────────────────────────────── */
 .btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   height: 52px;
   padding: 0 28px;
   border-radius: var(--radius-btn);
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 700;
+  font-size: 14px;
   line-height: 1;
-  letter-spacing: 0.01em;
-  transition: background 0.25s ease, color 0.25s ease,
-              border-color 0.25s ease, gap 0.2s ease, box-shadow 0.25s ease;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease,
+              gap 0.25s ease, box-shadow 0.3s ease, transform 0.3s ease;
   cursor: pointer;
   white-space: nowrap;
-  border: 1.5px solid transparent;
+  border: 2px solid transparent;
   text-decoration: none;
 }
-.btn-sm { height: 44px; padding: 0 20px; font-size: 13px; }
+.btn-sm { height: 44px; padding: 0 20px; font-size: 12px; }
+[dir="rtl"] .btn { text-transform: none; letter-spacing: 0; }
 
+/* Primary — red → deep red gradient with a light sweep on hover */
 .btn-primary {
-  background: var(--accent);
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-deep) 100%);
   color: var(--on-accent);
-  border-color: var(--accent);
+  border-color: transparent;
+  box-shadow: 0 8px 22px -10px var(--accent-glow);
+}
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.28) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .btn-primary:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
   gap: 12px;
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px -12px var(--accent-glow);
 }
+.btn-primary:hover::after { transform: translateX(120%); }
 
+/* Secondary — red outline, fills red on hover */
 .btn-secondary {
-  background: var(--surface);
+  background: transparent;
   color: var(--ink);
-  border-color: var(--line);
+  border-color: var(--accent);
 }
 .btn-secondary:hover {
+  background: var(--accent);
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--on-accent);
   gap: 12px;
 }
 
 @media (max-width: 767px) {
-  .btn { height: 48px; padding: 0 20px; font-size: 14px; }
+  .btn { height: 48px; padding: 0 20px; font-size: 13px; }
 }
 
 /* ─── Cards ──────────────────────────────────────────────────────────────── */
@@ -225,14 +287,85 @@ body {
   border-radius: var(--radius-card);
 }
 .card-hover {
-  transition: box-shadow 0.3s ease-out, transform 0.3s ease-out;
+  position: relative;
+  transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.4s ease;
 }
+/* red top rule draws in on hover */
+.card-hover::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: -1px;
+  height: 3px;
+  z-index: 2;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[dir="rtl"] .card-hover::before { transform-origin: right; }
 .card-hover:hover {
-  box-shadow: 0 12px 32px rgba(43, 42, 46, 0.08);
+  box-shadow: var(--shadow-card);
   transform: translateY(-4px);
 }
-.dark .card-hover:hover {
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+.card-hover:hover::before { transform: scaleX(1); }
+
+/* Static accent card: 3px red top border + small red square marker */
+.card-accent {
+  position: relative;
+  border-top: 3px solid var(--accent);
+}
+.card-accent::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  inset-inline-start: -2px;
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+}
+
+/* Red corner-bracket frame around images */
+.frame-corners { position: relative; }
+.frame-corners::before,
+.frame-corners::after {
+  content: "";
+  position: absolute;
+  width: clamp(4.5rem, 12vw, 9rem);
+  height: 3.5rem;
+  pointer-events: none;
+  z-index: 1;
+}
+.frame-corners::before {
+  top: -12px; inset-inline-start: -12px;
+  border-top: 2px solid var(--accent);
+  border-inline-start: 2px solid var(--accent);
+}
+.frame-corners::after {
+  bottom: -12px; inset-inline-end: -12px;
+  border-bottom: 2px solid var(--accent);
+  border-inline-end: 2px solid var(--accent);
+}
+
+/* Red icon chip (service / feature icons) */
+.icon-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-card);
+  background: var(--bg-tint);
+  color: var(--accent);
+  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+.group:hover .icon-chip {
+  background: var(--accent);
+  color: var(--on-accent);
+  transform: translateY(-2px);
+}
 }
 
 /* ─── Layout helpers ─────────────────────────────────────────────────────── */
@@ -296,7 +429,6 @@ body {
   height: 3px;
   width: 48px;
   background: var(--accent);
-  border-radius: 2px;
   margin-top: 14px;
 }
 

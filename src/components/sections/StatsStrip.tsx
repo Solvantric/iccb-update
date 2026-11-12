@@ -13,7 +13,7 @@ export function StatsStrip() {
             { counter: 1, suffix: "", label: "Expo Village", prefix: "" },
           ].map((stat, i) => (
             <RevealItem key={i} className="text-center md:border-e last:border-0 border-[var(--line)] px-4">
-              <div className="font-display text-5xl md:text-6xl text-[var(--ink)] font-light leading-none mb-2">
+              <div className="font-display text-5xl md:text-6xl text-[var(--accent)] font-semibold leading-none mb-2">
                 <AnimatedCounter
                   to={stat.counter}
                   suffix={stat.suffix}

@@ -26,9 +26,9 @@ export const ventures: Venture[] = [
       "ICCB Catering operates a state-of-the-art kitchen staffed by experienced chefs, delivering authentic Mughal, Continental, and multi-cuisine menus with strict quality control from farm to table.",
     type: "catering",
     image:
-      "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&q=95&w=1600",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=90&w=1600",
     heroImage:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=95&w=3840",
+      "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=90&w=1600",
     stats: [
       { label: "Events catered / year", value: "200+" },
       { label: "Menu packages", value: "12+" },
@@ -55,9 +55,9 @@ export const ventures: Venture[] = [
       "Opened in June 2021, ICCB Heritage Restaurant offers an authentic Mughal-themed dining experience within the convention complex. Featuring royal ambiance, traditional recipes, and impeccable service.",
     type: "restaurant",
     image:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=95&w=1600",
+      "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?auto=format&fit=crop&q=90&w=1600",
     heroImage:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=95&w=3840",
+      "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?auto=format&fit=crop&q=90&w=1600",
     stats: [
       { label: "Opened", value: "June 2021" },
       { label: "Seating capacity", value: "120+" },
@@ -85,9 +85,9 @@ export const ventures: Venture[] = [
       "ICCB Restaurant is a modern multi-cuisine dining destination within the convention complex, offering a diverse menu for delegates, visitors, and event guests.",
     type: "restaurant",
     image:
-      "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?auto=format&fit=crop&q=95&w=1600",
+      "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&q=90&w=1600",
     heroImage:
-      "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?auto=format&fit=crop&q=95&w=3840",
+      "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&q=90&w=1600",
     stats: [
       { label: "Seating capacity", value: "200+" },
       { label: "Menu items", value: "80+" },
@@ -114,9 +114,9 @@ export const ventures: Venture[] = [
       "ICCB Ice Cream brings a premium artisanal ice cream experience to the convention complex and beyond, with rotating seasonal flavours, sundaes, and corporate gifting options.",
     type: "icecream",
     image:
-      "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&q=95&w=1600",
+      "https://images.unsplash.com/photo-1560624052-449f5ddf0c31?auto=format&fit=crop&q=90&w=1600",
     heroImage:
-      "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&q=95&w=3840",
+      "https://images.unsplash.com/photo-1560624052-449f5ddf0c31?auto=format&fit=crop&q=90&w=1600",
     stats: [
       { label: "Flavours", value: "24+" },
       { label: "Seasonal specials", value: "6/year" },

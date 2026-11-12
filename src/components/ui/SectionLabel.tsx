@@ -10,8 +10,8 @@ export function SectionLabel({ children, className, light }: SectionLabelProps) 
   return (
     <span
       className={cn(
-        "meta-label",
-        light && "text-white/50",
+        "text-eyebrow",
+        light && "text-white/80",
         className
       )}
     >

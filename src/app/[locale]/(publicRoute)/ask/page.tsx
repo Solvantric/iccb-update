@@ -33,7 +33,7 @@ export default function AskPage() {
 
   if (submitted) {
     return (
-      <div className="pt-20 md:pt-24 min-h-[60vh] flex items-center justify-center px-4">
+      <div className="pt-[88px] sm:pt-[112px] min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <CheckCircle size={56} className="text-[var(--status-success)] mx-auto mb-5" weight="light" />
           <h2 className="font-display text-3xl text-[var(--ink)] font-light uppercase mb-3">
@@ -48,7 +48,7 @@ export default function AskPage() {
   }
 
   return (
-    <div className="pt-20 md:pt-24">
+    <div className="pt-[88px] sm:pt-[112px]">
       <section className="bg-[var(--bg-soft)] py-12 border-b border-[var(--line)]">
         <div className="max-w-[1440px] mx-auto px-[clamp(1rem,4vw,3rem)]">
           <RevealBlock>
@@ -120,7 +120,7 @@ export default function AskPage() {
               <button
                 type="submit"
                 disabled={loading || !form.name || !form.question}
-                className="w-full flex items-center justify-center gap-2 bg-[var(--accent)] text-white rounded-full py-4 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] py-4 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors disabled:opacity-50 disabled:pointer-events-none"
               >
                 {loading ? "Sending…" : "Send Question"}
                 <ArrowRight size={14} weight="bold" />

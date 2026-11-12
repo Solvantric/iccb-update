@@ -1,14 +1,29 @@
 import type { Metadata } from "next";
-import { Noto_Sans, Noto_Sans_Bengali, Noto_Sans_Arabic, Noto_Sans_SC } from "next/font/google";
+import { Inter, Oswald, Noto_Sans, Noto_Sans_Bengali, Noto_Sans_Arabic, Noto_Sans_SC } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  preload: true,
+});
+
+const oswald = Oswald({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-oswald",
+  display: "swap",
+  preload: true,
+});
 
 const notoSans = Noto_Sans({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
   variable: "--font-noto",
   display: "swap",
-  preload: true,
+  preload: false,
 });
 
 const notoSansBengali = Noto_Sans_Bengali({
@@ -47,15 +62,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
-      className={`${notoSans.variable} ${notoSansBengali.variable} ${notoSansArabic.variable} ${notoSansSC.variable}`}
+      className={`${inter.variable} ${oswald.variable} ${notoSans.variable} ${notoSansBengali.variable} ${notoSansArabic.variable} ${notoSansSC.variable}`}
       suppressHydrationWarning
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <div id="scroll-progress" aria-hidden="true" />
       </head>
       <body className="min-h-screen flex flex-col bg-bg text-ink antialiased">
+        <div id="scroll-progress" aria-hidden="true" />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           {children}
         </ThemeProvider>

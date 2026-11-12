@@ -18,7 +18,7 @@ const SLIDES = [
     id: "grand-hall",
     lines: ["Where the World", "Meets in"],
     highlight: "Dhaka.",
-    sub: "South Asia's largest convention centre · 4 halls · 10,000+ guests",
+    sub: "South Asia's largest convention centre",
   },
   {
     id: "expo",
@@ -101,8 +101,8 @@ export function HeroSlider({ locale }: HeroSliderProps) {
 
   return (
     <section
-      className="relative overflow-hidden bg-[var(--bg-deep)]"
-      style={{ height: "clamp(640px, 88vh, 1080px)" }}
+      className="relative overflow-hidden bg-[var(--bg-deep)] mt-[88px] sm:mt-[112px]"
+      style={{ height: "clamp(560px, calc(100vh - 112px), 1080px)" }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-label="ICCB hero carousel"
@@ -134,6 +134,7 @@ export function HeroSlider({ locale }: HeroSliderProps) {
               fill
               className="object-cover"
               priority={index === 0}
+              quality={90}
               sizes="100vw"
             />
           </motion.div>
@@ -144,15 +145,8 @@ export function HeroSlider({ locale }: HeroSliderProps) {
         </motion.div>
       </AnimatePresence>
 
-      {/* Slide counter / dots top-left */}
-      <div className="absolute top-24 md:top-28 start-[clamp(1rem,4vw,3rem)] flex items-center gap-3 z-10">
-        <span className="text-white/60 text-[11px] font-semibold tracking-[0.2em] uppercase">
-          0{index + 1} / 0{SLIDES.length}
-        </span>
-      </div>
-
       {/* Main content */}
-      <div className="relative z-10 h-full flex flex-col justify-center pt-24 pb-24 px-[clamp(1rem,4vw,3rem)]">
+      <div className="relative z-10 h-full flex flex-col justify-center py-16 px-[clamp(1rem,4vw,3rem)]">
         <div className="container-wide mx-0">
           {/* Text per slide */}
           <AnimatePresence mode="wait">
@@ -217,7 +211,7 @@ export function HeroSlider({ locale }: HeroSliderProps) {
       </div>
 
       {/* Controls bar */}
-      <div className="absolute bottom-6 start-[clamp(1rem,4vw,3rem)] z-20 flex items-center gap-4">
+      <div className="absolute bottom-6 md:bottom-28 start-[clamp(1rem,4vw,3rem)] z-20 flex items-center gap-4">
         <button onClick={prev} aria-label="Previous slide"
           className="w-10 h-10 rounded-full border border-white/30 text-white flex items-center justify-center hover:border-white hover:bg-white/10 transition-colors">
           <ArrowLeft size={16} />

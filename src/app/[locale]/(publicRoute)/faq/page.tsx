@@ -27,7 +27,7 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
   const locale = (routing.locales.includes(rawLocale as Locale) ? rawLocale : "en") as Locale;
 
   return (
-    <div className="pt-20 md:pt-24">
+    <div className="pt-[88px] sm:pt-[112px]">
       {/* Page header */}
       <section className="bg-[var(--bg-soft)] py-12 border-b border-[var(--line)]">
         <div className="max-w-[1440px] mx-auto px-[clamp(1rem,4vw,3rem)]">
@@ -61,7 +61,7 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
               <Link
                 href="/contact"
                 locale={locale}
-                className="inline-flex items-center gap-2 bg-[var(--accent)] text-white rounded-full px-6 py-3.5 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors"
+                className="inline-flex items-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] px-6 py-3.5 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors"
               >
                 Contact Us
                 <ArrowRight size={13} weight="bold" />
@@ -69,7 +69,7 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
               <Link
                 href="/enquiry"
                 locale={locale}
-                className="inline-flex items-center gap-2 border border-[var(--ink)] text-[var(--ink)] rounded-full px-6 py-3.5 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--ink)] hover:text-[var(--bg)] transition-colors"
+                className="inline-flex items-center gap-2 border-2 border-[var(--accent)] text-[var(--ink)] rounded-[var(--radius-btn)] px-6 py-3.5 text-[12px] font-bold tracking-[0.12em] uppercase hover:bg-[var(--accent)] hover:text-white transition-colors"
               >
                 Send Enquiry
               </Link>

@@ -19,7 +19,7 @@ export default async function VenuesPage({ params }: { params: Promise<{ locale:
   const locale = (routing.locales.includes(rawLocale as Locale) ? rawLocale : "en") as Locale;
 
   return (
-    <div className="pt-20 md:pt-24">
+    <div className="pt-[88px] sm:pt-[112px]">
       <section className="bg-[var(--bg-soft)] py-12 border-b border-[var(--line)]">
         <div className="max-w-[1440px] mx-auto px-[clamp(1rem,4vw,3rem)]">
           <RevealBlock>
@@ -46,7 +46,7 @@ export default async function VenuesPage({ params }: { params: Promise<{ locale:
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute top-3 start-3 bg-[var(--accent)] text-white rounded-full px-3 py-1.5 text-[10px] font-medium tracking-wider uppercase">
+                    <div className="absolute top-3 start-3 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase">
                       0{i + 1}
                     </div>
                   </div>
@@ -103,7 +103,7 @@ export default async function VenuesPage({ params }: { params: Promise<{ locale:
             <Link
               href="/booking"
               locale={locale}
-              className="inline-flex items-center gap-2 bg-[var(--accent)] text-white rounded-full px-8 py-4 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors"
+              className="inline-flex items-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] px-8 py-4 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors"
             >
               Check Availability
               <ArrowRight size={14} weight="bold" />

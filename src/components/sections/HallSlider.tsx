@@ -50,7 +50,7 @@ export function HallSlider({ locale }: HallSliderProps) {
             </AnimatePresence>
 
             {/* Capacity pill */}
-            <div className="absolute top-4 start-4 bg-[var(--accent)] text-white rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.12em] uppercase flex items-center gap-2">
+            <div className="absolute top-4 start-4 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] text-white rounded-[var(--radius-btn)] px-4 py-2 text-[11px] font-bold tracking-[0.12em] uppercase flex items-center gap-2">
               <Users size={14} weight="light" />
               Up to {hall.capacity.theatre.toLocaleString()} guests
             </div>
@@ -133,7 +133,7 @@ export function HallSlider({ locale }: HallSliderProps) {
                   <Link
                     href="/enquiry"
                     locale={locale}
-                    className="flex items-center gap-2 bg-[var(--accent)] text-white rounded-full px-6 py-3 text-[11px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors"
+                    className="flex items-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] px-6 py-3 text-[11px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors"
                   >
                     Request a Quote
                     <ArrowRight size={13} weight="bold" />
@@ -141,7 +141,7 @@ export function HallSlider({ locale }: HallSliderProps) {
                   <Link
                     href={`/venues/${hall.slug}`}
                     locale={locale}
-                    className="flex items-center gap-2 border border-[var(--ink)] text-[var(--ink)] rounded-full px-6 py-3 text-[11px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--ink)] hover:text-[var(--bg)] transition-colors"
+                    className="flex items-center gap-2 border-2 border-[var(--accent)] text-[var(--ink)] rounded-[var(--radius-btn)] px-6 py-3 text-[11px] font-bold tracking-[0.12em] uppercase hover:bg-[var(--accent)] hover:text-white transition-colors"
                   >
                     View Details
                   </Link>

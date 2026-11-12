@@ -54,7 +54,7 @@ export function ServiceStrip({ locale }: ServiceStripProps) {
                   <Icon
                     size={40}
                     weight="duotone"
-                    className="text-[var(--ink-muted)] group-hover:text-[var(--accent)] transition-colors duration-200"
+                    className="text-[var(--accent)] group-hover:text-[var(--accent-deep)] transition-colors duration-200"
                   />
                 </motion.span>
 

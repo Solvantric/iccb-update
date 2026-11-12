@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="pt-20 md:pt-24">
+    <div className="pt-[88px] sm:pt-[112px]">
       <section className="bg-[var(--bg-soft)] py-12 border-b border-[var(--line)]">
         <div className="max-w-[1440px] mx-auto px-[clamp(1rem,4vw,3rem)]">
           <RevealBlock>

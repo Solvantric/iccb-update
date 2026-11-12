@@ -23,7 +23,7 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
   const [featured, ...rest] = newsArticles;
 
   return (
-    <div className="pt-20 md:pt-24">
+    <div className="pt-[88px] sm:pt-[112px]">
       {/* Page header */}
       <section className="bg-[var(--bg-soft)] py-12 border-b border-[var(--line)]">
         <div className="max-w-[1440px] mx-auto px-[clamp(1rem,4vw,3rem)]">

@@ -6,15 +6,16 @@ import { Link } from "@/lib/i18n/navigation";
 import { cn } from "@/lib/utils/cn";
 import { localeNames, type Locale } from "@/lib/i18n/routing";
 import {
-  List, X, Sun, Moon, Globe, ArrowRight, SquaresFour,
+  List, X, Sun, Moon, Globe, ArrowRight,
   CaretDown, Buildings, ForkKnife, Package, CalendarCheck,
-  Crown, Sparkle, Briefcase,
+  Crown, Sparkle,
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
 /* ─── Nav structure ──────────────────────────────────────────────────────── */
 const NAV_LINKS = [
+  { href: "/",        labelKey: "home" },
   { href: "/about",    labelKey: "about" },
   { href: "/why-iccb", labelKey: "whyIccb" },
   {
@@ -63,7 +64,7 @@ export function Header({ locale }: HeaderProps) {
     const handleScroll = () => {
       const y = window.scrollY;
       setScrollY(y);
-      setScrolled(y > 40);
+      setScrolled(y > 8);
       const el = document.getElementById("scroll-progress");
       if (el) {
         const pct = (y / (document.body.scrollHeight - window.innerHeight)) * 100;
@@ -95,169 +96,174 @@ export function Header({ locale }: HeaderProps) {
     dropdownTimer.current = setTimeout(() => setOpenDropdown(null), 120);
   };
 
-  /* Header height + logo size based on scroll */
-  const headerH = scrolled ? "h-[72px] md:h-[72px]" : "h-[72px] md:h-[96px]";
-  const logoH   = scrolled ? "h-10 md:h-12" : "h-12 md:h-[72px]";
-
   return (
     <>
-      <header
-        className={cn(
-          "fixed top-0 inset-x-0 z-50 bg-[var(--bg)] border-b border-[var(--line)] transition-all duration-[350ms] ease-out",
-          scrolled ? "shadow-[0_2px_16px_rgba(43,42,46,.06)]" : ""
-        )}
-      >
-        <div className={cn(
-          "container-wide flex items-center justify-between transition-all duration-[350ms] ease-out",
-          headerH
-        )}>
-          {/* Logo */}
-          <Link href="/" locale={locale} className="flex-shrink-0 flex items-center">
-            <div
-              className="relative transition-all duration-[350ms] ease-out flex-shrink-0"
-              style={{ width: scrolled ? "48px" : "64px", height: scrolled ? "48px" : "64px" }}
-            >
-              <Image
-                src="https://res.cloudinary.com/sgufp9aq/image/upload/v1794418824/iccb-logo.png"
-                alt="ICCB"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
+      {/* Header — mirrors bashundharaphcpile.com: max-w-6xl, 88/112px tall, shrinks to 64px on scroll */}
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-[var(--line)] bg-bg/80 backdrop-blur-md">
+        <div
+          className={cn(
+            "mx-auto flex max-w-6xl items-center justify-between px-4 transition-[height] duration-300 ease-out sm:px-6",
+            scrolled ? "h-16" : "h-[88px] sm:h-[112px]"
+          )}
+        >
+          {/* Logo — 72% of header height */}
+          <Link href="/" locale={locale} className="flex h-full items-center" aria-label="ICCB — home">
+            <Image
+              src="https://res.cloudinary.com/sgufp9aq/image/upload/v1794418824/iccb-logo.png"
+              alt="ICCB — International Convention City Bashundhara"
+              width={173}
+              height={161}
+              className="h-[72%] w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2" aria-label="Main navigation">
+          <nav className="hidden items-center gap-5 lg:flex xl:gap-7" aria-label="Main navigation">
             {NAV_LINKS.map((link) => {
               const active = isActive(link.href);
               const hasChildren = "children" in link && link.children;
+              const linkCls = cn(
+                "flex items-center gap-1 whitespace-nowrap border-b-2 pb-1 text-sm font-medium transition-colors",
+                active
+                  ? "border-[var(--accent)] text-[var(--accent)]"
+                  : "border-transparent text-[var(--ink)] hover:text-[var(--accent)]"
+              );
 
+              if (!hasChildren) {
+                return (
+                  <span key={link.href}>
+                    <Link href={link.href} locale={locale} className={linkCls}>
+                      {t(link.labelKey as never)}
+                    </Link>
+                  </span>
+                );
+              }
+
+              const open = openDropdown === link.href;
               return (
                 <div
                   key={link.href}
                   className="relative"
-                  onMouseEnter={() => hasChildren && openDD(link.href)}
+                  onMouseEnter={() => openDD(link.href)}
                   onMouseLeave={closeDD}
                 >
                   <Link
                     href={link.href}
                     locale={locale}
-                    className={cn(
-                      "flex items-center gap-1 px-3 py-2 text-[14px] font-semibold relative transition-colors duration-200",
-                      active
-                        ? "text-[var(--accent)]"
-                        : "text-[var(--ink)] hover:text-[var(--accent)]"
-                    )}
+                    aria-expanded={open}
+                    className={linkCls}
                   >
                     {t(link.labelKey as never)}
-                    {hasChildren && <CaretDown size={12} weight="bold" />}
-                    {/* Active underline */}
-                    {active && (
-                      <motion.span
-                        layoutId="nav-underline"
-                        className="absolute bottom-0 inset-x-3 h-0.5 bg-[var(--accent)] rounded-full"
-                      />
-                    )}
+                    <CaretDown
+                      size={16}
+                      className={cn("transition-transform", open && "rotate-180")}
+                      aria-hidden
+                    />
                   </Link>
 
-                  {/* Dropdown */}
-                  <AnimatePresence>
-                    {hasChildren && openDropdown === link.href && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                        transition={{ duration: 0.2 }}
-                        onMouseEnter={() => openDD(link.href)}
-                        onMouseLeave={closeDD}
-                        className="absolute top-full start-0 mt-1 bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius-card-lg)] shadow-xl min-w-[220px] py-2 z-50"
-                      >
-                        {(link as typeof NAV_LINKS[2]).children.map((child) => {
-                          const ChildIcon = child.icon;
-                          return (
-                            <Link
-                              key={child.href}
-                              href={child.href}
-                              locale={locale}
-                              onClick={() => setOpenDropdown(null)}
-                              className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-[var(--ink)] hover:text-[var(--accent)] hover:bg-[var(--bg-tint)] transition-colors"
-                            >
-                              <ChildIcon size={16} weight="duotone" className="text-[var(--ink-muted)]" />
-                              {child.label}
-                            </Link>
-                          );
-                        })}
-                      </motion.div>
+                  <div
+                    className={cn(
+                      "absolute start-0 top-full z-50 pt-4 transition-opacity",
+                      open ? "opacity-100" : "pointer-events-none opacity-0"
                     )}
-                  </AnimatePresence>
+                  >
+                    <ul className="min-w-[15rem] overflow-hidden rounded-md border border-[var(--line)] bg-[var(--bg)] py-1 shadow-lg">
+                      {(link as typeof NAV_LINKS[3]).children.map((child) => (
+                        <li key={child.href}>
+                          <Link
+                            href={child.href}
+                            locale={locale}
+                            tabIndex={open ? 0 : -1}
+                            onClick={() => setOpenDropdown(null)}
+                            className={cn(
+                              "block whitespace-nowrap px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bg-soft)] hover:text-[var(--accent)]",
+                              basePath === child.href ? "text-[var(--accent)]" : "text-[var(--ink)]"
+                            )}
+                          >
+                            {child.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               );
             })}
-          </nav>
-
-          {/* Right actions */}
-          <div className="flex items-center gap-2 md:gap-3">
-            {/* Language switcher */}
-            <div className="relative group hidden md:block">
-              <button className="flex items-center gap-1 text-[13px] font-semibold text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors px-2 py-1">
-                <Globe size={15} />
-                <span>{locale.toUpperCase()}</span>
-              </button>
-              <div className="absolute top-full end-0 mt-1.5 bg-[var(--surface)] border border-[var(--line)] rounded-lg shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity min-w-[130px] py-1 z-50">
-                {(Object.entries(localeNames) as [Locale, string][]).map(([loc, name]) => (
-                  <Link
-                    key={loc}
-                    href={pathname.replace(`/${locale}`, `/${loc}`) || "/"}
-                    locale={loc}
-                    className={cn(
-                      "block px-4 py-2 text-[13px] text-[var(--ink)] hover:text-[var(--accent)] hover:bg-[var(--bg-tint)] transition-colors",
-                      loc === locale && "text-[var(--accent)] font-semibold"
-                    )}
-                  >
-                    {name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              aria-label={isDark ? "Light mode" : "Dark mode"}
-              className="p-2 text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors"
-            >
-              {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-
-            {/* Dashboard */}
-            <Link
-              href="/dashboard"
-              className="hidden xl:flex items-center gap-1.5 text-[13px] font-semibold text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors px-2 py-1"
-            >
-              <SquaresFour size={16} />
-            </Link>
 
             {/* Divider */}
-            <span className="hidden md:block w-px h-6 bg-[var(--line)]" />
+            <span aria-hidden="true" className="h-6 w-px bg-[var(--line)]" />
 
-            {/* Book Now CTA */}
+            {/* Language + theme */}
+            <div className="flex items-center gap-3">
+              <div className="relative group">
+                <button
+                  type="button"
+                  aria-label="Change language"
+                  className="flex items-center gap-1 whitespace-nowrap text-sm font-medium text-[var(--ink)] transition-colors hover:text-[var(--accent)]"
+                >
+                  <Globe size={16} />
+                  <span>{locale.toUpperCase()}</span>
+                </button>
+                <div className="absolute end-0 top-full z-50 pt-4 opacity-0 pointer-events-none transition-opacity group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto">
+                  <ul className="min-w-[10rem] overflow-hidden rounded-md border border-[var(--line)] bg-[var(--bg)] py-1 shadow-lg">
+                    {(Object.entries(localeNames) as [Locale, string][]).map(([loc, name]) => (
+                      <li key={loc}>
+                        <Link
+                          href={pathname.replace(`/${locale}`, `/${loc}`) || "/"}
+                          locale={loc}
+                          className={cn(
+                            "block whitespace-nowrap px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bg-soft)] hover:text-[var(--accent)]",
+                            loc === locale ? "text-[var(--accent)]" : "text-[var(--ink)]"
+                          )}
+                        >
+                          {name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={isDark ? "Light mode" : "Dark mode"}
+                className="flex items-center text-[var(--ink)] transition-colors hover:text-[var(--accent)]"
+              >
+                {isDark ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+            </div>
+
+            {/* CTA */}
             <Link
               href="/booking"
               locale={locale}
-              className="btn btn-primary btn-sm hidden md:inline-flex"
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded-md bg-[var(--accent)] px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
             >
-              Book Now
-              <ArrowRight size={14} weight="bold" />
+              {t("bookNow" as never)}
+              <ArrowRight size={16} />
             </Link>
+          </nav>
 
-            {/* Mobile hamburger */}
+          {/* Mobile: theme + hamburger */}
+          <div className="flex items-center gap-1 lg:hidden">
             <button
-              onClick={() => setMenuOpen(true)}
-              aria-label="Open menu"
-              className="lg:hidden p-2 text-[var(--ink)]"
+              type="button"
+              onClick={toggleTheme}
+              aria-label={isDark ? "Light mode" : "Dark mode"}
+              className="inline-flex items-center justify-center p-2 text-[var(--ink)]"
             >
-              <List size={22} />
+              {isDark ? <Sun size={22} /> : <Moon size={22} />}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              aria-label={t("openMenu" as never)}
+              aria-expanded={menuOpen}
+              className="inline-flex items-center justify-center p-2 text-[var(--ink)]"
+            >
+              <List size={32} />
             </button>
           </div>
         </div>
@@ -321,7 +327,7 @@ export function Header({ locale }: HeaderProps) {
                       )}
                     >
                       {t(labelKey as never)}
-                      <ArrowRight size={16} className="text-[var(--ink-muted)]" />
+                      <ArrowRight size={16} className="text-[var(--accent)]" />
                     </Link>
                   </motion.div>
                 ))}

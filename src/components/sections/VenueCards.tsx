@@ -5,8 +5,8 @@ import type { Locale } from "@/lib/i18n/routing";
 import { motion } from "framer-motion";
 import { ArrowRight, Users, Ruler } from "@phosphor-icons/react";
 import { halls } from "@/data/halls";
-import { FadeUp, Stagger, LineGrow } from "@/components/motion/primitives";
-import { cn } from "@/lib/utils/cn";
+import { FadeUp } from "@/components/motion/primitives";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -26,27 +26,12 @@ export function VenueCards({ locale }: VenueCardsProps) {
     <section className="section-y bg-[var(--bg)]">
       <div className="container-site">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <FadeUp>
-              <span className="text-eyebrow">Featured Venues</span>
-            </FadeUp>
-            <FadeUp delay={0.08}>
-              <h2 className="text-h2 mt-2">
-                Featured venues at <span className="text-[var(--accent)]">ICCB</span>
-              </h2>
-              <LineGrow delay={0.15} />
-            </FadeUp>
-          </div>
-          <FadeUp delay={0.1}>
-            <Link href="/venues" locale={locale} className="btn btn-secondary btn-sm whitespace-nowrap">
-              Explore all venues <ArrowRight size={14} weight="bold" />
-            </Link>
-          </FadeUp>
-        </div>
+        <FadeUp>
+          <SectionHeading eyebrow="Featured Venues" title="Featured venues at" highlight="ICCB" />
+        </FadeUp>
 
         {/* Cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {halls.slice(0, 6).map((hall, i) => (
             <motion.article
               key={hall.id}
@@ -92,10 +77,10 @@ export function VenueCards({ locale }: VenueCardsProps) {
                   </p>
                   <div className="flex items-center justify-center gap-4 text-[12px] text-[var(--ink-muted)]">
                     <span className="flex items-center gap-1">
-                      <Ruler size={13} /> {hall.area.toLocaleString()} sq ft
+                      <Ruler size={14} weight="bold" className="text-[var(--accent)]" /> {hall.area.toLocaleString()} sq ft
                     </span>
                     <span className="flex items-center gap-1">
-                      <Users size={13} /> {hall.capacity.banquet.toLocaleString()} banquet
+                      <Users size={14} weight="bold" className="text-[var(--accent)]" /> {hall.capacity.banquet.toLocaleString()} banquet
                     </span>
                   </div>
                 </div>
@@ -103,6 +88,12 @@ export function VenueCards({ locale }: VenueCardsProps) {
             </motion.article>
           ))}
         </div>
+
+        <FadeUp delay={0.1} className="mt-10 flex justify-center">
+          <Link href="/venues" locale={locale} className="btn btn-secondary btn-sm whitespace-nowrap">
+            Explore all venues <ArrowRight size={14} weight="bold" />
+          </Link>
+        </FadeUp>
       </div>
     </section>
   );

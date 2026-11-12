@@ -57,7 +57,7 @@ interface FadeUpProps extends HTMLMotionProps<"div"> {
   className?: string;
 }
 
-export function FadeUp({ delay = 0, duration = 0.7, y = 32, className, children, ...rest }: FadeUpProps) {
+export function FadeUp({ delay = 0, duration = 0.8, y = 24, className, children, ...rest }: FadeUpProps) {
   const reduced = useReducedMotion();
   const mobile = useIsMobile();
   const actualY = mobile ? Math.min(y, 16) : y;
@@ -188,7 +188,7 @@ const staggerContainer: Variants = {
 };
 
 const staggerItem: Variants = {
-  hidden: { opacity: 0, y: 32 },
+  hidden: { opacity: 0, y: 24 },
   show: {
     opacity: 1,
     y: 0,

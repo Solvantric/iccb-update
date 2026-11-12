@@ -17,7 +17,7 @@ const variants: Variants = {
   hidden: (custom: { y: number }) => ({
     opacity: 0,
     y: custom.y,
-    filter: "blur(6px)",
+    filter: "blur(4px)",
   }),
   visible: {
     opacity: 1,
@@ -34,7 +34,7 @@ export function RevealBlock({
   children,
   className,
   delay = 0,
-  y = 48,
+  y = 28,
   once = true,
 }: RevealBlockProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -95,7 +95,7 @@ export function RevealItem({
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, y: 32, filter: "blur(4px)" },
+        hidden: { opacity: 0, y: 24, filter: "blur(3px)" },
         visible: {
           opacity: 1,
           y: 0,

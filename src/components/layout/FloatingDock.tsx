@@ -102,20 +102,15 @@ export function FloatingDock({ whatsappNumber, phone, onChatOpen }: FloatingDock
         </button>
       </div>
 
-      {/* Desktop: always visible dock */}
-      <div className="hidden md:flex flex-col gap-3">
+      {/* Desktop: always visible dock — buttons share one vertical axis */}
+      <div className="hidden md:flex flex-col items-end gap-3">
         {dockItems.map((item, i) => (
-          <div key={i} className="group flex items-center gap-3">
-            <AnimatePresence>
-              <motion.span
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 0 }}
-                whileHover={{ opacity: 1, x: 0 }}
-                className="bg-[var(--surface)] text-[var(--ink)] text-[12px] px-3 py-1.5 rounded-full shadow-sm border border-[var(--line)] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-              >
-                {item.label}
-              </motion.span>
-            </AnimatePresence>
+          <div key={i} className="group relative flex items-center">
+            <span
+              className="absolute end-full me-3 top-1/2 -translate-y-1/2 bg-[var(--surface)] text-[var(--ink)] text-[12px] px-3 py-1.5 rounded-full shadow-sm border border-[var(--line)] whitespace-nowrap opacity-0 translate-x-2 rtl:-translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pointer-events-none"
+            >
+              {item.label}
+            </span>
             {item.href ? (
               <a
                 href={item.href}

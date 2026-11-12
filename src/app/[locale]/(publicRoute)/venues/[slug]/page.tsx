@@ -43,7 +43,7 @@ export default async function HallDetailPage({ params }: { params: Promise<{ slu
   };
 
   return (
-    <div className="pt-20 md:pt-24">
+    <div className="pt-[88px] sm:pt-[112px]">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
 
       {/* Hero image */}
@@ -139,7 +139,7 @@ export default async function HallDetailPage({ params }: { params: Promise<{ slu
                 <Link
                   href={`/booking?hallId=${hall.id}`}
                   locale={locale}
-                  className="w-full flex items-center justify-center gap-2 bg-[var(--accent)] text-white rounded-full py-3.5 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors"
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] py-3.5 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors"
                 >
                   Check Availability
                   <ArrowRight size={14} weight="bold" />
@@ -147,7 +147,7 @@ export default async function HallDetailPage({ params }: { params: Promise<{ slu
                 <Link
                   href="/enquiry"
                   locale={locale}
-                  className="w-full mt-3 flex items-center justify-center gap-2 border border-[var(--ink)] text-[var(--ink)] rounded-full py-3.5 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--ink)] hover:text-[var(--bg)] transition-colors"
+                  className="w-full mt-3 flex items-center justify-center gap-2 border-2 border-[var(--accent)] text-[var(--ink)] rounded-[var(--radius-btn)] py-3.5 text-[12px] font-bold tracking-[0.12em] uppercase hover:bg-[var(--accent)] hover:text-white transition-colors"
                 >
                   Request a Quote
                 </Link>

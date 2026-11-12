@@ -102,7 +102,7 @@ export function VenuesHighlight({ locale }: VenuesHighlightProps) {
                     </div>
                     {/* Hover CTA */}
                     <div className="absolute top-4 end-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="bg-[var(--accent)] text-white text-[10px] tracking-[0.14em] uppercase px-3 py-1.5 rounded-full font-medium">
+                      <span className="bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white text-[10px] tracking-[0.14em] uppercase px-3 py-1.5 rounded-[var(--radius-btn)] font-bold">
                         View Details
                       </span>
                     </div>
@@ -134,7 +134,7 @@ export function VenuesHighlight({ locale }: VenuesHighlightProps) {
           <Link
             href="/venues"
             locale={locale}
-            className="inline-flex items-center gap-2 border border-[var(--ink)] text-[var(--ink)] rounded-full px-8 py-3.5 text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-[var(--ink)] hover:text-[var(--bg)] transition-colors"
+            className="inline-flex items-center gap-2 border-2 border-[var(--accent)] text-[var(--ink)] rounded-[var(--radius-btn)] px-8 py-3.5 text-[11px] font-bold tracking-[0.18em] uppercase hover:bg-[var(--accent)] hover:text-white transition-colors"
           >
             Explore All Venues
             <ArrowRight size={14} />

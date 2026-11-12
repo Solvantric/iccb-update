@@ -10,13 +10,13 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean;
 }
 
-const base = "inline-flex items-center justify-center gap-2 font-sans font-medium tracking-[0.12em] uppercase transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
+const base = "inline-flex items-center justify-center gap-2 font-sans font-bold tracking-[0.08em] uppercase transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-[var(--accent)] text-[var(--on-accent)] rounded-full hover:bg-[var(--accent-hover)] hover:gap-3",
-  secondary: "border border-[var(--ink)] text-[var(--ink)] rounded-full hover:bg-[var(--ink)] hover:text-[var(--bg)] hover:gap-3",
+  primary: "bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] text-[var(--on-accent)] rounded-[var(--radius-btn)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px hover:gap-3",
+  secondary: "border-2 border-[var(--accent)] text-[var(--ink)] rounded-[var(--radius-btn)] hover:bg-[var(--accent)] hover:text-[var(--on-accent)] hover:gap-3",
   ghost: "text-[var(--ink)] underline-offset-4 hover:underline",
-  "outline-dark": "border border-white/30 text-white rounded-full hover:border-white hover:bg-white/10 hover:gap-3",
+  "outline-dark": "border-2 border-white/40 text-white rounded-[var(--radius-btn)] hover:border-white hover:bg-white/10 hover:gap-3",
 };
 
 const sizes: Record<string, string> = {

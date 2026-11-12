@@ -13,7 +13,7 @@ export default async function ThankYouPage({ params }: { params: Promise<{ local
   const locale = (routing.locales.includes(rawLocale as Locale) ? rawLocale : "en") as Locale;
 
   return (
-    <div className="pt-20 md:pt-24 min-h-[70vh] flex items-center justify-center px-4">
+    <div className="pt-[88px] sm:pt-[112px] min-h-[70vh] flex items-center justify-center px-4">
       <div className="text-center max-w-md">
         <CheckCircle size={56} className="text-[var(--status-success)] mx-auto mb-5" weight="light" />
         <h1 className="font-display text-3xl text-[var(--ink)] font-light uppercase mb-3">
@@ -26,7 +26,7 @@ export default async function ThankYouPage({ params }: { params: Promise<{ local
           <Link
             href="/"
             locale={locale}
-            className="inline-flex items-center gap-2 bg-[var(--accent)] text-white rounded-full px-7 py-3.5 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors"
+            className="inline-flex items-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] px-7 py-3.5 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors"
           >
             Back to Home
             <ArrowRight size={13} weight="bold" />
@@ -34,7 +34,7 @@ export default async function ThankYouPage({ params }: { params: Promise<{ local
           <Link
             href="/venues"
             locale={locale}
-            className="inline-flex items-center gap-2 border border-[var(--ink)] text-[var(--ink)] rounded-full px-7 py-3.5 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--ink)] hover:text-[var(--bg)] transition-colors"
+            className="inline-flex items-center gap-2 border-2 border-[var(--accent)] text-[var(--ink)] rounded-[var(--radius-btn)] px-7 py-3.5 text-[12px] font-bold tracking-[0.12em] uppercase hover:bg-[var(--accent)] hover:text-white transition-colors"
           >
             Explore Halls
           </Link>

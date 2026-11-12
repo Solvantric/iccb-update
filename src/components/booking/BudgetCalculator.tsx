@@ -248,14 +248,14 @@ export function BudgetCalculator({ initialHallId, initialDate, onReserve, onEnqu
       <div className="mt-5 flex flex-col gap-3">
         <button
           onClick={() => onReserve?.(input)}
-          className="w-full flex items-center justify-center gap-2 bg-[var(--accent)] text-white rounded-full py-3.5 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--accent-hover)] transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] py-3.5 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors"
         >
           Reserve This Date
           <ArrowRight size={14} weight="bold" />
         </button>
         <button
           onClick={() => onEnquiry?.(input)}
-          className="w-full flex items-center justify-center gap-2 border border-[var(--ink)] text-[var(--ink)] rounded-full py-3.5 text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[var(--ink)] hover:text-[var(--bg)] transition-colors"
+          className="w-full flex items-center justify-center gap-2 border-2 border-[var(--accent)] text-[var(--ink)] rounded-[var(--radius-btn)] py-3.5 text-[12px] font-bold tracking-[0.12em] uppercase hover:bg-[var(--accent)] hover:text-white transition-colors"
         >
           Send as Enquiry
         </button>
@@ -263,7 +263,7 @@ export function BudgetCalculator({ initialHallId, initialDate, onReserve, onEnqu
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full flex items-center justify-center gap-2 border border-[var(--line)] text-[var(--ink-muted)] rounded-full py-3 text-[12px] font-medium tracking-[0.12em] uppercase hover:text-[var(--accent)] hover:border-[var(--accent)] transition-colors"
+          className="w-full flex items-center justify-center gap-2 border-2 border-[var(--accent)] text-[var(--ink-muted)] rounded-[var(--radius-btn)] py-3 text-[12px] font-bold tracking-[0.12em] uppercase hover:text-white hover:bg-[var(--accent)] transition-colors"
         >
           Share on WhatsApp
         </a>
