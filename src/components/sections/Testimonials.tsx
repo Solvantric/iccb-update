@@ -2,11 +2,21 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, ArrowLeft, ArrowRight } from "@phosphor-icons/react";
-import { testimonials } from "@/data/testimonials";
+import { testimonials as staticTestimonials } from "@/data/testimonials";
+import { usePublishedContent } from "@/lib/crm/cms";
 import { RevealBlock } from "@/components/motion/RevealBlock";
 
 export function Testimonials() {
-  const [current, setCurrent] = useState(0);
+  const [currentRaw, setCurrent] = useState(0);
+  const cms = usePublishedContent("testimonials");
+  // Website CMS (Marketing) overrides the static list once loaded.
+  const testimonials = cms && cms.length
+    ? cms.map((c) => {
+        const match = staticTestimonials.find((t) => t.name === c.title);
+        return { id: c.id, name: c.title, organization: c.subtitle ?? match?.organization, role: match && c.subtitle === [match.role, match.organization].filter(Boolean).join(", ") ? match.role : undefined, content: { ...(match?.content ?? {}), en: c.body ?? "" }, rating: match?.rating ?? 5 };
+      })
+    : staticTestimonials;
+  const current = testimonials.length ? currentRaw % testimonials.length : 0;
 
   return (
     <section className="bg-[var(--bg)] py-[clamp(4rem,10vw,9rem)]">
@@ -37,7 +47,7 @@ export function Testimonials() {
               <div>
                 <p className="font-medium text-[var(--ink)] text-[15px]">{testimonials[current].name}</p>
                 {testimonials[current].organization && (
-                  <p className="text-[var(--ink-muted)] text-[13px] mt-0.5">{testimonials[current].organization}</p>
+                  <p className="text-[var(--ink-muted)] text-[13px] mt-0.5">{testimonials[current].role ? testimonials[current].organization?.replace(`${testimonials[current].role}, `, "") : testimonials[current].organization}</p>
                 )}
                 {testimonials[current].role && (
                   <p className="text-[var(--ink-muted)] text-[12px]">{testimonials[current].role}</p>

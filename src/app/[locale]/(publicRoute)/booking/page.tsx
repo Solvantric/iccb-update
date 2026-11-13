@@ -1,36 +1,17 @@
 "use client";
-import { useState, Suspense } from "react";
 import Image from "next/image";
-import { AvailabilityCalendar } from "@/components/booking/AvailabilityCalendar";
-import { BudgetCalculator } from "@/components/booking/BudgetCalculator";
-import { BookingForm } from "@/components/booking/BookingForm";
-import { FadeUp, SlideIn, LineGrow } from "@/components/motion/primitives";
+import { PublicBookingForm } from "@/components/booking/PublicBookingForm";
+import { FadeUp, LineGrow } from "@/components/motion/primitives";
 import { CalendarCheck, CurrencyDollar, CheckCircle, ArrowRight } from "@phosphor-icons/react";
-import type { Shift, EstimateInput } from "@/types";
 
 const TRUST_POINTS = [
-  "No deposit required to hold a date",
-  "Dedicated event coordinator assigned",
-  "Flexible payment terms available",
-  "Full refund policy within 14 days",
+  "A booking manager calls you to confirm",
+  "Dedicated event representative assigned",
+  "60% of venue rent as advance confirms the date",
+  "No online payment — cash, cheque or pay order",
 ];
 
 export default function BookingPage() {
-  const [selectedDate, setSelectedDate] = useState<string | undefined>();
-  const [selectedHallId, setSelectedHallId] = useState("gulnaksha");
-  const [estimateInput, setEstimateInput] = useState<Partial<EstimateInput>>({});
-
-  const handleCalendarSelect = (date: string, shift: Shift, hallId: string) => {
-    setSelectedDate(date);
-    setSelectedHallId(hallId);
-    setEstimateInput((e) => ({ ...e, date, shift, hallId }));
-  };
-
-  const handleReserve = (input: EstimateInput) => {
-    setEstimateInput(input);
-    document.getElementById("booking-form-section")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <div>
       {/* ── Premium Hero ─────────────────────────────────── */}
@@ -58,7 +39,7 @@ export default function BookingPage() {
           <FadeUp delay={0.14}>
             <p className="text-white/75 text-[16px] max-w-xl leading-relaxed mb-8">
               Check real-time availability, get an instant budget estimate, and secure
-              South Asia's most prestigious event venue.
+              South Asia&apos;s most prestigious event venue.
             </p>
           </FadeUp>
 
@@ -82,7 +63,7 @@ export default function BookingPage() {
           {[
             { n: "01", icon: CalendarCheck, label: "Check Availability", desc: "Browse hall availability by date" },
             { n: "02", icon: CurrencyDollar, label: "Get Your Estimate",  desc: "Instant budget breakdown"         },
-            { n: "03", icon: CheckCircle,    label: "Submit Request",     desc: "Our team confirms within 24h"     },
+            { n: "03", icon: CheckCircle,    label: "Submit Request",     desc: "A booking manager calls you"      },
           ].map(({ n, icon: Icon, label, desc }) => (
             <div key={n} className="flex items-start gap-4 py-6 px-6 md:px-8">
               <div className="text-[32px] font-bold text-white/20 leading-none flex-shrink-0 hidden md:block">
@@ -100,83 +81,26 @@ export default function BookingPage() {
         </div>
       </section>
 
-      {/* ── Availability Calendar ────────────────────────── */}
-      <section className="section-y bg-[var(--bg-soft)]">
+      {/* ── Booking request (feeds the CRM) ──────────────── */}
+      <section id="booking-form-section" className="section-y bg-[var(--bg-soft)]">
         <div className="container-site">
           <div className="mb-8">
             <FadeUp>
-              <span className="text-eyebrow block mb-2">Step 1</span>
+              <span className="text-eyebrow block mb-2">Booking request</span>
             </FadeUp>
             <FadeUp delay={0.06}>
               <h2 className="text-h2">
-                Hall <span className="text-[var(--accent)]">Availability</span>
+                Tell us about your <span className="text-[var(--accent)]">event</span>
               </h2>
               <LineGrow delay={0.12} />
             </FadeUp>
             <FadeUp delay={0.14}>
-              <p className="text-[var(--ink-muted)] text-[15px] mt-4 max-w-xl">
-                Select a hall and date to check real-time availability.
+              <p className="text-[var(--ink-muted)] text-[15px] mt-4 max-w-2xl">
+                Live hall availability and an indicative estimate as you go. A booking manager calls you to confirm the date, final price and terms.
               </p>
             </FadeUp>
           </div>
-          <FadeUp delay={0.1}>
-            <Suspense fallback={
-              <div className="h-96 bg-[var(--bg)] rounded-[var(--radius-card-lg)] animate-pulse border border-[var(--line)]" />
-            }>
-              <AvailabilityCalendar
-                onSelect={handleCalendarSelect}
-                initialHallId={selectedHallId}
-                initialDate={selectedDate}
-              />
-            </Suspense>
-          </FadeUp>
-        </div>
-      </section>
-
-      {/* ── Form + Calculator ────────────────────────────── */}
-      <section id="booking-form-section" className="section-y bg-[var(--bg)]">
-        <div className="container-site">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-            {/* Left — Form */}
-            <SlideIn from="left">
-              <span className="text-eyebrow block mb-3">Step 2</span>
-              <h2 className="text-h2 mb-2">
-                Your <span className="text-[var(--accent)]">Details</span>
-              </h2>
-              <LineGrow delay={0.08} />
-              <p className="text-[var(--ink-muted)] text-[15px] mt-4 mb-8">
-                Fill in your event details to submit your booking request.
-              </p>
-              <Suspense fallback={
-                <div className="h-96 bg-[var(--bg-soft)] rounded-[var(--radius-card-lg)] animate-pulse" />
-              }>
-                <BookingForm estimateInput={estimateInput} onSuccess={() => {}} />
-              </Suspense>
-            </SlideIn>
-
-            {/* Right — Budget Calculator */}
-            <SlideIn from="right" delay={0.1}>
-              <div className="lg:sticky lg:top-28">
-                <span className="text-eyebrow block mb-3">Step 3</span>
-                <h2 className="text-h2 mb-2">
-                  Budget <span className="text-[var(--accent)]">Estimate</span>
-                </h2>
-                <LineGrow delay={0.08} />
-                <p className="text-[var(--ink-muted)] text-[15px] mt-4 mb-8">
-                  Get an instant breakdown of costs for your event.
-                </p>
-                <BudgetCalculator
-                  initialHallId={selectedHallId}
-                  initialDate={selectedDate}
-                  onReserve={handleReserve}
-                  onEnquiry={(input) => {
-                    setEstimateInput(input);
-                    document.getElementById("booking-form-section")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                />
-              </div>
-            </SlideIn>
-          </div>
+          <PublicBookingForm />
         </div>
       </section>
 
@@ -202,17 +126,12 @@ export default function BookingPage() {
 
       {/* Mobile sticky CTA */}
       <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[var(--bg)] border-t border-[var(--line)] px-4 py-3 flex items-center justify-between">
-        <div>
-          <p className="text-[12px] text-[var(--ink-muted)]">
-            {selectedDate ? selectedDate : "No date selected"}
-          </p>
-          <p className="text-[var(--ink)] font-medium text-[13px] capitalize">{selectedHallId.replace(/-/g, " ")}</p>
-        </div>
+        <p className="text-[13px] text-[var(--ink-muted)]">Ready to plan your event?</p>
         <button
           onClick={() => document.getElementById("booking-form-section")?.scrollIntoView({ behavior: "smooth" })}
           className="btn btn-primary btn-sm"
         >
-          Fill Details <ArrowRight size={13} weight="bold" />
+          Start request <ArrowRight size={13} weight="bold" />
         </button>
       </div>
     </div>

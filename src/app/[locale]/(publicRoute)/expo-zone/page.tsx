@@ -56,7 +56,7 @@ export default async function ExpoZonePage({ params }: { params: Promise<{ local
           <div className="max-w-[1440px] mx-auto w-full">
             <RevealBlock>
               <span className="text-white/60 text-[11px] tracking-[0.18em] uppercase">ICCB — EXPO VILLAGE</span>
-              <h1 className="display-lg text-white mt-2">BANGLADESH'S PREMIER<br />EXHIBITION DESTINATION</h1>
+              <h1 className="display-lg text-white mt-2">BANGLADESH&apos;S PREMIER<br />EXHIBITION DESTINATION</h1>
               <p className="text-white/70 text-[16px] mt-4 max-w-xl">
                 Modular booths, international buyer matchmaking, media support, and full logistics — all under one roof.
               </p>

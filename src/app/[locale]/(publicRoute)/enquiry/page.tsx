@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ArrowRight, CheckCircle } from "@phosphor-icons/react";
 import { RevealBlock } from "@/components/motion/RevealBlock";
 import { halls } from "@/data/halls";
-import { leadsService } from "@/services/leads.service";
+import { submitEnquiry } from "@/services/crm/sales.service";
 import { generateReferenceNumber } from "@/lib/utils/format";
 import { useToast } from "@/components/ui/Toast";
 
@@ -43,17 +43,18 @@ export default function EnquiryPage() {
     setLoading(true);
     try {
       const ref = generateReferenceNumber();
-      await leadsService.create({
-        name: form.name,
-        organization: form.organization,
-        phone: form.phone,
-        email: form.email || undefined,
-        eventType: form.eventType as never || undefined,
-        hallId: form.hallId || undefined,
-        date: form.date || undefined,
-        guests: form.guests ? Number(form.guests) : undefined,
-        notes: form.notes,
+      await submitEnquiry({
+        type: "enquiry",
         source: "website",
+        name: form.name,
+        mobile: form.phone,
+        email: form.email || undefined,
+        eventType: form.eventType || undefined,
+        hallPreference: halls.find((h) => h.id === form.hallId)?.name.en,
+        preferredDate: form.date || undefined,
+        guests: form.guests ? Number(form.guests) : undefined,
+        message: [form.organization && `Organization: ${form.organization}`, form.notes].filter(Boolean).join("\n"),
+        language: document.documentElement.lang || "en",
       });
       setRefNumber(ref);
       setSubmitted(true);
@@ -92,7 +93,7 @@ export default function EnquiryPage() {
             <span className="meta-label block mb-2">(ENQUIRY)</span>
             <h1 className="display-lg text-[var(--ink)]">REQUEST A QUOTE</h1>
             <p className="text-[var(--ink-muted)] text-[16px] mt-3 max-w-xl">
-              Tell us about your event and we'll prepare a custom proposal.
+              Tell us about your event and we&apos;ll prepare a custom proposal.
             </p>
           </RevealBlock>
         </div>

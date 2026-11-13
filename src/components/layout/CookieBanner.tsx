@@ -1,18 +1,28 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
+import Link from "next/link";
 import { X } from "@phosphor-icons/react";
 
-export function CookieBanner() {
-  const [visible, setVisible] = useState(false);
+const noopSubscribe = () => () => {};
+const readConsent = () => {
+  try {
+    return localStorage.getItem("iccb_cookie_consent");
+  } catch {
+    return "blocked";
+  }
+};
 
-  useEffect(() => {
-    const accepted = localStorage.getItem("iccb_cookie_consent");
-    if (!accepted) setVisible(true);
-  }, []);
+export function CookieBanner() {
+  // Server snapshot "pending" keeps the banner hidden until the client knows.
+  const consent = useSyncExternalStore(noopSubscribe, readConsent, () => "pending");
+  const [dismissed, setDismissed] = useState(false);
+  const visible = !dismissed && consent === null;
 
   const accept = () => {
-    localStorage.setItem("iccb_cookie_consent", "true");
-    setVisible(false);
+    try {
+      localStorage.setItem("iccb_cookie_consent", "true");
+    } catch {}
+    setDismissed(true);
   };
 
   if (!visible) return null;
@@ -25,7 +35,7 @@ export function CookieBanner() {
     >
       <p className="text-[13px] text-[var(--ink-muted)] flex-1 leading-relaxed">
         We use essential cookies to ensure the site works correctly. Analytics cookies are only used with your consent.{" "}
-        <a href="/privacy" className="text-[var(--accent-text)] underline">Learn more</a>
+        <Link href="/privacy" className="text-[var(--accent-text)] underline">Learn more</Link>
       </p>
       <div className="flex gap-3 flex-shrink-0">
         <button
@@ -35,7 +45,7 @@ export function CookieBanner() {
           Accept
         </button>
         <button
-          onClick={() => setVisible(false)}
+          onClick={() => setDismissed(true)}
           aria-label="Dismiss"
           className="text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors"
         >

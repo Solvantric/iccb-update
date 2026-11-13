@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Plus, Minus } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils/cn";
 import type { FaqItem } from "@/data/faq";
+import { usePublishedContent } from "@/lib/crm/cms";
 
 interface Category { id: string; label: string }
 
@@ -11,7 +12,20 @@ interface FaqAccordionProps {
   categories: Category[];
 }
 
-export function FaqAccordion({ items, categories }: FaqAccordionProps) {
+export function FaqAccordion({ items: staticItems, categories }: FaqAccordionProps) {
+  // Website CMS (Marketing) overrides the static FAQ once loaded; translations are kept for unchanged questions.
+  const cms = usePublishedContent("faq");
+  const items: FaqItem[] = cms && cms.length
+    ? cms.map((c) => {
+        const match = staticItems.find((f) => f.question.en === c.title);
+        return {
+          id: c.id,
+          question: { ...(match?.question ?? {}), en: c.title },
+          answer: { ...(match && match.answer.en === c.body ? match.answer : {}), en: c.body ?? "" },
+          category: c.subtitle || match?.category || "general",
+        };
+      })
+    : staticItems;
   const [activeCategory, setActiveCategory] = useState("all");
   const [openId, setOpenId] = useState<string | null>(null);
 

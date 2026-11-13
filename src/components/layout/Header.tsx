@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { Link } from "@/lib/i18n/navigation";
 import { cn } from "@/lib/utils/cn";
@@ -52,13 +53,10 @@ export function Header({ locale }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const dropdownTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"));
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,9 +75,7 @@ export function Header({ locale }: HeaderProps) {
   }, []);
 
   function toggleTheme() {
-    const html = document.documentElement;
-    html.classList.toggle("dark");
-    setIsDark(html.classList.contains("dark"));
+    setTheme(isDark ? "light" : "dark");
   }
 
   /* Active path check */

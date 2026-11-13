@@ -92,7 +92,7 @@ export default function SignInPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <span className="text-[var(--ink-muted)] text-[13px]">Don't have an account? </span>
+            <span className="text-[var(--ink-muted)] text-[13px]">Don&apos;t have an account? </span>
             <Link href="/en/sign-up" className="text-[var(--accent-text)] text-[13px] font-medium hover:text-[var(--accent)] transition-colors">
               Sign up
             </Link>
@@ -120,7 +120,7 @@ export default function SignInPage() {
         <div className="absolute bottom-10 start-10 end-10">
           <span className="text-white/40 text-[11px] tracking-[0.18em] uppercase block mb-3">ICCB — DHAKA</span>
           <p className="font-display text-4xl text-white font-light uppercase leading-tight">
-            South Asia's Premier<br />Convention Destination
+            South Asia&apos;s Premier<br />Convention Destination
           </p>
           <p className="text-white/50 mt-3 text-[14px]">
             6 halls · 10,000+ capacity · Expo Village

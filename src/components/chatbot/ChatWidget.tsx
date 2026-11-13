@@ -1,11 +1,28 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, PaperPlaneTilt, ChatCircleDots, ArrowRight } from "@phosphor-icons/react";
+import { X, PaperPlaneTilt, ChatCircleDots } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils/cn";
 import type { Locale } from "@/lib/i18n/routing";
 import { chatService } from "@/services/chat.service";
 import { nanoid } from "nanoid";
+import { submitEnquiry } from "@/services/crm/sales.service";
+
+const PHONE_RE = /(?:\+?88)?0?1[3-9]\d{8}/;
+const NAME_RE = /(?:my name is|i am|i'm|this is|amar nam|আমার নাম)\s+([A-Za-z\u0980-\u09FF][A-Za-z\u0980-\u09FF.\s]{1,40}?)(?=[,.!?]|\s+(?:and|my|phone|number|from)\b|$)/i;
+const EVENT_RE = /(wedding|reception|holud|engagement|birthday|conference|seminar|concert|convocation|exhibition|expo|trade fair|corporate|product launch|award)/i;
+const GUESTS_RE = /(\d{2,5})\s*(?:guests|people|persons|pax|জন)/i;
+
+/** Chatbot → CRM lead: when a visitor shares a BD mobile number, log a chatbot enquiry. */
+function extractLead(transcript: string[]) {
+  const all = transcript.join(" \n ");
+  const phone = all.match(PHONE_RE)?.[0];
+  if (!phone) return null;
+  const name = all.match(NAME_RE)?.[1]?.trim();
+  const event = all.match(EVENT_RE)?.[1];
+  const guests = all.match(GUESTS_RE)?.[1];
+  return { phone, name: name && name.length >= 2 ? name : "Chat visitor", eventType: event ? event[0].toUpperCase() + event.slice(1).toLowerCase() : undefined, guests: guests ? Number(guests) : undefined };
+}
 
 interface Message {
   id: string;
@@ -37,6 +54,8 @@ export function ChatWidget({ locale }: ChatWidgetProps) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionId] = useState(() => nanoid());
+  const transcript = useRef<string[]>([]);
+  const captured = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const wa = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "8801991197719";
@@ -62,6 +81,17 @@ export function ChatWidget({ locale }: ChatWidgetProps) {
     setMessages((m) => [...m, userMsg]);
     setInput("");
     setLoading(true);
+    transcript.current.push(text);
+
+    const lead = !captured.current ? extractLead(transcript.current) : null;
+    if (lead) {
+      captured.current = true;
+      submitEnquiry({ type: "chatbot", source: "chatbot", name: lead.name, mobile: lead.phone, eventType: lead.eventType, guests: lead.guests, message: `Chatbot conversation:\n${transcript.current.map((t) => `• ${t}`).join("\n")}`, language: locale })
+        .then(() => setMessages((m) => [...m, { id: nanoid(), role: "assistant", content: `Thank you${lead.name !== "Chat visitor" ? `, ${lead.name}` : ""}! I've shared your details with our booking team — a manager will call you at ${lead.phone} shortly.` }]))
+        .catch(() => {
+          captured.current = false;
+        });
+    }
 
     try {
       const reply = await chatService.sendMessage(text, sessionId, locale);

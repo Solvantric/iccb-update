@@ -59,10 +59,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             <RevealBlock>
               <span className="meta-label block mb-3">(OUR STORY)</span>
               <h2 className="display-md text-[var(--ink)] mb-6">
-                SOUTH ASIA'S PREMIER<br />EVENT DESTINATION
+                SOUTH ASIA&apos;S PREMIER<br />EVENT DESTINATION
               </h2>
               <p className="text-[var(--ink-muted)] text-[16px] leading-relaxed mb-5">
-                International Convention City Bashundhara (ICCB) is Bangladesh's largest and most sophisticated convention complex, located on the 300 ft. Purbachal Express Highway in Dhaka. Since its inauguration, ICCB has been the preferred venue for state-level conferences, international trade fairs, mega weddings, and world-class expos.
+                International Convention City Bashundhara (ICCB) is Bangladesh&apos;s largest and most sophisticated convention complex, located on the 300 ft. Purbachal Express Highway in Dhaka. Since its inauguration, ICCB has been the preferred venue for state-level conferences, international trade fairs, mega weddings, and world-class expos.
               </p>
               <p className="text-[var(--ink-muted)] text-[16px] leading-relaxed">
                 With six convention halls totaling over 10,000 guest capacity, an 80,000 sq ft Expo Village, and a heritage restaurant, ICCB offers an unmatched ecosystem for every event at any scale.
@@ -95,7 +95,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               <div className="bg-white/5 border border-white/10 rounded-[var(--radius-card)] p-8">
                 <span className="text-white/40 text-[11px] tracking-[0.18em] uppercase">Our Mission</span>
                 <h3 className="font-display text-2xl text-white font-light uppercase mt-3 mb-4">
-                  To be the catalyst for Bangladesh's global connectivity
+                  To be the catalyst for Bangladesh&apos;s global connectivity
                 </h3>
                 <p className="text-white/60 text-[15px] leading-relaxed">
                   By providing world-class infrastructure, seamless event services, and a commitment to excellence, we empower organizers to bring global events to Bangladesh — and Bangladesh to the world.
@@ -106,7 +106,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               <div className="bg-white/5 border border-white/10 rounded-[var(--radius-card)] p-8">
                 <span className="text-white/40 text-[11px] tracking-[0.18em] uppercase">Our Vision</span>
                 <h3 className="font-display text-2xl text-white font-light uppercase mt-3 mb-4">
-                  South Asia's #1 international convention destination
+                  South Asia&apos;s #1 international convention destination
                 </h3>
                 <p className="text-white/60 text-[15px] leading-relaxed">
                   We envision ICCB as a recognized global landmark — where the most important conferences, trade fairs, and cultural events choose Dhaka as their home.

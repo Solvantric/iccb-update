@@ -6,7 +6,7 @@
  * - prefers-reduced-motion: opacity only, no movement
  * - LazyMotion + domAnimation kept in parent (MotionProvider)
  */
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useSyncExternalStore } from "react";
 import {
   motion,
   useInView,
@@ -23,16 +23,14 @@ const EASE_OUT_EXPO: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const EASE_PREMIUM: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 /* ─── Reduced motion check ────────────────────────────────────────────────── */
+const RM_QUERY = "(prefers-reduced-motion: reduce)";
+function subscribeReducedMotion(cb: () => void) {
+  const mq = window.matchMedia(RM_QUERY);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
 function useReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const handler = () => setReduced(mq.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-  return reduced;
+  return useSyncExternalStore(subscribeReducedMotion, () => window.matchMedia(RM_QUERY).matches, () => false);
 }
 
 /* ─── Mobile detection ────────────────────────────────────────────────────── */
