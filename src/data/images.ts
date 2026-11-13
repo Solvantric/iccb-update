@@ -87,7 +87,7 @@ export const galleryImages: Array<ImageMeta & { id: string; category: string }> 
   },
   {
     id: "g4",
-    src: "https://images.unsplash.com/photo-1519167758481-83f29c8a4f4a?auto=format&fit=crop&q=95&w=3840",
+    src: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=95&w=3840",
     alt: { en: "Wedding banquet" },
     category: "weddings",
     photographer: "Photos by Lanty",

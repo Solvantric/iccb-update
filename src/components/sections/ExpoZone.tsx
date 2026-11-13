@@ -4,25 +4,91 @@ import { Link } from "@/lib/i18n/navigation";
 import type { Locale } from "@/lib/i18n/routing";
 import { RevealBlock, RevealGroup, RevealItem } from "@/components/motion/RevealBlock";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "@phosphor-icons/react";
 import { clientLogos } from "@/data/expo";
 import { PartnerLogo } from "@/components/ui/PartnerLogo";
 
-// Animated marquee row for partner logos
-function LogoMarquee({ speed = 30, reverse = false }: { speed?: number; reverse?: boolean }) {
-  const logos = [...clientLogos, ...clientLogos]; // duplicate for seamless loop
+const TILE_GAP = 12;
+const TILE_STEP = 148 + TILE_GAP; // PartnerLogo width + gap
+const STEP_MS = 2200; // pause between moves
+const MOVE_S = 0.7; // slide duration
+
+/**
+ * Partner logos that slide one tile at a time (left or right), pause, then slide again — looping forever.
+ * Track = two copies of the list; we start showing the second copy and walk back towards 0,
+ * then snap (invisibly) back to the start.
+ */
+function LogoStepper({
+  logos,
+  delayMs = 0,
+  direction = "right",
+}: {
+  logos: typeof clientLogos;
+  delayMs?: number;
+  direction?: "left" | "right";
+}) {
+  const reduced = useReducedMotion();
+  const L = logos.length;
+  const track = [...logos, ...logos];
+  const [k, setK] = useState(0);
+  const [instant, setInstant] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const outerRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(0);
+
+  // Fit a whole number of tiles so no logo is ever cut off at the edge
+  useEffect(() => {
+    const el = outerRef.current;
+    if (!el) return;
+    const measure = () => setVisible(Math.max(1, Math.floor((el.clientWidth + TILE_GAP) / TILE_STEP)));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (reduced || paused) return;
+    let interval: ReturnType<typeof setInterval> | undefined;
+    const start = setTimeout(() => {
+      interval = setInterval(() => {
+        setInstant(false);
+        setK((v) => v + 1);
+      }, STEP_MS);
+    }, delayMs);
+    return () => {
+      clearTimeout(start);
+      if (interval) clearInterval(interval);
+    };
+  }, [reduced, paused, delayMs]);
+
   return (
-    <div className="relative overflow-hidden">
+    <div ref={outerRef} dir="ltr" className="w-full">
       <div
-        className={`flex gap-3 ${reverse ? "logo-marquee-reverse" : "logo-marquee"}`}
-        style={{ animationDuration: `${speed}s`, width: "max-content" }}
+        className="relative overflow-hidden mx-auto"
+        style={{ width: visible ? visible * TILE_STEP - TILE_GAP : "100%" }}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
       >
-        {logos.map((logo, i) => (
-          <PartnerLogo key={`${logo.id}-${i}`} logo={logo} />
-        ))}
+        <motion.div
+          className="flex gap-3 w-max"
+          animate={{ x: direction === "right" ? -(L - k) * TILE_STEP : -k * TILE_STEP }}
+          initial={false}
+          transition={instant ? { duration: 0 } : { duration: MOVE_S, ease: [0.65, 0, 0.35, 1] }}
+          onAnimationComplete={() => {
+            if (k >= L) {
+              setInstant(true);
+              setK(0);
+            }
+          }}
+        >
+          {track.map((logo, i) => (
+            <PartnerLogo key={`${logo.id}-${i}`} logo={logo} />
+          ))}
+        </motion.div>
       </div>
-      <div className="absolute inset-y-0 start-0 w-16 bg-gradient-to-r from-[var(--bg)] to-transparent pointer-events-none z-10" />
-      <div className="absolute inset-y-0 end-0 w-16 bg-gradient-to-l from-[var(--bg)] to-transparent pointer-events-none z-10" />
     </div>
   );
 }
@@ -40,7 +106,7 @@ export function ExpoZone({ locale }: ExpoZoneProps) {
           {/* LEFT: Full photo */}
           <RevealBlock className="order-2 lg:order-1">
             <div className="relative">
-              <div className="aspect-[4/5] relative overflow-hidden rounded-2xl">
+              <div className="aspect-[4/3] lg:aspect-square relative overflow-hidden rounded-2xl">
                 <Image
                   src="https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&q=95&w=3840"
                   alt="ICCB Expo Village — international trade fair"
@@ -108,17 +174,6 @@ export function ExpoZone({ locale }: ExpoZoneProps) {
               ))}
             </RevealGroup>
 
-            {/* Animated partner logo marquees */}
-            <RevealBlock delay={0.14}>
-              <p className="text-[11px] tracking-[0.14em] uppercase text-[var(--ink-muted)] mb-4">
-                Our Global Partners &amp; Exhibitors
-              </p>
-              <div className="space-y-3 overflow-hidden">
-                <LogoMarquee speed={28} />
-                <LogoMarquee speed={22} reverse />
-              </div>
-            </RevealBlock>
-
             {/* CTA buttons */}
             <RevealBlock delay={0.2} className="mt-8 flex gap-3 flex-wrap">
               <Link
@@ -139,6 +194,20 @@ export function ExpoZone({ locale }: ExpoZoneProps) {
             </RevealBlock>
           </div>
         </div>
+
+        {/* Partner logos — full width, centred under the photo + content */}
+        <RevealBlock delay={0.1} className="mt-14 lg:mt-16 max-w-5xl mx-auto text-center">
+          <p className="text-[11px] tracking-[0.14em] uppercase text-[var(--ink-muted)] mb-5">
+            Our Global Partners &amp; Exhibitors
+          </p>
+          <div className="space-y-3">
+            <LogoStepper logos={clientLogos} />
+            <LogoStepper
+              logos={[...clientLogos.slice(Math.ceil(clientLogos.length / 2)), ...clientLogos.slice(0, Math.ceil(clientLogos.length / 2))]}
+              delayMs={STEP_MS / 2}
+            />
+          </div>
+        </RevealBlock>
       </div>
     </section>
   );

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import type { Locale } from "@/lib/i18n/routing";
-import { motion, useInView, useReducedMotion, type PanInfo } from "framer-motion";
+import { motion, AnimatePresence, useInView, useReducedMotion, type PanInfo } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 import { ventures, type Venture } from "@/data/ventures";
 import { FadeUp } from "@/components/motion/primitives";
@@ -455,6 +455,10 @@ export function VenturesSlider({ locale }: VenturesSliderProps) {
     }
   };
 
+  // Logo follows the centre panel (or the only panel on mobile) and switches as the slide starts
+  const centreSlot = Math.floor((visibleCount - 1) / 2);
+  const shownIndex = (active + pendingStep + centreSlot + N) % N;
+
   const slant = getSlantPx(visibleCount);
   const isMobile = visibleCount === 1;
 
@@ -652,7 +656,7 @@ export function VenturesSlider({ locale }: VenturesSliderProps) {
       </motion.div>
 
       {/* Controls below the wave: prev/next arrows + red dots */}
-      <div className="container-site mt-7 flex items-center justify-center gap-4">
+      <div className="container-site mt-6 flex items-center justify-center gap-6 md:gap-10">
         <button
           type="button"
           onClick={() => stepBy(-1)}
@@ -662,26 +666,62 @@ export function VenturesSlider({ locale }: VenturesSliderProps) {
           {isRTL ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
         </button>
 
-        <div className="flex items-center gap-2" role="tablist" aria-label="Venture slides">
-          {ventures.map((v, i) => {
-            const isCurrent = i === active;
-            return (
-              <button
-                key={v.id}
-                type="button"
-                role="tab"
-                aria-selected={isCurrent}
-                aria-label={`Go to ${v.name}`}
-                onClick={() => goTo(i)}
-                className={cn(
-                  "h-2.5 rounded-full transition-all duration-500 cursor-pointer",
-                  isCurrent
-                    ? "w-8 bg-[var(--accent)]"
-                    : "w-2.5 bg-[var(--accent)]/30 hover:bg-[var(--accent)]/60"
-                )}
-              />
-            );
-          })}
+        {/* Current venture's brand logo, centred between the arrows */}
+        <div className="flex flex-col items-center gap-3">
+          <Link
+            href={`/ventures/${ventures[shownIndex].slug}`}
+            locale={locale}
+            aria-label={`Explore ${ventures[shownIndex].name}`}
+            className="group/logo relative block h-[96px] w-[230px] md:h-[124px] md:w-[320px]"
+          >
+            {/* Soft brand glow behind the logo — no box, no border */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 -z-0 rounded-full opacity-70 blur-2xl transition-opacity duration-500 group-hover/logo:opacity-100"
+              style={{ background: "radial-gradient(closest-side, rgba(255,255,255,0.95), rgba(255,255,255,0))" }}
+            />
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={ventures[shownIndex].id}
+                className="absolute inset-0"
+                initial={reduced ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.92, filter: "blur(6px)" }}
+                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+                exit={reduced ? { opacity: 0 } : { opacity: 0, y: -16, scale: 0.92, filter: "blur(6px)" }}
+                transition={{ duration: 0.5, ease: WIPE_EASE }}
+              >
+                <Image
+                  src={ventures[shownIndex].logo}
+                  alt={`${ventures[shownIndex].name} logo`}
+                  fill
+                  unoptimized
+                  sizes="320px"
+                  className="object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.08)] transition-transform duration-500 group-hover/logo:scale-[1.04]"
+                />
+              </motion.div>
+            </AnimatePresence>
+          </Link>
+
+          <div className="flex items-center gap-1.5" role="tablist" aria-label="Venture slides">
+            {ventures.map((v, i) => {
+              const isCurrent = i === shownIndex;
+              return (
+                <button
+                  key={v.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isCurrent}
+                  aria-label={`Go to ${v.name}`}
+                  onClick={() => goTo(i)}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all duration-500 cursor-pointer",
+                    isCurrent
+                      ? "w-6 bg-[var(--accent)]"
+                      : "w-1.5 bg-[var(--accent)]/30 hover:bg-[var(--accent)]/60"
+                  )}
+                />
+              );
+            })}
+          </div>
         </div>
 
         <button

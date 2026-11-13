@@ -78,4 +78,9 @@ export const clientLogos: Array<{ id: string; name: string; abbr: string; color:
   { id: "undp", name: "UNDP", abbr: "UNDP", color: "#006197", bg: "#EEF4FA", logo: "/images/partners/undp.svg" },
   { id: "bgmea", name: "BGMEA", abbr: "BGMEA", color: "#1B4F8A", bg: "#EEF4FA", logo: "/images/partners/bgmea.png" },
   { id: "fbcci", name: "FBCCI", abbr: "FBCCI", color: "#005F3B", bg: "#EEF7F3", logo: "/images/partners/fbcci.svg" },
+  { id: "unesco", name: "UNESCO", abbr: "UNESCO", color: "#0077D4", bg: "#EEF4FA", logo: "/images/partners/unesco.svg" },
+  { id: "wfp", name: "World Food Programme", abbr: "WFP", color: "#4B8BCB", bg: "#EEF4FA", logo: "/images/partners/wfp.svg" },
+  { id: "jica", name: "JICA", abbr: "JICA", color: "#0068B7", bg: "#EEF4FA", logo: "/images/partners/jica.svg" },
+  { id: "usaid", name: "USAID", abbr: "USAID", color: "#002F6C", bg: "#EEF3FA", logo: "/images/partners/usaid.svg" },
+  { id: "ifc", name: "International Finance Corp.", abbr: "IFC", color: "#00A3E0", bg: "#EBF8FD", logo: "/images/partners/ifc.svg" },
 ];

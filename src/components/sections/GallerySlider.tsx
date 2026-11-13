@@ -64,9 +64,6 @@ export function GallerySlider({ locale }: GallerySliderProps) {
               </figure>
             ))}
           </div>
-          {/* Soft edge fades */}
-          <div className="pointer-events-none absolute inset-y-0 start-0 w-16 sm:w-32 bg-gradient-to-r from-[var(--bg-soft)] to-transparent z-10 rtl:bg-gradient-to-l" />
-          <div className="pointer-events-none absolute inset-y-0 end-0 w-16 sm:w-32 bg-gradient-to-l from-[var(--bg-soft)] to-transparent z-10 rtl:bg-gradient-to-r" />
         </div>
       </FadeUp>
 

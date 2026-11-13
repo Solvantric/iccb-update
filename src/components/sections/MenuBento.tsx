@@ -59,7 +59,7 @@ export function MenuBento({ locale }: MenuBentoProps) {
         </FadeUp>
 
         {/* Editorial grid — large feature card + 2×2 cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 gap-4 lg:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[340px_340px] gap-4 lg:gap-5">
           {BENTO_ITEMS.map((item, i) => {
             const featured = i === 0;
             return (
@@ -75,38 +75,38 @@ export function MenuBento({ locale }: MenuBentoProps) {
                   href="/menu"
                   locale={locale}
                   className={`group relative flex flex-col h-full overflow-hidden bg-[var(--surface)] border border-[var(--line)] transition-shadow duration-500 hover:shadow-[var(--shadow-card)] ${
-                    featured ? "min-h-[460px] lg:min-h-[720px]" : "min-h-[400px] lg:min-h-0"
+                    featured ? "min-h-[460px] lg:min-h-0" : "min-h-[360px] lg:min-h-0"
                   }`}
                 >
                   {/* Text */}
                   <div
                     className={`relative z-10 ${
-                      featured ? "px-8 pt-12 md:px-12 md:pt-16 text-start" : "px-6 pt-9 text-center"
+                      featured ? "px-8 pt-9 md:px-10 md:pt-11 text-start" : "px-5 pt-6 text-center"
                     }`}
                   >
                     <span className="block text-[11px] font-semibold uppercase tracking-[0.32em] text-[var(--ink-muted)] rtl:tracking-normal">
                       {item.tag}
                     </span>
                     <h3
-                      className={`font-display text-[var(--ink)] leading-tight mt-4 ${
-                        featured ? "text-[clamp(2.2rem,4vw,3.75rem)]" : "text-[clamp(1.4rem,1.8vw,1.85rem)]"
+                      className={`font-display text-[var(--ink)] leading-tight mt-2.5 ${
+                        featured ? "text-[clamp(2rem,3.4vw,3.1rem)]" : "text-[clamp(1.25rem,1.5vw,1.55rem)]"
                       }`}
                     >
                       {item.label}
                     </h3>
                     <span
                       aria-hidden="true"
-                      className={`block h-[3px] bg-[var(--accent)] mt-4 transition-all duration-500 ${
+                      className={`block h-[3px] bg-[var(--accent)] mt-3 transition-all duration-500 ${
                         featured ? "w-16 group-hover:w-24" : "w-12 mx-auto group-hover:w-20"
                       }`}
                     />
-                    <span className="inline-block mt-4 text-[14px] text-[var(--ink-muted)] group-hover:text-[var(--accent)] transition-colors">
+                    <span className="inline-block mt-2.5 text-[13px] text-[var(--ink-muted)] group-hover:text-[var(--accent)] transition-colors">
                       {featured ? item.desc : "Learn more"}
                     </span>
                   </div>
 
-                  {/* Image — sits at the bottom and fades up into the white card */}
-                  <div className="relative flex-1 min-h-[200px] mt-6">
+                  {/* Image — full, clear photo filling the lower part of the card */}
+                  <div className="relative flex-1 min-h-[180px] mt-5 overflow-hidden">
                     <Image
                       src={item.image}
                       alt={item.label}
@@ -114,7 +114,6 @@ export function MenuBento({ locale }: MenuBentoProps) {
                       sizes={featured ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"}
                       className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                     />
-                    <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-[var(--surface)] to-transparent" />
                   </div>
                 </Link>
               </motion.div>

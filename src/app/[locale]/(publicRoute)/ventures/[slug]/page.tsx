@@ -8,7 +8,7 @@ import { ventures, getVentureBySlug } from "@/data/ventures";
 import { FadeUp, LineGrow, SlideIn } from "@/components/motion/primitives";
 import {
   ArrowRight, ArrowLeft, Clock, Phone, MapPin,
-  CheckCircle, Crown, ForkKnife, Sparkle, Briefcase,
+  CheckCircle, Crown, ForkKnife, Sparkle, Briefcase, CalendarCheck, Coffee,
 } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
 
@@ -39,6 +39,9 @@ const TYPE_ICON: Record<string, Icon> = {
   catering: ForkKnife,
   restaurant: Crown,
   icecream: Sparkle,
+  events: CalendarCheck,
+  sweets: Sparkle,
+  cafe: Coffee,
   other: Briefcase,
 };
 
@@ -46,6 +49,9 @@ const TYPE_LABEL: Record<string, string> = {
   catering: "Catering",
   restaurant: "Restaurant",
   icecream: "Ice Cream",
+  events: "Events",
+  sweets: "Sweets",
+  cafe: "Café",
   other: "Venture",
 };
 

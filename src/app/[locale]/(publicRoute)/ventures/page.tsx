@@ -79,11 +79,7 @@ export default async function VenturesPage({
                     {/* Content */}
                     <div className="p-6">
                       <span className="text-eyebrow block mb-2">
-                        {venture.type === "catering"
-                          ? "CATERING"
-                          : venture.type === "icecream"
-                          ? "ICE CREAM"
-                          : "RESTAURANT"}
+                        {({ catering: "CATERING", icecream: "ICE CREAM", events: "EVENTS", sweets: "SWEETS", cafe: "CAFÉ" } as Record<string, string>)[venture.type] ?? "RESTAURANT"}
                       </span>
                       <h2
                         className="font-bold text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors mb-2 leading-tight"
