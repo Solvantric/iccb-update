@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
+import { submitEnquiry } from "@/services/crm/sales.service";
 import { ArrowRight, CheckCircle } from "@phosphor-icons/react";
 import { RevealBlock } from "@/components/motion/RevealBlock";
-import { generateReferenceNumber } from "@/lib/utils/format";
 import { useToast } from "@/components/ui/Toast";
 
 const QUICK_QUESTIONS = [
@@ -23,12 +23,18 @@ export default function AskPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.question) return;
+    if (!form.name || !form.question || !form.phone) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-    setLoading(false);
-    setSubmitted(true);
-    toast.info("Question sent!", "Our team will respond within 2 hours.");
+    try {
+      const isEmail = form.phone.includes("@");
+      await submitEnquiry({ type: "ask", source: "website", name: form.name, mobile: isEmail ? "" : form.phone, email: isEmail ? form.phone : undefined, message: form.question, language: document.documentElement.lang || "en" });
+      setSubmitted(true);
+      toast.info("Question sent!", "Our team will respond within 2 hours.");
+    } catch (err) {
+      toast.error("Couldn't send", err instanceof Error ? err.message : "Please call +88-01991-197719.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -55,7 +61,7 @@ export default function AskPage() {
             <span className="meta-label block mb-2">(ASK)</span>
             <h1 className="display-lg text-[var(--ink)]">ASK A QUESTION</h1>
             <p className="text-[var(--ink-muted)] text-[16px] mt-3 max-w-xl">
-              Have a quick question? Send it to our team and we'll respond promptly.
+              Have a quick question? Send it to our team and we&apos;ll respond promptly.
             </p>
           </RevealBlock>
         </div>
@@ -119,7 +125,7 @@ export default function AskPage() {
 
               <button
                 type="submit"
-                disabled={loading || !form.name || !form.question}
+                disabled={loading || !form.name || !form.question || !form.phone}
                 className="w-full flex items-center justify-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] py-4 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors disabled:opacity-50 disabled:pointer-events-none"
               >
                 {loading ? "Sending…" : "Send Question"}

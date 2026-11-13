@@ -52,7 +52,7 @@ function generateSampleAvailability(): AvailabilitySlot[] {
 }
 
 // In-memory store for mock persistence
-let availabilityStore: AvailabilitySlot[] = generateSampleAvailability();
+const availabilityStore: AvailabilitySlot[] = generateSampleAvailability();
 
 export const getAvailability = (hallId: string, month: string): AvailabilitySlot[] => {
   return availabilityStore.filter(

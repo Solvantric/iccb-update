@@ -20,7 +20,7 @@ export default function GalleryPage() {
             <span className="meta-label block mb-2">(GALLERY)</span>
             <h1 className="display-lg text-[var(--ink)]">PHOTO GALLERY</h1>
             <p className="text-[var(--ink-muted)] text-[16px] mt-3 max-w-xl">
-              A glimpse into ICCB's halls, events, and world-class facilities.
+              A glimpse into ICCB&apos;s halls, events, and world-class facilities.
             </p>
           </RevealBlock>
         </div>

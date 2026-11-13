@@ -8,7 +8,7 @@ export default function NotFound() {
         <span className="font-display text-[120px] text-[var(--accent)] font-light leading-none opacity-20">404</span>
         <h1 className="font-display text-3xl text-[var(--ink)] font-light uppercase -mt-4 mb-4">Page Not Found</h1>
         <p className="text-[var(--ink-muted)] text-[15px] mb-8 max-w-sm mx-auto">
-          The page you're looking for doesn't exist or has been moved.
+          The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <Link

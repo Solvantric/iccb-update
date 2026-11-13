@@ -40,7 +40,7 @@ export default async function VenturesPage({
           </FadeUp>
           <FadeUp delay={0.18}>
             <p className="text-[var(--ink-body)] text-[16px] leading-relaxed max-w-2xl mt-6">
-              From world-class catering to Mughal-inspired fine dining, ICCB's
+              From world-class catering to Mughal-inspired fine dining, ICCB&apos;s
               portfolio of hospitality ventures brings exceptional food and
               service experiences to every occasion.
             </p>

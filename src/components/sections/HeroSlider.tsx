@@ -355,7 +355,7 @@ export function BookingCard({ locale }: BookingCardProps) {
           {tab === "enquiry" && (
             <div className="flex items-center justify-between gap-4">
               <p className="text-[var(--ink-body)] text-[14px] max-w-md">
-                Tell us about your event and we'll get back with a tailored proposal within 24 hours.
+                Tell us about your event and we&apos;ll get back with a tailored proposal within 24 hours.
               </p>
               <Link href="/enquiry" locale={locale} className="btn btn-primary btn-sm whitespace-nowrap">
                 Send Enquiry <ArrowRight size={13} weight="bold" />

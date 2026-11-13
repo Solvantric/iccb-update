@@ -68,7 +68,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
               {/* Features */}
               <RevealBlock>
                 <h2 className="font-display text-2xl text-[var(--ink)] font-light uppercase mb-5">
-                  What's Included
+                  What&apos;s Included
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {service.features.map((f, i) => (

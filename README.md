@@ -1,181 +1,129 @@
 # ICCB — International Convention City Bashundhara
 
-Official website and CRM dashboard for **International Convention City Bashundhara (ICCB)**, South Asia's largest convention and exhibition complex, located in Dhaka, Bangladesh.
+Website and CRM dashboard for **International Convention City Bashundhara (ICCB)**, Dhaka, Bangladesh.
 
----
+The app has two parts:
 
-## Overview
-
-This is a full-stack Next.js 16 application combining a **multilingual public website** and an **internal CRM dashboard**. All data is demo/sample — no live backend is connected.
-
-| Part | URL | Description |
+| Part | URL | What it is |
 |---|---|---|
-| Public Site | `/` | Homepage, venues, services, booking, expo zone |
-| CRM Dashboard | `/dashboard` | Leads, bookings, revenue, tasks, documents |
-| Auth Pages | `/sign-in` | Demo login (no real auth) |
+| Public website | `/` | Multilingual site: venues, services, booking request, enquiries, chatbot |
+| CRM dashboard | `/dashboard` | Bookings, sales, marketing, operations and admin for ICCB staff |
+
+**There is no backend.** All data is sample data stored in the browser (localStorage). The public website and the dashboard share that data, so a booking request sent on the website appears in the dashboard straight away, in the same browser.
+
+Every dashboard route is explained in [`dashboard.md`](./dashboard.md).
 
 ---
 
-## Getting Started
+## Getting started
 
-### Prerequisites
-
-- Node.js 18+
-- npm 9+
-
-### Install & Run
+Requirements: Node.js 18+ and npm 9+.
 
 ```bash
 npm install
-npm run dev
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build |
+| `npm run start` | Run the production build |
+| `npm run lint` | ESLint |
+| `npm test` | Unit tests (vitest) — ICCB pricing engine and seed data |
+| `npx tsc --noEmit` | Type check |
 
-### Other Commands
+### Trying the dashboard
 
-```bash
-npm run build     # Production build
-npm run start     # Start production server
-npm run lint      # Run ESLint
-```
+1. Open `/dashboard/sign-in`.
+2. Pick a role card: Admin, Sales Manager, Sales Executive, Marketing, Operations or Accounts. If you skip this step, you are signed in as Admin.
+3. To see another role's view, use **Switch role** in the avatar menu (top right).
+4. To start over, go to **Admin → Settings → Data → Reset demo data**.
+
+Sign-in is a demo role picker, not real authentication.
 
 ---
 
-## Project Structure
+## Public website
+
+The default language (`en`) has no URL prefix. Other languages use `/bn/`, `/ar/` (right-to-left) and `/zh/`.
+
+| Route | Page | Connected to the CRM? |
+|---|---|---|
+| `/` | Home | Testimonials come from the website CMS |
+| `/venues`, `/venues/[slug]` | Halls | Venue views are recorded in Analytics |
+| `/services`, `/services/[slug]` | Services | — |
+| `/expo-zone` | Expo Zone | — |
+| `/booking` | Multi-step booking request with live availability and estimate | Creates a client, a booking (Requested), an estimate and a notification |
+| `/enquiry` | General enquiry | Goes to the Enquiries inbox and Leads |
+| `/ask` | Ask a question | Goes to the Enquiries inbox |
+| `/contact` | Contact form | Goes to the Enquiries inbox |
+| `/evaluation?b=<bookingId>` | Client "Evaluation of Service" form | Saved to the booking's feedback |
+| `/faq` | FAQ | Comes from the website CMS |
+| `/about`, `/why-iccb`, `/gallery`, `/news`, `/menu`, `/ventures` | Content pages | — |
+| `/privacy`, `/terms`, `/thank-you` | Legal and thank-you pages | — |
+
+The **chatbot** creates a lead whenever a visitor types a Bangladeshi mobile number. Every page view is recorded for **Marketing → Analytics**.
+
+---
+
+## Project structure
 
 ```
 src/
 ├── app/
-│   ├── layout.tsx                   # Root layout — html, body, fonts, ThemeProvider
-│   ├── globals.css                  # Design tokens, typography, animations
-│   ├── [locale]/
-│   │   ├── layout.tsx               # Locale context (next-intl)
-│   │   ├── (publicRoute)/           # All public pages
-│   │   └── (auth)/                  # Sign-in, sign-up
-│   └── (dashboardRoute)/
-│       └── dashboard/               # CRM dashboard pages
+│   ├── [locale]/(publicRoute)/        # Public pages (next-intl)
+│   └── (dashboardRoute)/dashboard/
+│       ├── sign-in/                   # Demo role picker
+│       └── (app)/…                    # 22 dashboard routes (inside the shell)
 ├── components/
-│   ├── layout/                      # Header, Footer, FloatingDock
-│   ├── sections/                    # Home page sections
-│   ├── booking/                     # Booking form, calendar, calculator
-│   ├── dashboard/                   # Dashboard page components
-│   ├── motion/                      # RevealBlock scroll animations
-│   ├── providers/                   # Theme, locale, query providers
-│   └── ui/                          # Toast, Button, badges
-├── data/                            # Static demo data (TypeScript)
-├── lib/
-│   ├── i18n/                        # next-intl routing & navigation
-│   ├── api/                         # Axios + mock adapter
-│   ├── pricing/                     # Budget estimation logic
-│   └── utils/                       # cn(), formatBDT(), formatUSD()
-├── services/                        # API service layer
-├── store/                           # Zustand state (auth, ui, enquiry)
-└── types/index.ts                   # Shared TypeScript interfaces
+│   ├── dashboard/                     # CRM: ui/, shell/, bookings/, workspace/, documents/, …
+│   ├── booking/                       # Public booking + evaluation forms
+│   ├── providers/                     # CrmProvider, PublicCrm (data hydration)
+│   └── layout/, sections/, …          # Public site
+├── data/crm/                          # CRM seed data (tariffs, bookings, radar, …)
+├── lib/crm/                           # Repository, pricing engine, workflow, rules, documents, permissions
+├── services/crm/                      # Async services + TanStack Query hooks
+└── types/crm/                         # CRM types
 ```
 
----
+### How the data works
 
-## Public Pages
-
-| Route | Page |
-|---|---|
-| `/` | Home |
-| `/venues` | Hall listing |
-| `/venues/[slug]` | Hall detail |
-| `/services` | Services overview |
-| `/services/[slug]` | Service detail |
-| `/expo-zone` | Expo Village |
-| `/booking` | Availability calendar + budget calculator |
-| `/enquiry` | General enquiry |
-| `/contact` | Contact |
-| `/about` | About ICCB |
-| `/why-iccb` | Why choose ICCB |
-| `/gallery` | Photo gallery |
-| `/news` | News & events |
-| `/menu` | Heritage Restaurant menu |
-| `/faq` | FAQ |
-
-## Dashboard Pages
-
-| Route | Page |
-|---|---|
-| `/dashboard` | Overview — KPIs, charts |
-| `/dashboard/leads` | Lead pipeline |
-| `/dashboard/bookings` | Booking management |
-| `/dashboard/calendar` | Monthly event calendar |
-| `/dashboard/revenue` | Financial analytics |
-| `/dashboard/tasks` | Event preparation tasks |
-| `/dashboard/documents` | Contracts & proposals |
-| `/dashboard/notifications` | Alert centre |
-| `/dashboard/queries` | Client queries |
-| `/dashboard/analytics` | Traffic & conversion |
-| `/dashboard/radar` | Lead radar / scoring |
-| `/dashboard/chats` | Chat inbox |
-| `/dashboard/content` | CMS content |
-| `/dashboard/settings` | System settings |
+- **Storage:** one zustand store per table, saved in localStorage under `iccb-crm-v1:<table>`.
+- **Services:** they add 150–350 ms of simulated delay, so loading states look real. They can later be swapped for real API calls without changing the UI.
+- **TanStack Query:** wraps the services, with optimistic updates. Queries refresh automatically whenever a store changes.
+- **Pricing engine:** `src/lib/crm/pricing.ts` contains pure functions built on ICCB's real tariffs: hall rent, security money, estimate, cancellation charge and capacity check.
+- **Validation:** kept minimal. Forms only require a name and a phone number.
 
 ---
 
-## Internationalisation
-
-4 locales supported via `next-intl`:
-
-| Code | Language | Direction |
-|---|---|---|
-| `en` | English (default) | LTR |
-| `bn` | Bengali | LTR |
-| `ar` | Arabic | RTL |
-| `zh` | Chinese | LTR |
-
-The default locale (`en`) renders without a URL prefix — `/` not `/en/`. Other locales prefix: `/bn/`, `/ar/`, `/zh/`.
-
----
-
-## Tech Stack
+## Tech stack
 
 | Category | Technology |
 |---|---|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript 5 |
-| Styling | Tailwind CSS v4 |
-| Animation | Framer Motion 14, Lenis |
-| Carousel | Embla Carousel |
-| Forms | React Hook Form + Zod |
-| State | Zustand 5 |
-| Data fetching | TanStack Query 5 |
-| Charts | Recharts 3 |
+| Framework | Next.js 16 (App Router), React 19, TypeScript 5 |
+| Styling | Tailwind CSS v4, `next-themes` (light / dark) |
+| State and data | Zustand 5 (persist), TanStack Query 5 |
+| Animation | Framer Motion, Lenis |
+| Dashboard UI | Radix Dialog, cmdk (⌘K), dnd-kit (Kanban and calendar), sonner (toasts), Recharts |
+| Documents | `@react-pdf/renderer` (PDF), print-ready A4 HTML |
+| i18n | next-intl 4 (en, bn, ar, zh) |
 | Icons | Phosphor Icons |
-| i18n | next-intl 4 |
-| Theming | next-themes |
-| Dates | date-fns 4 |
-
-See [`skill.md`](./skill.md) for the full tech breakdown.
-See [`design.md`](./design.md) for the design system reference.
+| Tests | Vitest |
 
 ---
 
-## Design System
+## Design
 
-- **Fonts:** Playfair Display (headings) + DM Sans (body)
-- **Primary colour:** `#E24F5F` (brand red)
-- **Theming:** Light / Dark via CSS custom properties
-- **Motion:** Scroll-triggered blur+rise entrance on all sections
-- **Layout:** Max 1440px, fluid padding `clamp(1rem, 4vw, 3rem)`
-
-Full reference → [`design.md`](./design.md)
+- **Public site:** Inter + Oswald, brand red, light and dark mode. See [`design.md`](./design.md).
+- **Dashboard:** Noto Sans, brand `#E24F5F` on white, and no black in light mode. Its tokens are scoped to the `.crm` class in `globals.css`.
 
 ---
 
 ## Notes
 
-- All data is **demo/sample** — no real database or API
-- Authentication is **UI-only** — no real session management
-- Images from Unsplash (4K, `w=3840&q=95`)
-- Built for presentation and development purposes
+- All names, phone numbers and companies in the sample data are fake and marked `isSample`.
+- There is no online payment anywhere. Money receipts are recorded offline in the dashboard.
+- PDFs use a built-in font, so the Taka sign prints as "Tk". The on-screen preview shows "৳".
 
----
-
-## Repository
-
-**GitHub:** [https://github.com/Solvantric/iccb-update](https://github.com/Solvantric/iccb-update)
+**GitHub:** [Solvantric/iccb-update](https://github.com/Solvantric/iccb-update)

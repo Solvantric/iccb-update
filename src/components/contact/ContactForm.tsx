@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { ArrowRight, CheckCircle } from "@phosphor-icons/react";
 import { useToast } from "@/components/ui/Toast";
+import { submitEnquiry } from "@/services/crm/sales.service";
 
 export function ContactForm() {
   const toast = useToast();
@@ -13,12 +14,20 @@ export function ContactForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.message) return;
+    if (!form.name || !form.message || (!form.phone && !form.email)) {
+      toast.error("Almost there", "Please add your name, a message and a phone or email.");
+      return;
+    }
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setLoading(false);
-    setSubmitted(true);
-    toast.success("Message sent!", "Our team will respond within one business day.");
+    try {
+      await submitEnquiry({ type: "contact", source: "website", name: form.name, mobile: form.phone, email: form.email || undefined, message: [form.subject && `Subject: ${form.subject}`, form.message].filter(Boolean).join("\n"), language: document.documentElement.lang || "en" });
+      setSubmitted(true);
+      toast.success("Message sent!", "Our team will respond within one business day.");
+    } catch (err) {
+      toast.error("Couldn't send", err instanceof Error ? err.message : "Please call +88-01991-197719.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
