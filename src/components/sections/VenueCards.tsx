@@ -31,14 +31,20 @@ export function VenueCards({ locale }: VenueCardsProps) {
         </FadeUp>
 
         {/* Cards grid */}
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {halls.slice(0, 6).map((hall, i) => (
+        <motion.div
+          className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: false, margin: "-8% 0px" }}
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.25, delayChildren: 0.1 } } }}
+        >
+          {halls.slice(0, 6).map((hall) => (
             <motion.article
               key={hall.id}
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-8% 0px" }}
-              transition={{ duration: 0.65, delay: i * 0.08, ease: EASE }}
+              variants={{
+                hidden: { opacity: 0, y: 48, scale: 0.97 },
+                show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.8, ease: EASE } },
+              }}
               className="group card card-hover overflow-hidden cursor-pointer"
             >
               <Link href={`/venues/${hall.slug}`} locale={locale} className="block">
@@ -46,10 +52,10 @@ export function VenueCards({ locale }: VenueCardsProps) {
                 <div className="relative aspect-[16/9] overflow-hidden">
                   <motion.div
                     className="absolute inset-0"
-                    initial={{ clipPath: "inset(100% 0 0 0)" }}
-                    whileInView={{ clipPath: "inset(0 0 0 0)" }}
-                    viewport={{ once: true, margin: "-8% 0px" }}
-                    transition={{ duration: 1.1, delay: i * 0.08 + 0.1, ease: EASE }}
+                    variants={{
+                      hidden: { clipPath: "inset(100% 0 0 0)" },
+                      show: { clipPath: "inset(0% 0 0 0)", transition: { duration: 1.1, delay: 0.1, ease: EASE } },
+                    }}
                   >
                     <Image
                       src={hall.image}
@@ -87,7 +93,7 @@ export function VenueCards({ locale }: VenueCardsProps) {
               </Link>
             </motion.article>
           ))}
-        </div>
+        </motion.div>
 
         <FadeUp delay={0.1} className="mt-10 flex justify-center">
           <Link href="/venues" locale={locale} className="btn btn-secondary btn-sm whitespace-nowrap">

@@ -14,20 +14,22 @@ interface RevealBlockProps {
 }
 
 const variants: Variants = {
-  hidden: (custom: { y: number }) => ({
+  hidden: (custom: { y: number; delay: number }) => ({
     opacity: 0,
     y: custom.y,
     filter: "blur(4px)",
   }),
-  visible: {
+  // delay lives inside the variant — a variant's own transition overrides the `transition` prop
+  visible: (custom: { y: number; delay: number }) => ({
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
     transition: {
       duration: 0.85,
       ease: [0.16, 1, 0.3, 1],
+      delay: custom.delay,
     },
-  },
+  }),
 };
 
 export function RevealBlock({
@@ -35,7 +37,7 @@ export function RevealBlock({
   className,
   delay = 0,
   y = 28,
-  once = true,
+  once = false,
 }: RevealBlockProps) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once, margin: "-8% 0px" });
@@ -43,11 +45,10 @@ export function RevealBlock({
   return (
     <motion.div
       ref={ref}
-      custom={{ y }}
+      custom={{ y, delay }}
       variants={variants}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
-      transition={{ delay }}
       className={cn(className)}
     >
       {children}
@@ -59,13 +60,17 @@ export function RevealGroup({
   children,
   className,
   stagger = 0.1,
+  delayChildren = 0,
+  once = false,
 }: {
   children: React.ReactNode;
   className?: string;
   stagger?: number;
+  delayChildren?: number;
+  once?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-8% 0px" });
+  const inView = useInView(ref, { once, margin: "-8% 0px" });
 
   return (
     <motion.div
@@ -73,7 +78,7 @@ export function RevealGroup({
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
       variants={{
-        visible: { transition: { staggerChildren: stagger } },
+        visible: { transition: { staggerChildren: stagger, delayChildren } },
         hidden: {},
       }}
       className={cn(className)}
@@ -100,7 +105,8 @@ export function RevealItem({
           opacity: 1,
           y: 0,
           filter: "blur(0px)",
-          transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1], delay },
+          // NB: a child `delay` overrides the parent's staggerChildren, so only set it when given
+          transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1], ...(delay ? { delay } : {}) },
         },
       }}
       className={cn(className)}

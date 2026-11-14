@@ -118,12 +118,12 @@ export function WhyICCB() {
           <RevealBlock>
             <SectionLabel>(FACILITIES)</SectionLabel>
           </RevealBlock>
-          <RevealBlock delay={0.08}>
+          <RevealBlock delay={0.15}>
             <h2 className="display-lg text-[var(--ink)] mt-3 mb-5">
               WHY CHOOSE <span className="text-[var(--accent)]">ICCB</span>
             </h2>
           </RevealBlock>
-          <RevealBlock delay={0.12}>
+          <RevealBlock delay={0.3}>
             <span aria-hidden="true" className="block h-[3px] w-14 bg-[var(--accent)] mx-auto mb-5" />
             <p className="text-[var(--ink-body)] text-[16px] leading-relaxed">
               Every detail is designed to make your event flawless. World-class infrastructure, professional staff, and comprehensive services — all in one iconic location.
@@ -132,7 +132,7 @@ export function WhyICCB() {
         </div>
 
         {/* Compact facility grid — 4 per row, 2 rows on desktop */}
-        <RevealGroup className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 max-w-6xl mx-auto">
+        <RevealGroup stagger={0.22} delayChildren={0.45} className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 max-w-6xl mx-auto">
           {facilities.map((f, i) => (
             <RevealItem key={f.title}>
               <FacilityCard icon={f.icon} anim={f.anim} title={f.title} desc={f.desc} index={i} />

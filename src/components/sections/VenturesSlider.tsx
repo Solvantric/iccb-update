@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils/cn";
 
 const EASE: [number, number, number, number] = [0.65, 0, 0.35, 1];
 const WIPE_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const AUTOPLAY_MS = 5000;
+const AUTOPLAY_MS = 2000;
 const SHIFT_DURATION = 0.9;
 const RTL_LOCALES: string[] = ["ar"];
 
@@ -355,7 +355,6 @@ export function VenturesSlider({ locale }: VenturesSliderProps) {
 
   const [active, setActive] = useState(0);
   const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
-  const [paused, setPaused] = useState(false);
   const [visibleCount, setVisibleCount] = useState<1 | 2 | 3>(3);
   const [stripW, setStripW] = useState(0);
   const [hasAnimatedEntrance, setHasAnimatedEntrance] = useState(false);
@@ -424,14 +423,14 @@ export function VenturesSlider({ locale }: VenturesSliderProps) {
     [active, N, pendingStep, stepBy]
   );
 
-  // Autoplay every 5s
+  // Autoplay every 2s — keeps running on hover too (hover effects still play)
   useEffect(() => {
-    if (paused || !inView || pendingStep !== 0) return;
+    if (!inView || pendingStep !== 0) return;
     const timer = setInterval(() => {
       stepBy(1);
     }, AUTOPLAY_MS);
     return () => clearInterval(timer);
-  }, [paused, inView, pendingStep, stepBy]);
+  }, [inView, pendingStep, stepBy]);
 
   const handleShiftComplete = useCallback(() => {
     if (pendingStep === 0) return;
@@ -603,11 +602,7 @@ export function VenturesSlider({ locale }: VenturesSliderProps) {
     <section
       ref={sectionRef}
       className="section-y bg-[var(--bg-soft)] overflow-hidden"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => {
-        setPaused(false);
-        setHoveredSlot(null);
-      }}
+      onMouseLeave={() => setHoveredSlot(null)}
     >
       {/* Centred heading in normal case with ICCB VENTURES eyebrow underneath */}
       <div className="container-site mb-10 text-center">

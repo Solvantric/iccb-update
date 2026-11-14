@@ -14,7 +14,7 @@ const SLIDES = [
   { src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=90&w=2400", alt: "Fine dining venue" },
 ];
 
-const INTERVAL_MS = 3000;
+const INTERVAL_MS = 2000;
 
 interface FinalCTAProps {
   locale: Locale;
@@ -48,7 +48,7 @@ export function FinalCTA({ locale }: FinalCTAProps) {
       ))}
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
 
-      <div className="relative container-site py-16 md:py-20 lg:py-24 flex flex-col md:flex-row md:items-center justify-between gap-8">
+      <div className="relative container-site py-12 md:py-14 lg:py-16 flex flex-col md:flex-row md:items-center justify-between gap-8">
         <div className="max-w-3xl">
           <h2 className="font-display uppercase text-white text-[clamp(1.75rem,3.6vw,3rem)] leading-[1.05] tracking-[0.01em]">
             Planning an event? <span className="text-[var(--accent)]">Let&apos;s hold your date.</span>

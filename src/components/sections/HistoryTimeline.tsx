@@ -61,7 +61,7 @@ const MILESTONES = [
   },
 ];
 
-const AUTOPLAY_MS = 5500;
+const AUTOPLAY_MS = 2000;
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function HistoryTimeline() {

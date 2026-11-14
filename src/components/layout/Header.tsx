@@ -105,11 +105,12 @@ export function Header({ locale }: HeaderProps) {
           {/* Logo — 72% of header height */}
           <Link href="/" locale={locale} className="flex h-full items-center" aria-label="ICCB — home">
             <Image
-              src="https://res.cloudinary.com/sgufp9aq/image/upload/v1794418824/iccb-logo.png"
+              src="/images/ventures/iccb.svg"
               alt="ICCB — International Convention City Bashundhara"
               width={173}
-              height={161}
+              height={157}
               className="h-[72%] w-auto"
+              unoptimized
               priority
             />
           </Link>
@@ -289,9 +290,10 @@ export function Header({ locale }: HeaderProps) {
               <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--line)]">
                 <div className="relative w-10 h-10 flex-shrink-0">
                   <Image
-                    src="https://res.cloudinary.com/sgufp9aq/image/upload/v1794418824/iccb-logo.png"
+                    src="/images/ventures/iccb.svg"
                     alt="ICCB"
                     fill
+                    unoptimized
                     className="object-contain"
                   />
                 </div>
