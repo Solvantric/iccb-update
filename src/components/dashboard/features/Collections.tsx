@@ -170,7 +170,7 @@ export function CollectionsTab() {
           {data?.refunds.map((r) => (
             <m.li key={r.bookingId} layout className="flex flex-wrap items-center gap-4 px-5 py-3">
               <div className="min-w-0 flex-1">
-                <Link href={`/dashboard/sales/bookings/${r.b.id}?tab=feedback`} className="block truncate text-[13.5px] font-medium text-crm-ink hover:text-crm-brand">
+                <Link href={`/dashboard/sales/bookings/${r.b.id}?tab=payments`} className="block truncate text-[13.5px] font-medium text-crm-ink hover:text-crm-brand">
                   {r.b.contact.name} · {r.b.eventTitle}
                 </Link>
                 <p className="text-[12px] text-crm-muted tabular">

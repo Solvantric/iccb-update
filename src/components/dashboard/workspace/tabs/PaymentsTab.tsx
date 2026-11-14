@@ -17,6 +17,7 @@ import { Modal, useConfirm } from "../../ui/overlay";
 import { AnimatedMoney, ProgressBar } from "../../ui/kpi";
 import { useDocs } from "../../documents/useDocs";
 import { useWs } from "../context";
+import { RefundCard } from "../../ops/FeedbackForms";
 
 /** Money receipt modal — used in the workspace and in Invoices → Collections. */
 export function PaymentModal({ payment, onClose, b, est, me }: { payment?: Payment; onClose: () => void; b: Booking; est: Estimate; me: User }) {
@@ -93,50 +94,37 @@ export function PaymentsTab() {
 
   return (
     <div className="space-y-5">
-      <div className="grid gap-5 md:grid-cols-3">
-        <Card className="p-5 md:col-span-2">
-          <div className="flex items-center justify-between">
-            <p className="text-[13.5px] font-semibold text-crm-ink">Advance progress</p>
-            <Badge tone={est.advancePaid >= est.advanceRequired ? "green" : "amber"}>{est.advancePaid >= est.advanceRequired ? "Advance met" : `${settings.advancePct}% required`}</Badge>
-          </div>
-          <div className="mt-4">
-            <ProgressBar value={advancePct} marker={settings.advancePct} color={advancePct >= settings.advancePct ? "#12B76A" : "var(--crm-brand)"} className="h-3" />
-            <div className="mt-2 flex justify-between text-[12.5px] text-crm-muted tabular">
-              <span>
-                Paid toward rent {taka(est.advancePaid)} ({advancePct}% of {taka(est.venueRent)})
-              </span>
-              <span>Required {taka(est.advanceRequired)}</span>
+      <Card className="p-5">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {[
+            ["Grand total", est.grandTotal, ""],
+            ["Received", est.received, "text-[#067647]"],
+            ["Balance", Math.max(0, est.balance), est.balance > 0 ? "text-crm-brand" : ""],
+          ].map(([k, v, c]) => (
+            <div key={k as string}>
+              <p className="text-[12px] text-crm-muted">{k}</p>
+              <AnimatedMoney value={v as number} className={cn("font-display text-[20px] font-semibold text-crm-ink", c as string)} />
             </div>
+          ))}
+          <div>
+            <p className="text-[12px] text-crm-muted">Full payment due</p>
+            <p className={cn("font-display text-[20px] font-semibold tabular", overdue ? "text-[#D92D20]" : "text-crm-ink")}>{fmtDate(due, "dd MMM yyyy")}</p>
           </div>
-          <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {[
-              ["Grand total", est.grandTotal],
-              ["Received", est.received],
-              ["Balance", est.balance],
-              ["Security", est.security],
-            ].map(([k, v]) => (
-              <div key={k as string}>
-                <p className="text-[12px] text-crm-muted">{k}</p>
-                <AnimatedMoney value={v as number} className="text-[16px] font-bold text-crm-ink" />
-              </div>
-            ))}
+        </div>
+        <div className="mt-4 border-t border-crm-line pt-4">
+          <div className="mb-1.5 flex justify-between text-[12.5px]">
+            <span className="text-crm-ink-2">
+              Advance {settings.advancePct}% of hall rent · {taka(est.advancePaid)} of {taka(est.advanceRequired)}
+            </span>
+            <Badge tone={est.advancePaid >= est.advanceRequired ? "green" : "amber"}>{est.advancePaid >= est.advanceRequired ? "Advance paid" : "Advance due"}</Badge>
           </div>
-        </Card>
-        <Card className={cn("p-5", overdue && "border-[#FECDCA]")}>
-          <p className="text-[13.5px] font-semibold text-crm-ink">Full payment due</p>
-          <p className={cn("mt-1 text-[22px] font-bold tabular", overdue ? "text-[#D92D20]" : "text-crm-ink")}>{fmtDate(due)}</p>
-          <p className="text-[12px] text-crm-muted">{settings.balanceDueDays} days before the event. Reminders at 30, 20 and 16 days.</p>
-          <div className="mt-4 border-t border-crm-line pt-3">
-            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-crm-ink">
-              <ShieldCheck size={16} /> Security money
-            </p>
-            <p className="text-[12.5px] text-crm-muted">
-              {taka(est.security)} · refund due {fmtDate(refundDue)}
-              {b.refund?.refundedAt ? ` · refunded ${fmtDate(b.refund.refundedAt)}` : ""}
-            </p>
-          </div>
-        </Card>
-      </div>
+          <ProgressBar value={advancePct} marker={settings.advancePct} color={advancePct >= settings.advancePct ? "#12B76A" : "var(--crm-brand)"} />
+          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-crm-muted">
+            <ShieldCheck size={14} /> Security money {taka(est.security)} (refundable) · refund due {fmtDate(refundDue)}
+            {b.refund?.refundedAt ? ` · refunded ${fmtDate(b.refund.refundedAt)}` : ""}
+          </p>
+        </div>
+      </Card>
 
       <Card>
         <CardHeader
@@ -219,6 +207,7 @@ export function PaymentsTab() {
           )}
         </div>
       </Card>
+      {b.status !== "requested" && lastEventDate(b) < todayYmd() && <RefundCard b={b} canRefund={canPay || me.role === "accounts" || me.role === "admin"} />}
       {modal && <PaymentModal payment={modal.payment} onClose={() => setModal(null)} b={b} est={est} me={me} />}
       {docsApi.viewer}
     </div>
