@@ -41,7 +41,7 @@ export function CrmProvider({ children, toaster = true }: { children: React.Reac
           position="bottom-right"
           richColors
           closeButton
-          toastOptions={{ style: { fontFamily: "var(--font-noto), var(--font-noto-bengali), system-ui, sans-serif", borderRadius: 10 } }}
+          toastOptions={{ style: { fontFamily: "var(--font-inter), var(--font-noto-bengali), system-ui, sans-serif", borderRadius: 6 } }}
         />
       )}
     </QueryClientProvider>

@@ -12,15 +12,20 @@ import type {
   Invoice,
   Notification,
   Payment,
+  PortalAccess,
   Rating,
   Source,
   Task,
+  VendorReview,
 } from "@/types/crm";
-import { buildEstimate, ratesAsOf, ratesFromSeed } from "@/lib/crm/pricing";
+import { buildEstimate, daysBetween, findHall, firstEventDate, lastEventDate, parseYmd, ratesAsOf, ratesFromSeed, tariffFor } from "@/lib/crm/pricing";
 import { defaultDocuments, evaluationScore, EVALUATION_CRITERIA, PPM_AGENDA, refundDueDate, balanceDueDate } from "@/lib/crm/rules";
+import { detectLeakage, mergeFindings } from "@/lib/crm/leakage";
 import { base, int, pick, rng } from "./_helpers";
 import { SALES_EXECUTIVES } from "./users";
 import { menuPackagesSeed } from "./menu-packages";
+import { VENDOR_BY_FIRM } from "./vendors";
+import { OFFER_ENDED_ID, offerRecipientsSeed, offersSeed } from "./offers";
 
 const r = rng(20261112);
 const today = new Date();
@@ -262,7 +267,7 @@ for (let i = 0; i < TOTAL; i++) {
     const actual = Math.round(guestsOpt * (r() < 0.25 ? 1.15 : 0.97));
     factSheet = {
       hallOpenedBy: "Mahmudul Karim", preparationHours: 6, businessHours: 12, actualGuests: actual, extraHours: r() < 0.3 ? 1 : 0,
-      acLog: [{ id: "ac1", start: "11:00", end: "23:00" }], generatorLog: [{ id: "g1", date: dateStr, hours: 0, minutes: 40 }],
+      acLog: [{ id: "ac1", start: "11:00", end: "23:00" }], generatorLog: [{ id: "g1", date: dateStr, hours: 0, minutes: i % 4 === 1 ? 40 : 0 }],
       foodProvider: "ICCB Catering", kitchenUsedTime: "10:00–22:00", driverPackets: int(r, 20, 80), foodStallQty: 0,
       serviceBoys: Math.round(guestsOpt / 12), atATimeSetup: Math.round(guestsOpt / 2), tablePerSetup: 10, headTable: 1, waiting: 150,
       hygiene: 4, serviceDress: 5, mannerism: 4, cleaningLog: [{ id: "c1", time: "16:00", rating: 4 }, { id: "c2", time: "20:00", rating: 5 }],
@@ -385,3 +390,210 @@ for (let i = 0; i < TOTAL; i++) {
 }
 
 export const seedCounters = { ...counters, programReg };
+
+/* ═══ Business-feature seeds ═══════════════════════════════════════════════
+   Leakage, readiness, client portal, idle-date offers, vendors, collections.
+   Runs after the main loop so the base data above stays deterministic.        */
+
+const todayStr = ymd(today);
+const nowIso = new Date().toISOString();
+const usedIds = new Set<string>();
+const live = () => bookingsSeed.filter((b) => !b.closed);
+const offsetOf = (b: Booking) => daysBetween(todayStr, firstEventDate(b));
+const take = (target: number, pred: (b: Booking) => boolean) => {
+  const c = live()
+    .filter((b) => !usedIds.has(b.id) && pred(b))
+    .sort((a, b) => Math.abs(offsetOf(a) - target) - Math.abs(offsetOf(b) - target))[0];
+  if (c) usedIds.add(c.id);
+  return c;
+};
+const moveTo = (b: Booking, toOffset: number) => {
+  const delta = toOffset - offsetOf(b);
+  if (!delta) return;
+  const mv = (d: string) => ymd(addDays(parseYmd(d), delta));
+  b.days = b.days.map((d) => ({ ...d, date: mv(d.date) }));
+  b.documents = b.documents.map((d) => (d.dueDate ? { ...d, dueDate: mv(d.dueDate) } : d));
+  if (b.ppm) b.ppm = { ...b.ppm, date: mv(b.ppm.date) };
+  if (b.refund) b.refund = { ...b.refund, dueDate: refundDueDate(lastEventDate(b)) };
+};
+const dropPayments = (b: Booking, purposes: Payment["purpose"][]) => {
+  for (let k = paymentsSeed.length - 1; k >= 0; k--) {
+    const p = paymentsSeed[k];
+    if (p.bookingId !== b.id || !purposes.includes(p.purpose)) continue;
+    paymentsSeed.splice(k, 1);
+    const di = invoicesSeed.findIndex((d) => d.paymentId === p.id);
+    if (di >= 0) invoicesSeed.splice(di, 1);
+    b.activity = b.activity.filter((a) => !a.text.includes(p.mrNo));
+  }
+  delete b.checklist.balance_paid;
+};
+const reopenRefund = (b: Booking) => {
+  b.status = "confirmed";
+  b.completedAt = undefined;
+  delete b.checklist.refund;
+  b.activity = b.activity.filter((a) => !a.text.includes("Confirmed → Completed"));
+  if (b.refund) b.refund = { amount: b.refund.amount, dueDate: b.refund.dueDate, status: "pending" };
+};
+
+/* Collections: an overdue balance in every aging bucket (1–7, 8–15, 16–30, 30+). */
+for (const [target, future] of [[11, true], [4, true], [-8, false], [-40, false]] as const) {
+  const b = take(target, (x) => x.status !== "requested" && (future ? offsetOf(x) > 0 && x.status === "confirmed" : offsetOf(x) < 0));
+  if (!b) continue;
+  moveTo(b, target);
+  dropPayments(b, ["balance", "security"]);
+  if (!future && b.status === "completed") reopenRefund(b);
+  if (!future) {
+    b.refund = undefined;
+    b.promiseDate = target === -8 ? ymd(addDays(today, 3)) : undefined;
+  }
+}
+
+/* Readiness: one event that is fully ready, one that needs attention. */
+{
+  const ready = take(18, (x) => x.status === "confirmed" && offsetOf(x) > 12);
+  if (ready) {
+    ready.documents = ready.documents.map((d) => (d.state === "na" ? d : { ...d, state: "yes" }));
+    ready.ppm = { ...(ready.ppm ?? { date: ymd(subDays(today, 2)), time: "15:00", venue: "ICCB Sales Office", attendees: `${ready.contact.name} (client)`, agenda: {}, notes: "" }), done: true, agenda: { ...(ready.ppm?.agenda ?? {}), 5: "Alo Sound & Light — line array" }, extras: { chairCovers: 0, chairs: 0, externalLighting: false, archways: 1, foodStalls: 0, soundProvider: "Alo Sound & Light" } };
+    ready.decoration = { provider: "iccb" };
+  }
+  const attention = take(28, (x) => x.status === "confirmed" && offsetOf(x) > 20);
+  if (attention) {
+    attention.ppm = undefined;
+    attention.documents = attention.documents.map((d) => (d.key === "nid" ? { ...d, state: "yes" } : d.state === "na" ? d : { ...d, state: "pending" }));
+  }
+}
+
+/* Leakage: completed events with unbilled items (one per main rule) + resolved history. */
+{
+  const past = (x: Booking) => x.status === "completed" && !!x.factSheet && offsetOf(x) < -12;
+  const l1 = take(-20, past);
+  if (l1?.factSheet) l1.factSheet = { ...l1.factSheet, extraHours: 3 };
+  const l2 = take(-30, past);
+  if (l2?.factSheet) l2.factSheet = { ...l2.factSheet, actualGuests: Math.round(l2.guests.optimum * 1.25) };
+  const l3 = take(-45, past);
+  if (l3?.ppm) l3.ppm = { ...l3.ppm, extras: { chairCovers: 400, chairs: 0, externalLighting: true, archways: 3, foodStalls: 0 } };
+  const l4 = take(-60, past);
+  if (l4?.factSheet) l4.factSheet = { ...l4.factSheet, generatorLog: [{ id: "g1", date: firstEventDate(l4), hours: 2, minutes: 10 }], foodStallQty: 2 };
+
+  // Recovered: extra hours found by the guard and added to the bill this month.
+  const l5 = take(-15, past);
+  if (l5?.factSheet) {
+    const hall = findHall(rates, l5.days[0].hallId);
+    const rate = (hall && tariffFor(rates, hall.tariffGroup, l5.days[0].date)?.extraHour) || 15000;
+    l5.factSheet = { ...l5.factSheet, extraHours: 2 };
+    l5.addons = [...l5.addons, { id: "lk1", kind: "extra", name: "Extra business hour (event day)", unit: "hour", qty: 2, rate, reason: "leakage:EXTRA_HOURS" }];
+    const at = iso(subDays(today, 3), 12);
+    l5.leakage = [{ id: `${l5.id}:EXTRA_HOURS`, bookingId: l5.id, ruleId: "EXTRA_HOURS", title: "Extra business hours", detail: "Fact sheet: 2 extra hours, 2 not billed", source: "FactSheet", sourceRef: "factSheet.extraHours", expectedAmount: 2 * rate, line: { name: "Extra business hour (event day)", unit: "hour", qty: 2, rate }, status: "added", resolvedBy: "Nusrat Jahan", resolvedAt: at, detectedAt: at }];
+  }
+  // Waived: extra guests waived as goodwill by the Sales Manager.
+  const l6 = take(-25, past);
+  if (l6?.factSheet) {
+    const actual = Math.round(l6.guests.optimum * 1.2);
+    l6.factSheet = { ...l6.factSheet, actualGuests: actual };
+    const at = iso(subDays(today, 5), 16);
+    l6.leakage = [{ id: `${l6.id}:EXTRA_GUESTS`, bookingId: l6.id, ruleId: "EXTRA_GUESTS", title: "Extra guests (>10%)", detail: `Fact sheet: ${actual} actual vs ${l6.guests.optimum} booked`, source: "FactSheet", sourceRef: "factSheet.actualGuests", expectedAmount: (actual - l6.guests.optimum) * 130, status: "waived", waivedReason: "Repeat VIP client — goodwill", resolvedBy: "Tanvir Hasan", resolvedAt: at, detectedAt: at }];
+  }
+  // A confirmed event with an outside decorator but no category (fee missing).
+  const l7 = take(30, (x) => x.status === "confirmed" && offsetOf(x) > 5 && x.decoration.provider !== "outside");
+  if (l7) l7.decoration = { provider: "outside", firm: "Golden Touch Decor" };
+}
+
+/* Offers: one booking won by an ended idle-date offer. */
+{
+  const won = take(25, (x) => x.status === "confirmed" && offsetOf(x) > 15);
+  if (won) {
+    const offer = offersSeed.find((o) => o.id === OFFER_ENDED_ID)!;
+    won.offerId = offer.id;
+    won.offerCode = offer.code;
+    won.addons = [...won.addons, { id: "offer", kind: "custom", name: `Offer ${offer.code} — ৳50,000 off`, unit: "event", qty: 1, rate: -50000, reason: `offer:${offer.code}` }];
+    won.activity.push({ id: "act-offer", at: iso(subDays(today, 30), 12), by: "Nusrat Jahan", type: "change", text: `Offer code ${offer.code} applied` });
+    const rc = offerRecipientsSeed.find((x) => x.bookingId === "__ENDED_BOOKING__");
+    if (rc) {
+      rc.bookingId = won.id;
+      rc.contactName = won.contact.name;
+      rc.mobile = won.contact.mobile;
+    }
+  }
+}
+
+/* Client portal: two confirmed bookings with live links and client uploads. */
+export const portalSeed: PortalAccess[] = [];
+{
+  const p1 = take(40, (x) => x.status === "confirmed" && offsetOf(x) > 20);
+  const p2 = take(55, (x) => x.status === "confirmed" && offsetOf(x) > 20);
+  const at = (h: number) => iso(subDays(today, 1), h);
+  [p1, p2].forEach((b, k) => {
+    if (!b) return;
+    const expires = addDays(parseYmd(lastEventDate(b)), 30);
+    portalSeed.push({ ...base(`portal-${k + 1}`, { ...S, createdAt: iso(subDays(today, 6)) }), token: `ICCBdemoPortalLink00000${k + 1}`, bookingId: b.id, createdBy: b.salesOfficer?.name ?? "Nusrat Jahan", expiresAt: expires.toISOString(), revoked: false, lastOpenedAt: at(20) });
+    b.documents = b.documents.map((d) => {
+      if (k === 0 && d.key === "nid") return { ...d, state: "pending", fileName: "nid-front-back.jpg", uploadedVia: "portal", uploadedAt: at(19), review: "pending" };
+      if (k === 1 && d.key === "trade_license") return { ...d, state: "yes", fileName: "trade-license-2026.pdf", uploadedVia: "portal", uploadedAt: at(18), review: "accepted" };
+      if (k === 1 && d.key === "police" && d.state !== "na") return { ...d, state: "pending", fileName: "police-permission.pdf", uploadedVia: "portal", uploadedAt: at(21), review: "pending" };
+      return d;
+    });
+    b.portalUnread = k === 0 ? 2 : 1;
+    if (k === 0) b.portalAnswers = { guests: b.guests.optimum, management: "iccb", setup: "Round tables × 10 chairs", stageSize: "29' × 19'", sound: "ICCB sound system", sofaRows: 2, headTable: 1, banners: "1 hanging banner outside", servingTime: "8:30 pm", driverFood: "packet", vehicles: Math.round(b.guests.optimum / 4), special: "Wheelchair access for grandparents", submittedAt: at(20) };
+    b.activity.push({ id: `act-portal-${k}`, at: at(19), by: b.contact.name, type: "document", text: "Uploaded a document through the client portal" });
+  });
+}
+
+/* Refunds: at least 3 pending, one of them overdue. */
+{
+  const pending = () => bookingsSeed.filter((b) => b.refund && !b.refund.refundedAt && !b.closed);
+  if (!pending().some((b) => b.refund!.dueDate < todayStr)) {
+    const b = take(-50, (x) => x.status === "completed" && !!x.refund && offsetOf(x) < -35);
+    if (b) reopenRefund(b);
+  }
+  for (const target of [-14, -20, -26]) {
+    if (pending().length >= 3) break;
+    const b = take(target, (x) => x.status === "completed" && !!x.refund?.refundedAt);
+    if (b) reopenRefund(b);
+  }
+  const first = pending().sort((a, b) => a.refund!.dueDate.localeCompare(b.refund!.dueDate))[1];
+  if (first?.refund) first.refund.status = "cheque_prepared";
+}
+
+/* Vendors: link outside decorators and record reviews after completed events. */
+export const vendorReviewsSeed: VendorReview[] = [];
+{
+  const review = (vendorId: string, b: Booking, v: Omit<VendorReview, keyof ReturnType<typeof base> | "vendorId" | "bookingId" | "date" | "reviewedBy">) =>
+    vendorReviewsSeed.push({ ...base(`vr-${vendorId}-${b.id}`, { ...S, createdAt: iso(addDays(parseYmd(lastEventDate(b)), 2)) }), vendorId, bookingId: b.id, date: ymd(addDays(parseYmd(lastEventDate(b)), 2)), reviewedBy: "Mahmudul Karim", ...v });
+  const PROFILE: Record<string, Omit<VendorReview, keyof ReturnType<typeof base> | "vendorId" | "bookingId" | "date" | "reviewedBy" | "damageAmount">> = {
+    "v-shubho": { setupOnTime: true, dismantledWithin24h: true, violations: [], rating: 5, notes: "Clean handover." },
+    "v-rongdhonu": { setupOnTime: false, dismantledWithin24h: false, violations: ["g03"], rating: 3, notes: "Materials left in the loading area for two days." },
+    "v-golden": { setupOnTime: true, dismantledWithin24h: true, violations: [], rating: 4, notes: "" },
+  };
+  for (const b of bookingsSeed) {
+    if (b.decoration.provider !== "outside" || !b.decoration.firm) continue;
+    const vid = VENDOR_BY_FIRM[b.decoration.firm];
+    if (!vid) continue;
+    b.decoration = { ...b.decoration, vendorId: vid };
+    if (b.status === "completed" && PROFILE[vid]) {
+      const damageAmount = (b.damage?.rows ?? []).reduce((s, x) => s + x.qty * x.rate, 0);
+      review(vid, b, { ...PROFILE[vid], damageAmount });
+    }
+  }
+  const completed = bookingsSeed.filter((b) => b.status === "completed").sort((a, b) => firstEventDate(a).localeCompare(firstEventDate(b)));
+  const at = (k: number) => completed[k % Math.max(1, completed.length)];
+  if (completed.length) {
+    review("v-utshob", at(0), { setupOnTime: false, dismantledWithin24h: false, damageAmount: 45000, violations: ["g05", "g04"], rating: 1, notes: "Fireworks inside the hall; ceiling hooks damaged." });
+    review("v-utshob", at(3), { setupOnTime: false, dismantledWithin24h: true, damageAmount: 22000, violations: ["g01", "g06"], rating: 2, notes: "Nails on stage wall; staff smoking backstage." });
+    review("v-rongdhonu", at(1), { setupOnTime: true, dismantledWithin24h: false, damageAmount: 8000, violations: ["g09"], rating: 3, notes: "Tape marks on glass." });
+    review("v-alo", at(2), { setupOnTime: true, dismantledWithin24h: true, damageAmount: 0, violations: [], rating: 5, notes: "Sound checks finished early." });
+    review("v-nakshi", at(4), { setupOnTime: true, dismantledWithin24h: true, damageAmount: 5000, violations: [], rating: 4, notes: "Minor carpet stain." });
+  }
+}
+
+/* Readiness log: events that were at risk at D-15 and still went ahead (ROI). */
+{
+  const recent = bookingsSeed.filter((b) => b.status === "completed" && offsetOf(b) < 0 && offsetOf(b) > -35 && !b.closed);
+  recent.slice(0, 2).forEach((b) => (b.readiness = { milestones: ["D-15", "D-7", "D-3"], levelAtD15: "risk" }));
+  recent.slice(2, 3).forEach((b) => (b.readiness = { milestones: ["D-15", "D-7", "D-3"], levelAtD15: "attention" }));
+}
+
+/* Store live leakage findings on every confirmed / completed booking. */
+for (const b of bookingsSeed) {
+  if (b.status === "requested" || b.closed) continue;
+  b.leakage = mergeFindings(b.id, detectLeakage(b, rates, { discountApprovalThreshold: 25000 }), b.leakage, nowIso);
+}

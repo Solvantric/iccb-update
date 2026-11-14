@@ -100,9 +100,9 @@ function RadarCard({ r, onPitch, onEdit, onNote }: { r: RadarEvent; onPitch: () 
   const convert = useCrmAction(() => convertRadarToLead(r.id), { success: "Converted to lead + follow-up task" });
   const daysTo = differenceInCalendarDays(parseYmd(r.startDate), new Date());
   const canEdit = can(role, "update", "radar");
-  const scoreColor = r.score >= 85 ? "#E24F5F" : r.score >= 70 ? "#EE8591" : "#8A8690";
+  const scoreColor = r.score >= 85 ? "#EB2127" : r.score >= 70 ? "#F16A6E" : "#8A8690";
   return (
-    <m.div layout initial={{ opacity: 0, y: -16, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ type: "spring", stiffness: 400, damping: 32 }} className={cn("crm-card relative flex flex-col p-4", r.isNew && "ring-2 ring-crm-brand/40 shadow-[0_0_0_6px_rgba(226,79,95,0.08)]", r.status === "dismissed" && "opacity-55")}>
+    <m.div layout initial={{ opacity: 0, y: -16, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ type: "spring", stiffness: 400, damping: 32 }} className={cn("crm-card relative flex flex-col p-4", r.isNew && "ring-2 ring-crm-brand/40 shadow-[0_0_0_6px_rgba(235,33,39,0.08)]", r.status === "dismissed" && "opacity-55")}>
       {r.isNew && (
         <m.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-2 end-3 rounded-full bg-crm-brand px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-white shadow">
           New

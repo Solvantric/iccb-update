@@ -7,7 +7,7 @@ const LOGO = "https://res.cloudinary.com/sgufp9aq/image/upload/v1794418824/iccb-
 function Block({ b }: { b: DocBlock }) {
   switch (b.type) {
     case "heading":
-      return <h3 style={{ margin: "14px 0 6px", fontSize: "10.5pt", fontWeight: 700, color: "#E24F5F", textTransform: "uppercase", letterSpacing: "0.06em" }}>{b.text}</h3>;
+      return <h3 style={{ margin: "14px 0 6px", fontSize: "10.5pt", fontWeight: 700, color: "#EB2127", textTransform: "uppercase", letterSpacing: "0.06em" }}>{b.text}</h3>;
     case "text":
       return <p style={{ margin: "6px 0", color: b.muted ? "#8A8690" : "#2B2A2E", fontSize: b.muted ? "9pt" : "10pt" }}>{b.text}</p>;
     case "kv":
@@ -23,7 +23,7 @@ function Block({ b }: { b: DocBlock }) {
       );
     case "amount":
       return (
-        <div style={{ margin: "10px 0", padding: "10px 12px", border: "1px solid #F5B3BB", background: "#FEF2F3", borderRadius: 6 }}>
+        <div style={{ margin: "10px 0", padding: "10px 12px", border: "1px solid #F7A3A6", background: "#FEF2F3", borderRadius: 6 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
             <span style={{ fontSize: "10pt", color: "#55525A" }}>{b.label}</span>
             <span style={{ fontSize: "16pt", fontWeight: 700, color: "#2B2A2E" }}>{b.value}</span>
@@ -84,7 +84,7 @@ export function DocumentView({ model }: { model: DocModel }) {
   return (
     <div className="doc-a4" style={{ position: "relative", display: "flex", flexDirection: "column" }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "3px solid #E24F5F", paddingBottom: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "3px solid #EB2127", paddingBottom: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={LOGO} alt="ICCB" style={{ height: 46, width: 46, objectFit: "contain" }} />
@@ -94,7 +94,7 @@ export function DocumentView({ model }: { model: DocModel }) {
           </div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: "13pt", fontWeight: 700, color: "#E24F5F", textTransform: "uppercase", letterSpacing: "0.04em" }}>{model.title}</div>
+          <div style={{ fontSize: "13pt", fontWeight: 700, color: "#EB2127", textTransform: "uppercase", letterSpacing: "0.04em" }}>{model.title}</div>
           <div style={{ fontSize: "9pt", color: "#55525A" }}>
             No: <strong>{model.number}</strong>
             {model.version ? ` · v${model.version}` : ""}

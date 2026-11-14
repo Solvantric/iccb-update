@@ -95,20 +95,20 @@ export function KpiCard({
   invertDelta?: boolean;
 }) {
   const toneCls = { brand: "bg-crm-tint text-crm-brand", amber: "bg-[#FEF6E7] text-[#DC6803] dark:bg-[#2B2010]", green: "bg-[#ECFDF3] text-[#079455] dark:bg-[#0E2A1C]", blue: "bg-[#EFF8FF] text-[#1570EF] dark:bg-[#0F2236]" }[tone];
-  const sparkColor = { brand: "#E24F5F", amber: "#F59E0B", green: "#12B76A", blue: "#2E90FA" }[tone];
+  const sparkColor = { brand: "#EB2127", amber: "#F59E0B", green: "#12B76A", blue: "#2E90FA" }[tone];
   const good = delta === undefined ? true : invertDelta ? delta <= 0 : delta >= 0;
   const body = (
-    <div className="crm-card p-4 h-full flex flex-col transition-shadow hover:shadow-[var(--crm-shadow-lg)]">
+    <div className={cn("crm-card p-4 h-full flex flex-col", href && "crm-card-hover")}>
       <div className="flex items-start justify-between gap-3">
         <span className="text-[12.5px] font-medium text-crm-muted">{label}</span>
-        <span className={cn("grid h-8 w-8 place-items-center rounded-lg", toneCls)}>
+        <span className={cn("grid h-8 w-8 place-items-center rounded-[var(--radius-btn)]", toneCls)}>
           <I size={18} weight="duotone" />
         </span>
       </div>
       {loading ? (
         <Skeleton className="mt-2 h-7 w-28" />
       ) : (
-        <div className="mt-1 text-[24px] font-bold text-crm-ink tracking-[-0.01em]">
+        <div className="mt-1 font-display text-[28px] font-semibold leading-tight text-crm-ink">
           <AnimatedNumber value={value} format={format} />
         </div>
       )}

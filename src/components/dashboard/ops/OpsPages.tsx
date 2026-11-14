@@ -2,7 +2,9 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { addDays, differenceInCalendarDays, format } from "date-fns";
-import { CalendarCheck, CheckCircle, ClipboardText, Clock, FileText, ShieldWarning, Star, Users, Warning, ChatCircleText } from "@phosphor-icons/react";
+import { useSearchParams } from "next/navigation";
+import { CalendarCheck, CheckCircle, ClipboardText, Clock, FileText, ShieldWarning, Star, Users, Warning, ChatCircleText, Storefront } from "@phosphor-icons/react";
+import { VendorsTab } from "../features/Vendors";
 import type { Booking } from "@/types/crm";
 import { DAMAGE_DEPARTMENTS } from "@/types/crm";
 import { useCurrentUser } from "@/lib/crm/db";
@@ -13,7 +15,10 @@ import { fmtDate, fmtTime, taka, takaShort, todayYmd } from "@/lib/crm/format";
 import { useBookings, useHalls } from "@/services/crm/hooks";
 import { cn } from "@/lib/utils/cn";
 import { Item, Stagger } from "../ui/motion";
-import { Badge, Button, Card, CardHeader, EmptyState, PageHeader, Segmented, Skeleton } from "../ui/core";
+import { Badge, Button, Card, CardHeader, EmptyState, PageHeader, Segmented, Select, Skeleton } from "../ui/core";
+import type { ReadinessLevel, ReadinessResult } from "@/lib/crm/readiness";
+import { readinessOf } from "@/services/crm/features.service";
+import { ReadinessChip } from "../features/Readiness";
 import { DataTable, type Column } from "../ui/data-table";
 import { Drawer } from "../ui/overlay";
 import { KpiCard, ProgressRing } from "../ui/kpi";
@@ -47,25 +52,43 @@ export function EventsBoardPage() {
   const halls = useHalls();
   const me = useCurrentUser();
   const [range, setRange] = useState<"today" | "week" | "upcoming">("week");
+  const [sort, setSort] = useState<"date" | "risk">("date");
+  const [level, setLevel] = useState<"" | ReadinessLevel>("");
   const [panel, setPanel] = useState<Panel>(null);
   const today = todayYmd();
   const readonly = !can(me.role, "update", "events");
 
+  const scores = useMemo(() => {
+    const m = new Map<string, ReadinessResult>();
+    for (const b of bookings.data ?? []) if (!b.closed && b.status === "confirmed" && lastEventDate(b) >= today) m.set(b.id, readinessOf(b, today));
+    return m;
+  }, [bookings.data, today]);
+
   const events = useMemo(() => {
     const end = range === "today" ? today : format(addDays(new Date(), range === "week" ? 7 : 45), "yyyy-MM-dd");
     return (bookings.data ?? [])
-      .filter((b) => !b.closed && b.status !== "requested" && lastEventDate(b) >= today && firstEventDate(b) <= end)
-      .sort((a, b) => firstEventDate(a).localeCompare(firstEventDate(b)));
-  }, [bookings.data, range, today]);
+      .filter((b) => !b.closed && b.status !== "requested" && lastEventDate(b) >= today && firstEventDate(b) <= end && (!level || scores.get(b.id)?.level === level))
+      .sort((a, b) => (sort === "risk" ? (scores.get(a.id)?.score ?? 101) - (scores.get(b.id)?.score ?? 101) : 0) || firstEventDate(a).localeCompare(firstEventDate(b)));
+  }, [bookings.data, range, today, sort, level, scores]);
 
   const byDay = useMemo(() => {
+    if (sort === "risk") return [["__risk", events]] as [string, Booking[]][];
     const m = new Map<string, Booking[]>();
     for (const b of events) {
       const d = firstEventDate(b) < today ? today : firstEventDate(b);
       m.set(d, [...(m.get(d) ?? []), b]);
     }
     return [...m.entries()];
-  }, [events, today]);
+  }, [events, today, sort]);
+
+  const strip = useMemo(() => {
+    const in30 = format(addDays(new Date(), 30), "yyyy-MM-dd");
+    const list = [...scores.entries()].filter(([id]) => {
+      const b = bookings.data?.find((x) => x.id === id);
+      return b && firstEventDate(b) <= in30;
+    }).map(([, r]) => r.level);
+    return { total: list.length, ready: list.filter((l) => l === "ready").length, attention: list.filter((l) => l === "attention").length, risk: list.filter((l) => l === "risk").length };
+  }, [scores, bookings.data]);
 
   const hallName = (id: string) => halls.data?.find((h) => h.id === id)?.name ?? "—";
   const warn = (b: Booking) => {
@@ -89,6 +112,20 @@ export function EventsBoardPage() {
         />
       </Item>
       <Item>
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-card-lg)] border border-crm-line bg-crm-surface px-4 py-3">
+          <p className="text-[13.5px] text-crm-ink-2">
+            <span className="font-semibold text-crm-ink">Next 30 days:</span> {strip.total} events ·{" "}
+            <button className="font-semibold text-[#067647] hover:underline" onClick={() => setLevel(level === "ready" ? "" : "ready")}>{strip.ready} ready</button> ·{" "}
+            <button className="font-semibold text-[#B54708] hover:underline" onClick={() => setLevel(level === "attention" ? "" : "attention")}>{strip.attention} attention</button> ·{" "}
+            <button className="font-semibold text-[#B42318] hover:underline" onClick={() => setLevel(level === "risk" ? "" : "risk")}>{strip.risk} risk</button>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Select value={level} onChange={(v) => setLevel(v as "" | ReadinessLevel)} placeholder="All levels" options={[{ value: "ready", label: "Ready" }, { value: "attention", label: "Attention" }, { value: "risk", label: "Risk" }]} className="w-auto min-w-[130px]" />
+            <Segmented size="sm" value={sort} onChange={setSort} options={[{ value: "date", label: "By date" }, { value: "risk", label: "Most at risk" }]} />
+          </div>
+        </div>
+      </Item>
+      <Item>
         <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <KpiCard label="Events in range" value={events.length} icon={CalendarCheck} loading={bookings.isLoading} />
           <KpiCard label="Expected guests" value={events.reduce((s, b) => s + b.guests.optimum, 0)} icon={Users} tone="blue" loading={bookings.isLoading} />
@@ -107,26 +144,31 @@ export function EventsBoardPage() {
           <div className="space-y-6">
             {byDay.map(([day, list]) => (
               <section key={day}>
-                <h3 className="mb-3 flex items-center gap-2 text-[14px] font-semibold text-crm-ink">
-                  {day === today ? <Badge tone="brand">Today</Badge> : <Badge tone="neutral">{differenceInCalendarDays(parseYmd(day), new Date())} days</Badge>}
-                  {fmtDate(day, "EEEE, dd MMM yyyy")}
-                </h3>
+                {day === "__risk" ? (
+                  <h3 className="mb-3 text-[14px] font-semibold text-crm-ink">Lowest readiness first</h3>
+                ) : (
+                  <h3 className="mb-3 flex items-center gap-2 text-[14px] font-semibold text-crm-ink">
+                    {day === today ? <Badge tone="brand">Today</Badge> : <Badge tone="neutral">{differenceInCalendarDays(parseYmd(day), new Date())} days</Badge>}
+                    {fmtDate(day, "EEEE, dd MMM yyyy")}
+                  </h3>
+                )}
                 <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
                   {list.map((b) => {
                     const w = warn(b);
                     const day0 = b.days.find((d) => d.date === day) ?? b.days[0];
+                    const rd = scores.get(b.id);
                     return (
-                      <Card key={b.id} className="flex flex-col p-4">
+                      <Card key={b.id} className={cn("flex flex-col p-4", rd?.level === "risk" && "crm-pulse-once")} style={rd?.level === "risk" ? ({ ["--pulse" as string]: "#D92D20" } as React.CSSProperties) : undefined}>
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <Link href={`/dashboard/sales/bookings/${b.id}`} className="block truncate text-[14.5px] font-semibold text-crm-ink hover:text-crm-brand">
                               {b.eventTitle}
                             </Link>
                             <p className="text-[12px] text-crm-muted">
-                              {hallName(day0.hallId)} · {fmtTime(day0.start)}–{fmtTime(day0.end)} · {b.guests.optimum} guests
+                              {sort === "risk" ? `${fmtDate(firstEventDate(b), "dd MMM")} · ` : ""}{hallName(day0.hallId)} · {fmtTime(day0.start)}–{fmtTime(day0.end)} · {b.guests.optimum} guests
                             </p>
                           </div>
-                          <StatusPill status={b.status} size="sm" />
+                          {b.status === "confirmed" ? <ReadinessChip b={b} size={42} showLabel={false} /> : <StatusPill status={b.status} size="sm" />}
                         </div>
                         {w.length > 0 ? (
                           <div className="mt-3 flex flex-wrap gap-1">
@@ -232,7 +274,8 @@ export function QualityPage() {
   const bookings = useBookings();
   const halls = useHalls();
   const me = useCurrentUser();
-  const [tab, setTab] = useState<"evaluations" | "damage">("evaluations");
+  const params = useSearchParams();
+  const [tab, setTab] = useState<"evaluations" | "damage" | "vendors">(params.get("tab") === "vendors" ? "vendors" : "evaluations");
   const [panel, setPanel] = useState<Panel>(null);
   const evaluated = useMemo(() => (bookings.data ?? []).filter((b) => b.evaluation).sort((a, b) => b.evaluation!.submittedAt.localeCompare(a.evaluation!.submittedAt)), [bookings.data]);
   const damaged = useMemo(() => (bookings.data ?? []).filter((b) => b.damage?.done), [bookings.data]);
@@ -269,9 +312,13 @@ export function QualityPage() {
         </div>
       </Item>
       <Item>
-        <Tabs tabs={[{ value: "evaluations", label: "Evaluations", icon: Star, count: evaluated.length }, { value: "damage", label: "Damage claims", icon: ShieldWarning, count: damaged.length }]} value={tab} onChange={setTab} className="mb-5" />
+        <Tabs tabs={[{ value: "evaluations", label: "Evaluations", icon: Star, count: evaluated.length }, { value: "damage", label: "Damage claims", icon: ShieldWarning, count: damaged.length }, { value: "vendors", label: "Vendors", icon: Storefront }]} value={tab} onChange={setTab} className="mb-5" />
       </Item>
-      {tab === "evaluations" ? (
+      {tab === "vendors" ? (
+        <Item>
+          <VendorsTab />
+        </Item>
+      ) : tab === "evaluations" ? (
         <>
           <Item>
             <div className="mb-5 grid gap-5 xl:grid-cols-2">

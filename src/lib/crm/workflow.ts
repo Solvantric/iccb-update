@@ -117,6 +117,6 @@ export function stageProgress(b: Booking, ctx: FlowContext) {
 
 export const STATUS_COLORS: Record<BookingStatus, string> = {
   requested: "#F59E0B",
-  confirmed: "#E24F5F",
+  confirmed: "#EB2127",
   completed: "#12B76A",
 };

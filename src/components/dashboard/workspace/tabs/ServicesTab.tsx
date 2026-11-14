@@ -14,6 +14,9 @@ import { m } from "../../ui/motion";
 import { Badge, Button, Card, CardHeader, Field, Input, NumberInput, SearchInput, Segmented, Select, Textarea } from "../../ui/core";
 import { AnimatedMoney } from "../../ui/kpi";
 import { useWs } from "../context";
+import { LeakageAlert } from "../../features/Leakage";
+import { DecoratorPicker } from "../../features/Vendors";
+import { applyOfferCode, removeOfferCode } from "@/services/crm/features.service";
 
 const CAT_LABELS: Record<ChargeCategory, string> = { per_person: "Per person / item", hall: "Hall-level", generator: "Generator", other: "Other items", stall: "Food stalls" };
 
@@ -27,7 +30,7 @@ function LineEditor({ line, onSave, onRemove, disabled }: { line: AddonLine; onS
         <p className="text-[13px] text-crm-ink">{line.name}</p>
         <p className="text-[11.5px] text-crm-muted">
           {line.kind === "iccb" ? "ICCB service" : line.kind === "extra" ? "Extra" : line.kind === "custom" ? "Custom" : "Catalogue"} · per {line.unit}
-          {line.reason && line.reason !== "fact-sheet" ? ` · ${line.reason}` : ""}
+          {line.reason?.startsWith("leakage:") ? " · added by Leakage Guard" : line.reason?.startsWith("offer:") ? " · idle-date offer" : line.reason && line.reason !== "fact-sheet" ? ` · ${line.reason}` : ""}
         </p>
       </td>
       <td className="w-24 py-2 pe-2">
@@ -85,6 +88,8 @@ export function ServicesTab() {
   const readonly = !canEdit || !!b.closed;
 
   return (
+    <div className="space-y-5">
+    <LeakageAlert />
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
       <div className="space-y-5 min-w-0">
         {/* Current lines */}
@@ -160,9 +165,7 @@ export function ServicesTab() {
                 />
                 {b.decoration.provider === "outside" && (
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <Field label="Firm name">
-                      <Input defaultValue={b.decoration.firm} onBlur={(e) => e.target.value !== b.decoration.firm && save.mutate({ patch: { decoration: { ...b.decoration, firm: e.target.value } } })} />
-                    </Field>
+                    <DecoratorPicker b={b} disabled={readonly} />
                     <Field label="Category" hint={decoCat ? `${decoCat.description} · fee ${taka(hallCode === "hall-5" ? decoCat.rateHall5 : decoCat.rateHall14)}` : undefined}>
                       <Select value={b.decoration.category} onChange={(v) => save.mutate({ patch: { decoration: { ...b.decoration, category: v as "A" | "B" | "C" } }, note: `Outside decoration category ${v}` })} placeholder="Choose…" options={rates.decoration.map((d) => ({ value: d.code, label: `${d.code} — ${d.description}` }))} />
                     </Field>
@@ -313,8 +316,48 @@ export function ServicesTab() {
           )}
           {b.discount.approval === "pending" && !canApprove && <p className="mt-3 text-[12px] text-crm-muted">Waiting for {me.role === "sales_executive" ? "your Sales Manager" : "a manager"} to decide.</p>}
         </Card>
+        <OfferCodeCard readonly={readonly} />
       </div>
     </div>
+    </div>
+  );
+}
+
+/** Idle-date offer code → discount line + link to the offer. */
+function OfferCodeCard({ readonly }: { readonly: boolean }) {
+  const { b } = useWs();
+  const [code, setCode] = useState("");
+  const apply = useCrmAction(() => applyOfferCode(b.id, code), { success: (r) => `Offer ${r.offerCode} applied`, onSuccess: () => setCode("") });
+  const remove = useCrmAction(() => removeOfferCode(b.id), { success: "Offer removed" });
+  const line = b.addons.find((a) => a.reason?.startsWith("offer:"));
+  return (
+    <Card className="p-5">
+      <p className="flex items-center gap-2 text-[13.5px] font-semibold text-crm-ink">
+        <Tag size={16} className="text-crm-brand" /> Offer code
+      </p>
+      {b.offerCode && line ? (
+        <div className="mt-3 flex items-center justify-between gap-2 rounded-[var(--radius-btn)] bg-crm-tint px-3 py-2">
+          <span className="text-[12.5px] text-crm-ink">
+            <span className="font-mono font-semibold">{b.offerCode}</span> · {taka(Math.abs(line.qty * line.rate))} off
+          </span>
+          {!readonly && (
+            <Button size="sm" variant="ghost" loading={remove.isPending} onClick={() => remove.mutate(undefined)}>
+              Remove
+            </Button>
+          )}
+        </div>
+      ) : readonly ? (
+        <p className="mt-2 text-[12px] text-crm-muted">No offer used.</p>
+      ) : (
+        <div className="mt-3 flex gap-2">
+          <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="e.g. ICCB-WED15" className="font-mono" />
+          <Button variant="secondary" disabled={code.trim().length < 4} loading={apply.isPending} onClick={() => apply.mutate(undefined)}>
+            Apply
+          </Button>
+        </div>
+      )}
+      <p className="mt-2 text-[11.5px] text-crm-muted">Idle-date offers from Marketing. The code must match this booking&apos;s hall and date.</p>
+    </Card>
   );
 }
 

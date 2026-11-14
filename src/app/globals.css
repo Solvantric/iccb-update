@@ -506,28 +506,29 @@ html.lenis { height: auto; }
   --color-crm-tint:      var(--crm-tint);
   --color-crm-tint-2:    var(--crm-tint-2);
   --color-crm-requested: #F59E0B;
-  --color-crm-confirmed: #E24F5F;
+  --color-crm-confirmed: var(--accent);
   --color-crm-completed: #12B76A;
   --color-crm-closed:    #98A2B3;
   --color-crm-info:      #2E90FA;
 }
 
+/* The dashboard aliases the homepage tokens (docs/design.md §7) — one brand everywhere. */
 .crm {
-  --crm-bg: #F7F7F8;
-  --crm-surface: #FFFFFF;
-  --crm-surface-2: #FAFAFB;
-  --crm-ink: #2B2A2E;
-  --crm-ink-2: #55525A;
-  --crm-muted: #8A8690;
-  --crm-line: #E8E6EA;
-  --crm-brand: #E24F5F;
-  --crm-brand-hover: #CF3D4E;
-  --crm-tint: #FEF2F3;
-  --crm-tint-2: #FCE3E6;
-  --crm-shadow: 0 1px 2px rgba(43, 42, 46, 0.04), 0 4px 16px -8px rgba(43, 42, 46, 0.08);
-  --crm-shadow-lg: 0 24px 48px -16px rgba(43, 42, 46, 0.22);
+  --crm-bg: var(--bg-soft);
+  --crm-surface: var(--surface);
+  --crm-surface-2: color-mix(in srgb, var(--bg-soft) 55%, var(--surface));
+  --crm-ink: var(--ink);
+  --crm-ink-2: var(--ink-body);
+  --crm-muted: var(--ink-muted);
+  --crm-line: var(--line);
+  --crm-brand: var(--accent);
+  --crm-brand-hover: var(--accent-hover);
+  --crm-tint: var(--bg-tint);
+  --crm-tint-2: #FDE3E4;
+  --crm-shadow: none;
+  --crm-shadow-lg: var(--shadow-card);
   --crm-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  font-family: var(--font-noto), var(--font-noto-bengali), var(--font-noto-arabic), var(--font-noto-sc), system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   line-height: 1.5;
   color: var(--crm-ink-2);
@@ -535,29 +536,62 @@ html.lenis { height: auto; }
   font-feature-settings: "tnum" 0;
 }
 .dark .crm, .crm.dark {
-  --crm-bg: #121215;
-  --crm-surface: #1A1A1F;
-  --crm-surface-2: #202026;
-  --crm-ink: #F2F1F4;
-  --crm-ink-2: #C9C6CE;
-  --crm-muted: #8F8B96;
-  --crm-line: #2C2B32;
-  --crm-brand: #F0606F;
-  --crm-brand-hover: #F47A87;
-  --crm-tint: #2A171B;
-  --crm-tint-2: #3A1D23;
-  --crm-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
-  --crm-shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.6);
+  --crm-tint-2: #2A1416;
 }
-[lang="bn"] .crm, .crm[lang="bn"] { font-family: var(--font-noto-bengali), var(--font-noto), sans-serif; }
+[lang="bn"] .crm, .crm[lang="bn"] { font-family: var(--font-noto-bengali), var(--font-inter), sans-serif; }
 .crm .tabular, .crm .num { font-variant-numeric: tabular-nums; }
 .crm ::selection { background: var(--crm-tint-2); color: var(--crm-ink); }
 .crm-card {
   background: var(--crm-surface);
   border: 1px solid var(--crm-line);
-  border-radius: 12px;
+  border-radius: var(--radius-card-lg);
   box-shadow: var(--crm-shadow);
 }
+/* Clickable dashboard cards: homepage card-hover, lighter lift. */
+.crm-card-hover {
+  position: relative;
+  transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1), transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.4s ease;
+}
+.crm-card-hover::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: -1px;
+  height: 3px;
+  z-index: 2;
+  border-radius: var(--radius-card-lg) var(--radius-card-lg) 0 0;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[dir="rtl"] .crm-card-hover::before { transform-origin: right; }
+.crm-card-hover:hover { box-shadow: var(--shadow-card); transform: translateY(-2px); }
+.crm-card-hover:hover::before { transform: scaleX(1); }
+/* Primary dashboard button: homepage red → deep-red gradient with a light sweep. */
+.crm-btn-primary {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-deep) 100%);
+  box-shadow: 0 8px 22px -12px var(--accent-glow);
+}
+.crm-btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.28) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.crm-btn-primary:hover::after { transform: translateX(120%); }
+.crm-display { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0; }
+[dir="rtl"] .crm-display { text-transform: none; }
+@keyframes crm-pulse-once { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pulse, var(--accent)) 45%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+.crm-pulse-once { animation: crm-pulse-once 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.4s 1; }
+@keyframes crm-shake-once { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-3px); } 40% { transform: translateX(3px); } 60% { transform: translateX(-2px); } 80% { transform: translateX(2px); } }
+.crm-shake-once { animation: crm-shake-once 0.5s ease 0.6s 1; }
 .crm-scroll { scrollbar-width: thin; scrollbar-color: var(--crm-line) transparent; }
 .crm-skeleton {
   background: linear-gradient(90deg, var(--crm-surface-2) 0%, var(--crm-line) 50%, var(--crm-surface-2) 100%);
@@ -571,7 +605,8 @@ html.lenis { height: auto; }
 }
 .crm-focus:focus-visible, .crm :focus-visible { outline: 2px solid color-mix(in srgb, var(--crm-brand) 55%, transparent); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
-  .crm-skeleton { animation: none; }
+  .crm-skeleton, .crm-pulse-once, .crm-shake-once { animation: none; }
+  .crm-card-hover:hover { transform: none; }
 }
 
 /* ─── A4 print documents ─────────────────────────────────────────────────── */
@@ -590,7 +625,7 @@ html.lenis { height: auto; }
 }
 .doc-a4 table { width: 100%; border-collapse: collapse; }
 .doc-a4 th, .doc-a4 td { border: 1px solid #D9D6DC; padding: 4px 6px; text-align: start; vertical-align: top; }
-.doc-a4 th { background: #FEF2F3; color: #2B2A2E; font-weight: 600; font-size: 9pt; }
+.doc-a4 th { background: #FEF2F2; color: #2B2A2E; font-weight: 600; font-size: 9pt; }
 @media print {
   @page { size: A4; margin: 0; }
   body * { visibility: hidden !important; }

@@ -10,7 +10,7 @@ import { m } from "./motion";
 
 const STATUS_BG: Record<BookingStatus, string> = {
   requested: "rgba(245,158,11,0.12)",
-  confirmed: "rgba(226,79,95,0.12)",
+  confirmed: "rgba(235,33,39,0.12)",
   completed: "rgba(18,183,106,0.12)",
 };
 
@@ -81,7 +81,7 @@ export function LockedDot() {
 /* ─── Timeline ───────────────────────────────────────────────────────────── */
 
 const TL_COLOR: Record<ActivityItem["type"], string> = {
-  status: "#E24F5F",
+  status: "#EB2127",
   note: "#8A8690",
   call: "#2E90FA",
   change: "#7A5AF8",

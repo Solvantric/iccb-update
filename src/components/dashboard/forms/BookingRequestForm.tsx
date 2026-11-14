@@ -33,7 +33,7 @@ export function BookingRequestForm({
   mode: "public" | "staff";
   onSubmit: (input: BookingRequestInput) => void;
   submitting?: boolean;
-  initial?: Partial<{ hallId: string; date: string; name: string; mobile: string; eventNature: string; guests: number; source: Source }>;
+  initial?: Partial<{ hallId: string; date: string; name: string; mobile: string; eventNature: string; guests: number; source: Source; clientType: ClientType; layout: string; food: boolean; decorationProvider: "iccb" | "outside" | "none" }>;
 }) {
   const halls = db.halls.store((s) => s.items).filter((h) => !h.deletedAt && h.active).sort((a, b) => a.order - b.order);
   const bookings = db.bookings.store((s) => s.items);
@@ -44,15 +44,15 @@ export function BookingRequestForm({
   const [error, setError] = useState<string | null>(null);
   const [helpChoose, setHelpChoose] = useState(false);
 
-  const [clientType, setClientType] = useState<ClientType>("personal");
+  const [clientType, setClientType] = useState<ClientType>(initial?.clientType ?? "personal");
   const [eventTitle, setEventTitle] = useState("");
   const [eventNature, setEventNature] = useState(initial?.eventNature ?? "Wedding");
   const [days, setDays] = useState<DayDraft[]>(() => [{ key: "d0", dayType: "program", hallId: initial?.hallId ?? "", date: initial?.date ?? format(addDays(new Date(), 60), "yyyy-MM-dd"), start: "12:00", end: "23:00" }]);
   const [guests, setGuests] = useState({ optimum: initial?.guests ?? 500, maximum: initial?.guests ? Math.round(initial.guests * 1.1) : 550 });
   const [cars, setCars] = useState({ optimum: 120, maximum: 160 });
-  const [food, setFood] = useState({ breakfast: false, lunch: false, snacks: false, dinner: true });
-  const [decorationProvider, setDeco] = useState<"iccb" | "outside" | "none">("iccb");
-  const [layout, setLayout] = useState("banquet_stage");
+  const [food, setFood] = useState({ breakfast: false, lunch: false, snacks: false, dinner: initial?.food ?? true });
+  const [decorationProvider, setDeco] = useState<"iccb" | "outside" | "none">(initial?.decorationProvider ?? "iccb");
+  const [layout, setLayout] = useState(initial?.layout ?? "banquet_stage");
   const [contact, setContact] = useState({ name: initial?.name ?? "", organization: "", mobile: initial?.mobile ?? "", phone: "", email: "", address: "", emergencyName: "", emergencyMobile: "", referredBy: "", preferredMeetingTime: "", notes: "" });
   const [consent, setConsent] = useState(mode === "staff");
   const [source, setSource] = useState<Source>(initial?.source ?? (mode === "staff" ? "walk_in" : "website"));

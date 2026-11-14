@@ -1,7 +1,10 @@
 "use client";
 import { useMemo, useState } from "react";
 import { addMonths, format, getDaysInMonth, startOfMonth } from "date-fns";
-import { ArrowDown, ArrowUp, Check, Lightbulb, MapTrifold, X } from "@phosphor-icons/react";
+import { ArrowDown, ArrowUp, CalendarX, Check, Lightbulb, MapTrifold, X } from "@phosphor-icons/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Tabs } from "../ui/tabs";
+import { IdleDatesTab } from "../features/IdleDates";
 import type { HallTariff } from "@/types/crm";
 import { db, getSettings, useRole } from "@/lib/crm/db";
 import { can } from "@/lib/crm/permissions";
@@ -41,6 +44,10 @@ export function DemandPage() {
   const halls = useHalls();
   const tariffs = useTariffs();
   const [sel, setSel] = useState<{ r: string; c: string } | null>(null);
+  const router = useRouter();
+  const params = useSearchParams();
+  const tab: "demand" | "idle" = params.get("tab") === "idle" ? "idle" : "demand";
+  const setTab = (t: "demand" | "idle") => router.replace(t === "idle" ? "/dashboard/marketing/demand?tab=idle" : "/dashboard/marketing/demand", { scroll: false });
   const canApply = can(role, "approve", "demand") || role === "admin";
 
   const months = useMemo(() => Array.from({ length: 12 }, (_, i) => format(addMonths(startOfMonth(new Date()), i), "yyyy-MM")), []);
@@ -145,8 +152,16 @@ export function DemandPage() {
   return (
     <Stagger>
       <Item>
-        <PageHeader eyebrow="Marketing" title="Demand heatmap & smart pricing" description="Demand per hall per month from bookings, requests, enquiries, availability checks and estimates. Suggestions write a special tariff rule for that month — new estimates only." />
+        <PageHeader eyebrow="Marketing" title="Demand & idle dates" description="Demand per hall per month, smart pricing, and offers that turn empty hall-days into bookings." />
       </Item>
+      <Item>
+        <Tabs tabs={[{ value: "demand" as const, label: "Demand & pricing", icon: MapTrifold }, { value: "idle" as const, label: "Idle dates", icon: CalendarX }]} value={tab} onChange={setTab} className="mb-6" />
+      </Item>
+      {tab === "idle" ? (
+        <Item>
+          <IdleDatesTab />
+        </Item>
+      ) : (<>
       <Item>
         <Card className="mb-6">
           <CardHeader icon={MapTrifold} title="Next 12 months" description="Darker = higher demand. Click a cell for the breakdown." />
@@ -261,6 +276,7 @@ export function DemandPage() {
           </Card>
         </div>
       </Item>
+      </>)}
     </Stagger>
   );
 }

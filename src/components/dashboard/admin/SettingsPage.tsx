@@ -6,6 +6,7 @@ import type { AuditEntry, Settings } from "@/types/crm";
 import { ROLE_LABELS } from "@/types/crm";
 import { DB_NAMES, downloadFile, exportAll, importAll, previewNumber, repo, resetAll, toCsv, type DbName, type NumberKind } from "@/lib/crm/db";
 import { fmtDate, fmtDateTime, taka } from "@/lib/crm/format";
+import { featureSettings } from "@/lib/crm/feature-settings";
 import { useAudit, useCrmUpdate, useSettings, useUsers } from "@/services/crm/hooks";
 import { cn } from "@/lib/utils/cn";
 import { Item, Stagger } from "../ui/motion";
@@ -27,6 +28,8 @@ function GeneralTab({ s }: { s: Settings }) {
   const [v, setV] = useState(s);
   const set = <K extends keyof Settings>(k: K, val: Settings[K]) => setV((x) => ({ ...x, [k]: val }));
   const [holiday, setHoliday] = useState({ date: "", name: "" });
+  const fx = featureSettings(v);
+  const weightSum = Object.values(fx.readinessWeights).reduce((x, y) => x + y, 0);
   return (
     <div className="space-y-5">
       <Card>
@@ -52,6 +55,25 @@ function GeneralTab({ s }: { s: Settings }) {
           <Field label="Money digit grouping">
             <Segmented value={v.digitGrouping} onChange={(x) => set("digitGrouping", x)} options={[{ value: "intl", label: "1,258,215" }, { value: "bd", label: "12,58,215" }]} />
           </Field>
+        </div>
+      </Card>
+      <Card>
+        <CardHeader icon={Gear} title="Business features" description="Idle-date offers, event readiness, vendor scorecard and the client portal." />
+        <div className="grid gap-4 px-5 pb-5 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label="Max offer discount" hint="Above this, a Sales Manager approves."><NumberInput value={fx.maxOfferDiscount} onChange={(n) => set("maxOfferDiscount", n)} suffix="%" /></Field>
+          <Field label="Portal link expiry" hint="Days after the event."><NumberInput value={fx.portalExpiryDays} onChange={(n) => set("portalExpiryDays", n)} suffix="days" /></Field>
+          <Field label="Vendor score: active ≥"><NumberInput value={fx.vendorThresholds.active} onChange={(n) => set("vendorThresholds", { ...fx.vendorThresholds, active: n })} /></Field>
+          <Field label="Vendor score: warning ≥" hint="Below this: review for blacklist."><NumberInput value={fx.vendorThresholds.warning} onChange={(n) => set("vendorThresholds", { ...fx.vendorThresholds, warning: n })} /></Field>
+        </div>
+        <div className="border-t border-crm-line px-5 py-4">
+          <p className="mb-3 text-[12.5px] font-medium text-crm-ink-2">Readiness weights <span className={cn("ms-1 tabular", weightSum === 100 ? "text-crm-muted" : "text-[#B54708]")}>(total {weightSum}{weightSum === 100 ? "" : " — should be 100"})</span></p>
+          <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {(["payment", "documents", "ppm", "permissions", "vendors"] as const).map((k) => (
+              <Field key={k} label={k[0].toUpperCase() + k.slice(1)}>
+                <NumberInput value={fx.readinessWeights[k]} onChange={(n) => set("readinessWeights", { ...fx.readinessWeights, [k]: n })} />
+              </Field>
+            ))}
+          </div>
         </div>
       </Card>
       <Card>
@@ -224,7 +246,7 @@ function AuditTab() {
   const [open, setOpen] = useState<AuditEntry | null>(null);
   const rows = useMemo(() => (audit.data ?? []).filter((a) => (!user || a.actorId === user) && (!entity || a.entity === entity) && (!action || a.action === action)), [audit.data, user, entity, action]);
   const entities = [...new Set((audit.data ?? []).map((a) => a.entity))].sort();
-  const tone = { create: "green", update: "blue", delete: "red", restore: "amber", status: "brand", override: "red", approve: "green", reject: "red", reset: "red", import: "purple" } as const;
+  const tone = { create: "green", update: "blue", delete: "red", restore: "amber", status: "brand", override: "red", approve: "green", reject: "red", reset: "red", import: "purple", waive: "amber", revoke: "grey" } as const;
   const columns: Column<AuditEntry>[] = [
     { id: "at", header: "When", value: (a) => a.at, cell: (a) => <span className="whitespace-nowrap tabular">{fmtDateTime(a.at)}</span> },
     { id: "who", header: "Who", primary: true, value: (a) => a.actorName, cell: (a) => <span>{a.actorName}<span className="block text-[11.5px] text-crm-muted">{ROLE_LABELS[a.actorRole]}</span></span> },

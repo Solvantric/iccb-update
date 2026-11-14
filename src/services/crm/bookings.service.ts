@@ -25,6 +25,7 @@ import { balanceDueDate, defaultDocuments, evaluationScore, ppmDueDate, refundDu
 import { guardFor, type FlowContext } from "@/lib/crm/workflow";
 import { taka } from "@/lib/crm/format";
 import { buildDocModel, type DocInput } from "@/lib/crm/documents";
+import { liveFindings, openFindings } from "@/lib/crm/leakage";
 import { withLatency } from "./base";
 
 const ymd = (d: Date) => format(d, "yyyy-MM-dd");
@@ -49,6 +50,27 @@ export function flowContext(b: Booking): FlowContext {
     documents: db.invoices.active().filter((d) => d.bookingId === b.id),
     advancePct: getSettings().advancePct,
   };
+}
+
+/** Live leakage findings for a booking (detection merged with the stored resolution history). */
+export function findingsFor(b: Booking) {
+  return liveFindings(b, getRates(b.priceVersion), { discountApprovalThreshold: getSettings().discountApprovalThreshold }, estimateFor(b));
+}
+
+/** Recompute and store findings after the PPM, Fact Sheet or bill lines change. */
+export function syncLeakage(id: string) {
+  const b = db.bookings.get(id);
+  if (!b || b.status === "requested") return b;
+  const leakage = findingsFor(b);
+  const same = JSON.stringify(leakage.map((f) => [f.id, f.status, f.expectedAmount])) === JSON.stringify((b.leakage ?? []).map((f) => [f.id, f.status, f.expectedAmount]));
+  if (same) return b;
+  const before = openFindings(b.leakage ?? []).length;
+  const after = openFindings(leakage).length;
+  if (after > before && b.assignedTo) {
+    const amount = openFindings(leakage).reduce((s, f) => s + f.expectedAmount, 0);
+    notify({ title: "Unbilled items found", body: `${b.bfNo} · ${taka(amount)} not on the bill (${after} item${after > 1 ? "s" : ""})`, kind: "payment", href: `/dashboard/sales/bookings/${id}?tab=services`, userId: b.assignedTo });
+  }
+  return db.bookings.update(id, { leakage }, { silent: true });
 }
 
 function activity(type: ActivityItem["type"], text: string): ActivityItem {
@@ -203,7 +225,9 @@ export async function createBookingFromRequest(input: BookingRequestInput, opts:
 export async function updateBooking(id: string, patch: Partial<Booking>, note?: string) {
   return withLatency(() => {
     const b = getBooking(id);
-    return db.bookings.update(id, { ...patch, ...(note ? pushActivity(b, "change", note) : {}) });
+    const after = db.bookings.update(id, { ...patch, ...(note ? pushActivity(b, "change", note) : {}) });
+    if ("addons" in patch || "menus" in patch || "decoration" in patch || "days" in patch || "guests" in patch || "food" in patch) return syncLeakage(id) ?? after;
+    return after;
   });
 }
 
@@ -373,7 +397,8 @@ export async function setDiscount(id: string, d: { mode: "amount" | "percent"; v
       notify({ title: "Discount approval needed", body: `${taka(amount)} on ${b.bfNo} (${b.eventTitle}) — ${d.reason || "no reason"}`, kind: "approval", href: `/dashboard/sales/bookings/${id}`, roles: MANAGERS });
     }
     const text = amount > 0 ? `Discount ${taka(amount)} ${needs ? "requested — waiting for approval" : "applied"}${d.reason ? ` (${d.reason})` : ""}` : "Discount removed";
-    return db.bookings.update(id, { discount: { ...d, approval, requestedBy: u.id, decidedBy: needs ? undefined : approval === "approved" ? u.id : undefined }, ...pushActivity(b, "approval", text) });
+    const after = db.bookings.update(id, { discount: { ...d, approval, requestedBy: u.id, decidedBy: needs ? undefined : approval === "approved" ? u.id : undefined }, ...pushActivity(b, "approval", text) });
+    return syncLeakage(id) ?? after;
   });
 }
 
@@ -384,7 +409,8 @@ export async function decideDiscount(id: string, approve: boolean) {
     if (!MANAGERS.includes(u.role)) throw new Error("Only a Sales Manager or Admin can approve discounts.");
     const text = `Discount ${approve ? "approved" : "rejected"} by ${u.name}`;
     if (b.discount.requestedBy) notify({ title: `Discount ${approve ? "approved" : "rejected"}`, body: `${b.bfNo} · ${b.eventTitle}`, kind: "approval", href: `/dashboard/sales/bookings/${id}`, userId: b.discount.requestedBy });
-    return db.bookings.update(id, { discount: { ...b.discount, approval: approve ? "approved" : "rejected", decidedBy: u.id }, ...pushActivity(b, "approval", text) }, { action: approve ? "approve" : "reject", summary: text });
+    const after = db.bookings.update(id, { discount: { ...b.discount, approval: approve ? "approved" : "rejected", decidedBy: u.id }, ...pushActivity(b, "approval", text) }, { action: approve ? "approve" : "reject", summary: text });
+    return syncLeakage(id) ?? after;
   });
 }
 
@@ -461,6 +487,10 @@ export function docInputFor(bookingId: string, number: string, opts: { version?:
 export async function generateDocument(bookingId: string, kind: DocKind, paymentId?: string): Promise<Invoice> {
   return withLatency(() => {
     const b = getBooking(bookingId);
+    if (kind === "invoice") {
+      const open = openFindings(findingsFor(b));
+      if (open.length) throw new Error(`Resolve ${open.length} unbilled item${open.length > 1 ? "s" : ""} (Leakage Guard) before the final invoice — add them to the bill or waive them.`);
+    }
     const est = estimateFor(b);
     const prior = db.invoices.active().filter((d) => d.bookingId === bookingId && d.kind === kind && (!paymentId || d.paymentId === paymentId));
     const version = prior.length + 1;
@@ -495,7 +525,8 @@ export async function saveFactSheet(id: string, fs: FactSheet) {
     if (fs.extraHours > 0 && tariff?.extraHour) addons.push({ id: nanoid(6), kind: "extra", name: "Extra business hours (fact sheet)", unit: "hour", qty: fs.extraHours, rate: tariff.extraHour, reason: "fact-sheet" });
     const xg = extraGuestCharge(b.guests.optimum, fs.actualGuests, rates);
     if (xg.amount > 0) addons.push({ id: nanoid(6), kind: "extra", name: `Extra guests over +10% (${fs.actualGuests} vs ${b.guests.optimum})`, unit: "person", qty: xg.extra, rate: xg.rate, reason: "fact-sheet" });
-    return db.bookings.update(id, { factSheet: fs, addons, ...pushActivity(b, "change", fs.done ? "Program Fact Sheet completed" : "Program Fact Sheet saved (draft)") });
+    const after = db.bookings.update(id, { factSheet: fs, addons, ...pushActivity(b, "change", fs.done ? "Program Fact Sheet completed" : "Program Fact Sheet saved (draft)") });
+    return syncLeakage(id) ?? after;
   });
 }
 
@@ -540,7 +571,7 @@ export async function markRefunded(id: string, chequeNo: string) {
   return withLatency(() => {
     const b = getBooking(id);
     const calc = refundCalc(b);
-    const refund = { amount: calc.amount, dueDate: b.refund?.dueDate ?? refundDueDate(lastEventDate(b)), refundedAt: now(), chequeNo };
+    const refund = { amount: calc.amount, dueDate: b.refund?.dueDate ?? refundDueDate(lastEventDate(b)), refundedAt: now(), chequeNo, status: "refunded" as const };
     db.tasks.active().filter((t) => t.bookingId === id && t.type === "refund_due" && t.status === "open").forEach((t) => db.tasks.update(t.id, { status: "done" }, { silent: true }));
     return db.bookings.update(id, { refund, ...pushActivity(b, "payment", `Security money refunded ${taka(calc.amount)} — cheque ${chequeNo}`) });
   });
@@ -551,7 +582,8 @@ export async function savePpm(id: string, ppm: NonNullable<Booking["ppm"]>, addo
     const b = getBooking(id);
     const documents = ppm.done ? b.documents.map((d) => (d.key === "ppm_copy" ? { ...d, state: "yes" as const } : d)) : b.documents;
     if (ppm.done) db.tasks.active().filter((t) => t.bookingId === id && t.type === "ppm_due" && t.status === "open").forEach((t) => db.tasks.update(t.id, { status: "done" }, { silent: true }));
-    return db.bookings.update(id, { ppm, documents, ...(addonsPatch ? { addons: addonsPatch } : {}), ...pushActivity(b, "change", ppm.done ? "PPM minutes completed" : "PPM minutes saved") });
+    const after = db.bookings.update(id, { ppm, documents, ...(addonsPatch ? { addons: addonsPatch } : {}), ...pushActivity(b, "change", ppm.done ? "PPM minutes completed" : "PPM minutes saved") });
+    return syncLeakage(id) ?? after;
   });
 }
 

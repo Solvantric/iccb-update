@@ -221,7 +221,7 @@ export function fireConfetti(origin?: { x: number; y: number }) {
   const ctx = c.getContext("2d")!;
   const ox = origin?.x ?? window.innerWidth / 2;
   const oy = origin?.y ?? window.innerHeight / 3;
-  const colors = ["#E24F5F", "#F59E0B", "#12B76A", "#2E90FA", "#FCE3E6"];
+  const colors = ["#EB2127", "#F59E0B", "#12B76A", "#2E90FA", "#FCE3E6"];
   const parts = Array.from({ length: 90 }, () => ({
     x: ox,
     y: oy,

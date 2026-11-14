@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
 import * as Dialog from "@radix-ui/react-dialog";
 import { AnimatePresence } from "framer-motion";
-import { CalendarPlus, CheckSquare, Kanban, MagnifyingGlass, Moon, User, UserPlus } from "@phosphor-icons/react";
+import { CalendarPlus, CheckSquare, Kanban, MagicWand, MagnifyingGlass, Moon, User, UserPlus } from "@phosphor-icons/react";
+import { can } from "@/lib/crm/permissions";
+import { useMatchmakerDrawer } from "../features/Matchmaker";
 import { useTheme } from "next-themes";
 import { db, useCurrentUser, useSession } from "@/lib/crm/db";
 import { canSeePath, seesOnlyOwn } from "@/lib/crm/permissions";
@@ -25,6 +27,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
   const lang = useSession((s) => s.lang);
   const { resolvedTheme, setTheme } = useTheme();
   const show = useQuickCreate((s) => s.show);
+  const openMatch = useMatchmakerDrawer((s) => s.set);
   const bookings = db.bookings.store((s) => s.items);
   const clients = db.clients.store((s) => s.items);
 
@@ -69,6 +72,11 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
                   <Command.List className="crm-scroll max-h-[60vh] overflow-y-auto pb-2">
                     <Command.Empty className="px-4 py-8 text-center text-[13px] text-crm-muted">No results.</Command.Empty>
                     <Command.Group heading="Quick actions" className={groupCls}>
+                      {can(user.role, "view", "matchmaker") && (
+                        <Command.Item value="find a hall matchmaker quote which hall price" className={itemCls} onSelect={() => { onOpenChange(false); openMatch(true); }}>
+                          <MagicWand size={17} /> Find a hall (2-minute quote)
+                        </Command.Item>
+                      )}
                       {canBookings && (
                         <Command.Item className={itemCls} onSelect={() => go("/dashboard/sales/bookings/new")}>
                           <CalendarPlus size={17} /> New booking

@@ -18,8 +18,8 @@ import { m } from "./motion";
 
 /** Brand scale + neutral greys. Status colors are reserved for status. */
 export const CHART = {
-  brand: "#E24F5F",
-  scale: ["#E24F5F", "#EE8591", "#F5B3BB", "#B8394A", "#8E2A38", "#FAD4D9"],
+  brand: "#EB2127",
+  scale: ["#EB2127", "#F16A6E", "#F7A3A6", "#AC090A", "#740F12", "#FBCBCD"],
   grey: ["#55525A", "#8A8690", "#B9B5BE", "#D9D6DC"],
   grid: "var(--crm-line)",
   axis: "var(--crm-muted)",
@@ -197,7 +197,7 @@ export function Heatmap({ rows, cols, value, cell, onCellClick, max: maxProp, se
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: (ri + ci) * 0.025, duration: 0.3 }}
                       className={cn("grid h-10 w-full min-w-[52px] place-items-center rounded-md font-semibold tabular transition-shadow", onCellClick && "hover:ring-2 hover:ring-crm-brand/40", isSel && "ring-2 ring-crm-brand")}
-                      style={{ background: t === 0 ? "var(--crm-surface-2)" : `color-mix(in srgb, #E24F5F ${Math.round(12 + t * 78)}%, var(--crm-surface))`, color: t > 0.55 ? "#fff" : "var(--crm-ink)" }}
+                      style={{ background: t === 0 ? "var(--crm-surface-2)" : `color-mix(in srgb, #EB2127 ${Math.round(12 + t * 78)}%, var(--crm-surface))`, color: t > 0.55 ? "#fff" : "var(--crm-ink)" }}
                     >
                       {cell ? cell(r.id, c.id, v) : v}
                     </m.button>

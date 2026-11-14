@@ -1,7 +1,13 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { DownloadSimple, Eye, FileText, HandCoins, Printer, Receipt, Scales, Wallet } from "@phosphor-icons/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { DownloadSimple, Eye, FileText, HandCoins, Printer, Receipt, Scales, ShieldWarning, Wallet, Coins } from "@phosphor-icons/react";
+import { useCurrentUser } from "@/lib/crm/db";
+import { can } from "@/lib/crm/permissions";
+import { Tabs } from "../ui/tabs";
+import { CollectionsTab } from "../features/Collections";
+import { LeakageReport } from "../features/Leakage";
 import type { DocKind, Invoice } from "@/types/crm";
 import { DOC_KIND_LABELS } from "@/types/crm";
 import { firstEventDate } from "@/lib/crm/pricing";
@@ -20,7 +26,17 @@ interface Row extends Invoice {
   eventTitle: string;
 }
 
+type InvTab = "documents" | "collections" | "leakage";
+
 export function InvoicesPage() {
+  const me = useCurrentUser();
+  const router = useRouter();
+  const params = useSearchParams();
+  const showCollections = can(me.role, "view", "collections");
+  const showLeakage = can(me.role, "view", "leakage");
+  const want = params.get("tab") as InvTab | null;
+  const tab: InvTab = want === "collections" && showCollections ? "collections" : want === "leakage" && showLeakage ? "leakage" : "documents";
+  const setTab = (t: InvTab) => router.replace(t === "documents" ? "/dashboard/sales/invoices" : `/dashboard/sales/invoices?tab=${t}`, { scroll: false });
   const invoices = useInvoices();
   const bookings = useBookings();
   const payments = usePayments();
@@ -80,8 +96,23 @@ export function InvoicesPage() {
   return (
     <Stagger>
       <Item>
-        <PageHeader eyebrow="Sales · Accounts" title="Invoices & receipts" description="Every estimate, invoice, money receipt, booking form and refund note — with preview, PDF download and print." />
+        <PageHeader eyebrow="Sales · Accounts" title="Invoices & receipts" description="Documents, collections & cash-flow, and the Revenue Leakage Guard report." />
       </Item>
+      <Item>
+        <Tabs
+          tabs={[
+            { value: "documents" as const, label: "Documents", icon: FileText },
+            { value: "collections" as const, label: "Collections", icon: Coins, hidden: !showCollections },
+            { value: "leakage" as const, label: "Leakage", icon: ShieldWarning, hidden: !showLeakage },
+          ]}
+          value={tab}
+          onChange={setTab}
+          className="mb-6"
+        />
+      </Item>
+      {tab === "collections" && <Item><CollectionsTab /></Item>}
+      {tab === "leakage" && <Item><LeakageReport /></Item>}
+      {tab === "documents" && (<>
       <Item>
         <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <KpiCard label="Outstanding balance" value={summary.outstanding} format={(n) => takaShort(n)} icon={Scales} tone="brand" loading={!bookings.data} />
@@ -159,6 +190,7 @@ export function InvoicesPage() {
           )}
         />
       </Item>
+      </>)}
       {docs.viewer}
     </Stagger>
   );

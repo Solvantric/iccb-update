@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { DownloadSimple, Eye, PencilSimple, Plus, Receipt, ShieldCheck, Trash } from "@phosphor-icons/react";
-import type { Payment, PaymentInput } from "@/types/crm";
+import type { Booking, Payment, PaymentInput, User } from "@/types/crm";
+import type { Estimate } from "@/lib/crm/pricing";
 import { PAYMENT_METHOD_LABELS, PAYMENT_METHODS } from "@/types/crm";
 import { getSettings } from "@/lib/crm/db";
 import { firstEventDate, lastEventDate } from "@/lib/crm/pricing";
@@ -17,8 +18,8 @@ import { AnimatedMoney, ProgressBar } from "../../ui/kpi";
 import { useDocs } from "../../documents/useDocs";
 import { useWs } from "../context";
 
-function PaymentModal({ payment, onClose }: { payment?: Payment; onClose: () => void }) {
-  const { b, est, me } = useWs();
+/** Money receipt modal — used in the workspace and in Invoices → Collections. */
+export function PaymentModal({ payment, onClose, b, est, me }: { payment?: Payment; onClose: () => void; b: Booking; est: Estimate; me: User }) {
   const advanceLeft = Math.max(0, est.advanceRequired - est.advancePaid);
   const [v, setV] = useState<PaymentInput>(() =>
     payment
@@ -77,7 +78,7 @@ function PaymentModal({ payment, onClose }: { payment?: Payment; onClose: () => 
 }
 
 export function PaymentsTab() {
-  const { b, est, payments, docs, canPay } = useWs();
+  const { b, est, payments, docs, canPay, me } = useWs();
   const [modal, setModal] = useState<{ payment?: Payment } | null>(null);
   const remove = useCrmRemove("payments", "Money receipt");
   const confirm = useConfirm();
@@ -218,7 +219,7 @@ export function PaymentsTab() {
           )}
         </div>
       </Card>
-      {modal && <PaymentModal payment={modal.payment} onClose={() => setModal(null)} />}
+      {modal && <PaymentModal payment={modal.payment} onClose={() => setModal(null)} b={b} est={est} me={me} />}
       {docsApi.viewer}
     </div>
   );

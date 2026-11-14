@@ -22,7 +22,14 @@ export type Resource =
   | "venues"
   | "users"
   | "settings"
-  | "profile";
+  | "profile"
+  /* business features */
+  | "leakage"
+  | "portal"
+  | "offers"
+  | "matchmaker"
+  | "collections"
+  | "vendors";
 
 const ALL: Action[] = ["view", "create", "update", "delete", "approve", "override", "export"];
 const CRUD: Action[] = ["view", "create", "update", "delete", "export"];
@@ -33,7 +40,7 @@ type Matrix = Partial<Record<Resource, Action[]>>;
 
 const MATRIX: Record<Role, Matrix> = {
   admin: Object.fromEntries(
-    (["overview", "bookings", "calendar", "clients", "enquiries", "followups", "invoices", "payments", "leads", "analytics", "radar", "demand", "content", "events", "ppm", "quality", "pricing", "venues", "users", "settings", "profile"] as Resource[]).map((r) => [r, ALL])
+    (["overview", "bookings", "calendar", "clients", "enquiries", "followups", "invoices", "payments", "leads", "analytics", "radar", "demand", "content", "events", "ppm", "quality", "pricing", "venues", "users", "settings", "profile", "leakage", "portal", "offers", "matchmaker", "collections", "vendors"] as Resource[]).map((r) => [r, ALL])
   ) as Matrix,
   sales_manager: {
     overview: READ,
@@ -52,6 +59,12 @@ const MATRIX: Record<Role, Matrix> = {
     ppm: READ,
     quality: READ,
     profile: EDIT,
+    leakage: [...EDIT, "approve"], // add + waive
+    portal: CRUD,
+    offers: [...READ, "approve"], // approve offers above the max discount
+    matchmaker: EDIT,
+    collections: EDIT,
+    vendors: READ,
   },
   sales_executive: {
     overview: READ,
@@ -63,6 +76,10 @@ const MATRIX: Record<Role, Matrix> = {
     invoices: EDIT,
     payments: READ,
     profile: EDIT,
+    leakage: EDIT, // add to bill (no waive)
+    portal: CRUD,
+    matchmaker: EDIT,
+    vendors: READ,
   },
   marketing: {
     overview: READ,
@@ -73,6 +90,7 @@ const MATRIX: Record<Role, Matrix> = {
     content: CRUD,
     enquiries: READ,
     profile: EDIT,
+    offers: CRUD,
   },
   operations: {
     overview: READ,
@@ -82,6 +100,7 @@ const MATRIX: Record<Role, Matrix> = {
     ppm: CRUD,
     quality: CRUD,
     profile: EDIT,
+    vendors: CRUD, // reviews + vendor records; blacklist is Admin only
   },
   accounts: {
     overview: READ,
@@ -91,6 +110,8 @@ const MATRIX: Record<Role, Matrix> = {
     invoices: CRUD,
     payments: CRUD,
     profile: EDIT,
+    collections: CRUD,
+    leakage: READ,
   },
 };
 

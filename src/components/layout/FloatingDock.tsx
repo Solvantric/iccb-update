@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, ChatCircleDots, Plus, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils/cn";
+import { useChatStore } from "@/components/chatbot/chat-store";
 
 // WhatsApp SVG glyph
 function WhatsAppIcon({ size = 24 }: { size?: number }) {
@@ -21,6 +22,7 @@ interface FloatingDockProps {
 
 export function FloatingDock({ whatsappNumber, phone, onChatOpen }: FloatingDockProps) {
   const [expanded, setExpanded] = useState(false);
+  const toggleChat = useChatStore((s) => s.toggle);
   const wa = whatsappNumber || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "8801991197719";
   const tel = phone || process.env.NEXT_PUBLIC_PHONE_PRIMARY || "+88-02-41091551";
   const waUrl = `https://wa.me/${wa}?text=${encodeURIComponent("Hello, I'd like to enquire about an event at ICCB.")}`;
@@ -44,7 +46,8 @@ export function FloatingDock({ whatsappNumber, phone, onChatOpen }: FloatingDock
       label: "AI Chat",
       onClick: () => {
         setExpanded(false);
-        onChatOpen?.();
+        if (onChatOpen) onChatOpen();
+        else toggleChat();
       },
       color: "var(--accent)",
     },
@@ -96,7 +99,7 @@ export function FloatingDock({ whatsappNumber, phone, onChatOpen }: FloatingDock
           onClick={() => setExpanded(!expanded)}
           className="w-14 h-14 rounded-full bg-[var(--accent)] text-white flex items-center justify-center shadow-lg hover:bg-[var(--accent-hover)] transition-colors"
           aria-label={expanded ? "Close contact options" : "Open contact options"}
-          style={{ boxShadow: "0 8px 30px rgba(226,79,95,.35)" }}
+          style={{ boxShadow: "0 8px 30px rgba(235,33,39,.35)" }}
         >
           {expanded ? <X size={22} /> : <Plus size={22} />}
         </button>
@@ -121,7 +124,7 @@ export function FloatingDock({ whatsappNumber, phone, onChatOpen }: FloatingDock
                   "w-[52px] h-[52px] rounded-full flex items-center justify-center",
                   "bg-[var(--surface)]/80 backdrop-blur-md border border-[var(--line)]",
                   "text-[var(--ink)] hover:text-[var(--accent)]",
-                  "hover:scale-110 hover:shadow-[0_8px_30px_rgba(226,79,95,.35)]",
+                  "hover:scale-110 hover:shadow-[0_8px_30px_rgba(235,33,39,.35)]",
                   "transition-all duration-300 shadow-sm"
                 )}
               >
@@ -135,7 +138,7 @@ export function FloatingDock({ whatsappNumber, phone, onChatOpen }: FloatingDock
                   "w-[52px] h-[52px] rounded-full flex items-center justify-center",
                   "bg-[var(--surface)]/80 backdrop-blur-md border border-[var(--line)]",
                   "text-[var(--ink)] hover:text-[var(--accent)]",
-                  "hover:scale-110 hover:shadow-[0_8px_30px_rgba(226,79,95,.35)]",
+                  "hover:scale-110 hover:shadow-[0_8px_30px_rgba(235,33,39,.35)]",
                   "transition-all duration-300 shadow-sm"
                 )}
               >

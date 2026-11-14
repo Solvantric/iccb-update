@@ -20,7 +20,10 @@ import type {
   Lead,
   MenuPackage,
   Notification,
+  Offer,
+  OfferRecipient,
   Payment,
+  PortalAccess,
   RadarEvent,
   SecurityRule,
   ServiceCharge,
@@ -28,6 +31,8 @@ import type {
   Task,
   TaxRule,
   User,
+  Vendor,
+  VendorReview,
 } from "@/types/crm";
 import type { DbName } from "@/lib/crm/db";
 import type { CreateInput, ListQuery, ListResult, Patch } from "@/lib/crm/repository";
@@ -178,3 +183,8 @@ export const useSettings = () => {
   const q = useCrmAll<Settings>("settings");
   return { ...q, data: q.data?.[0] };
 };
+export const usePortalLinks = () => useCrmAll<PortalAccess>("portal");
+export const useOffers = () => useCrmAll<Offer>("offers");
+export const useOfferRecipients = () => useCrmAll<OfferRecipient>("offerRecipients");
+export const useVendors = () => useCrmAll<Vendor>("vendors");
+export const useVendorReviews = () => useCrmAll<VendorReview>("vendorReviews");

@@ -4,7 +4,8 @@ import { ClockCounterClockwise, DownloadSimple, Eye, FilePlus, Printer, Signatur
 import type { Booking, DocKind } from "@/types/crm";
 import { DOC_KIND_LABELS } from "@/types/crm";
 import { ago, taka } from "@/lib/crm/format";
-import { acknowledge, generateDocument, updateBooking } from "@/services/crm/bookings.service";
+import { acknowledge, findingsFor, generateDocument, updateBooking } from "@/services/crm/bookings.service";
+import { openAmount, openFindings } from "@/lib/crm/leakage";
 import { useCrmAction } from "@/services/crm/hooks";
 import { cn } from "@/lib/utils/cn";
 import { Badge, Button, Card, CardHeader, Checkbox, NumberInput } from "../../ui/core";
@@ -26,7 +27,8 @@ function EditableCell({ value, onCommit, money, disabled }: { value: number; onC
 }
 
 export function EstimateTab() {
-  const { b, est, docs, canEdit, payments } = useWs();
+  const { b, est, docs, canEdit, payments, goTab } = useWs();
+  const leaks = b.status === "requested" ? [] : openFindings(findingsFor(b));
   const docsApi = useDocs();
   const [sig, setSig] = useState<string | undefined>(b.acknowledgement?.signature);
   const gen = useCrmAction((k: DocKind) => generateDocument(b.id, k), { success: (d) => `${DOC_KIND_LABELS[d.kind]} ${d.number} v${d.version} generated`, onSuccess: (d) => docsApi.preview(d) });
@@ -155,9 +157,17 @@ export function EstimateTab() {
               Preview invoice
             </Button>
             {!readonly && canInvoice && (
-              <Button size="sm" variant="primary" icon={FilePlus} loading={gen.isPending && gen.variables === "invoice"} onClick={() => gen.mutate("invoice")}>
+              <Button size="sm" variant="primary" icon={FilePlus} disabled={leaks.length > 0} loading={gen.isPending && gen.variables === "invoice"} onClick={() => gen.mutate("invoice")}>
                 Generate invoice
               </Button>
+            )}
+            {canInvoice && leaks.length > 0 && (
+              <p className="w-full rounded-[var(--radius-btn)] bg-crm-tint px-3 py-2 text-[12.5px] text-crm-ink-2">
+                Final invoice blocked: {leaks.length} unbilled item{leaks.length > 1 ? "s" : ""} ({taka(openAmount(leaks))}).{" "}
+                <button className="font-semibold text-crm-brand hover:underline" onClick={() => goTab("services")}>
+                  Review in Services & Bill
+                </button>
+              </p>
             )}
             {!readonly && b.damage?.done && (
               <Button size="sm" icon={FilePlus} onClick={() => gen.mutate("refund_note")}>

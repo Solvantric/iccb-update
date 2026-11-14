@@ -24,7 +24,10 @@ import type {
   Lead,
   MenuPackage,
   Notification,
+  Offer,
+  OfferRecipient,
   Payment,
+  PortalAccess,
   RadarEvent,
   Role,
   SecurityRule,
@@ -33,9 +36,12 @@ import type {
   Task,
   TaxRule,
   User,
+  Vendor,
+  VendorReview,
 } from "@/types/crm";
 import { createRepository, setAuditHook, STORAGE_PREFIX, type Repository } from "./repository";
 import { ratesAsOf, type PricingRates } from "./pricing";
+import { featureSettings } from "./feature-settings";
 import { hallsSeed } from "@/data/crm/halls";
 import { tariffsSeed, taxesSeed } from "@/data/crm/tariffs";
 import { securitySeed } from "@/data/crm/security-money";
@@ -60,6 +66,9 @@ import { analyticsEventsSeed } from "@/data/crm/analytics-events";
 import { contentSeed } from "@/data/crm/content";
 import { auditLogSeed } from "@/data/crm/audit-log";
 import { settingsSeed } from "@/data/crm/settings";
+import { portalSeed, vendorReviewsSeed } from "@/data/crm/_generated";
+import { vendorsSeed } from "@/data/crm/vendors";
+import { offerRecipientsSeed, offersSeed } from "@/data/crm/offers";
 
 /* ─── Repositories ───────────────────────────────────────────────────────── */
 
@@ -89,6 +98,11 @@ export const db = {
   content: createRepository<ContentItem>("content", contentSeed, "Content item"),
   audit: createRepository<AuditEntry>("audit", auditLogSeed, "Audit entry"),
   settings: createRepository<Settings>("settings", settingsSeed, "Settings"),
+  portal: createRepository<PortalAccess>("portal", portalSeed, "Portal link"),
+  offers: createRepository<Offer>("offers", offersSeed, "Offer"),
+  offerRecipients: createRepository<OfferRecipient>("offerRecipients", offerRecipientsSeed, "Offer recipient"),
+  vendors: createRepository<Vendor>("vendors", vendorsSeed, "Vendor"),
+  vendorReviews: createRepository<VendorReview>("vendorReviews", vendorReviewsSeed, "Vendor review"),
 };
 
 export type DbName = keyof typeof db;
@@ -158,6 +172,7 @@ setAuditHook((e) => {
 /* ─── Settings & numbering ───────────────────────────────────────────────── */
 
 export const getSettings = (): Settings => db.settings.get("settings") ?? db.settings.all()[0];
+export const getFeatureSettings = () => featureSettings(getSettings());
 
 export type NumberKind = keyof Settings["numberFormats"];
 

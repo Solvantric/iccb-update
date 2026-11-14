@@ -11,7 +11,7 @@ import { Avatar, Badge, Button, Card, CardHeader, Field, Input, PageHeader, Sele
 import { DataTable, type Column } from "../ui/data-table";
 import { Modal, useConfirm } from "../ui/overlay";
 
-const COLORS = ["#E24F5F", "#7A5AF8", "#2E90FA", "#0BA5EC", "#15B79E", "#EE46BC", "#F79009", "#12B76A"];
+const COLORS = ["#EB2127", "#7A5AF8", "#2E90FA", "#0BA5EC", "#15B79E", "#EE46BC", "#F79009", "#12B76A"];
 const ROLE_TONE = { admin: "brand", sales_manager: "purple", sales_executive: "blue", marketing: "amber", operations: "neutral", accounts: "green" } as const;
 
 function UserModal({ user, onClose }: { user?: User; onClose: () => void }) {

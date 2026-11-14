@@ -6,7 +6,7 @@ import { Document, Page, StyleSheet, Text, View, Image, pdf } from "@react-pdf/r
 import type { DocBlock, DocModel } from "@/lib/crm/documents";
 import { ICCB_FOOTER } from "@/lib/crm/documents";
 
-const BRAND = "#E24F5F";
+const BRAND = "#EB2127";
 const INK = "#2B2A2E";
 const MUTED = "#8A8690";
 const LINE = "#D9D6DC";
@@ -28,7 +28,7 @@ const s = StyleSheet.create({
   tr: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: LINE },
   th: { padding: 3, fontFamily: "Helvetica-Bold", fontSize: 8, backgroundColor: "#FEF2F3" },
   td: { padding: 3, fontSize: 8.5 },
-  amount: { marginVertical: 8, padding: 8, backgroundColor: "#FEF2F3", borderWidth: 1, borderColor: "#F5B3BB", borderRadius: 4 },
+  amount: { marginVertical: 8, padding: 8, backgroundColor: "#FEF2F3", borderWidth: 1, borderColor: "#F7A3A6", borderRadius: 4 },
   sigRow: { flexDirection: "row", marginTop: 30 },
   sig: { flex: 1, marginHorizontal: 10, borderTopWidth: 1, borderTopColor: "#55525A", paddingTop: 3, textAlign: "center", fontSize: 8.5, color: "#55525A" },
   footer: { position: "absolute", bottom: 18, left: 32, right: 32, borderTopWidth: 1, borderTopColor: "#E8E6EA", paddingTop: 4, flexDirection: "row", justifyContent: "space-between", fontSize: 7.5, color: MUTED },

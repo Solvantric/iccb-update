@@ -287,6 +287,7 @@ export interface ChecklistMark {
 }
 
 export type DocState = "yes" | "na" | "pending";
+export type DocReview = "pending" | "accepted" | "rejected";
 export interface BookingDocument {
   id: string;
   key: string;
@@ -295,6 +296,21 @@ export interface BookingDocument {
   dueDate?: string;
   fileName?: string;
   fileData?: string; // data URL
+  /** Set when the client uploaded through the portal. */
+  uploadedVia?: "portal" | "staff";
+  uploadedAt?: string;
+  review?: DocReview;
+  reviewNote?: string;
+}
+
+/** Chargeable items agreed at the PPM (structured, so leakage can be detected). */
+export interface PpmExtras {
+  chairCovers: number; // ICCB-provided covers
+  chairs: number; // total chairs requested
+  externalLighting: boolean;
+  archways: number; // archway gates incl. the 1 free gate
+  foodStalls: number; // outside food stalls (per day)
+  soundProvider?: string;
 }
 
 export interface PpmMinutes {
@@ -305,6 +321,7 @@ export interface PpmMinutes {
   agenda: Record<number, string>;
   notes: string;
   done: boolean;
+  extras?: PpmExtras;
 }
 
 export interface TimeLogRow {
@@ -382,6 +399,68 @@ export interface Refund {
   dueDate: string;
   refundedAt?: string;
   chequeNo?: string;
+  status?: "pending" | "cheque_prepared" | "refunded";
+}
+
+/* ─── Revenue Leakage Guard ──────────────────────────────────────────────── */
+
+export const LEAKAGE_RULES = [
+  "EXTRA_HOURS",
+  "EXTRA_GUESTS",
+  "SERVICE_CHARGE_GAP",
+  "GENERATOR",
+  "CHAIR_COVER",
+  "EXTRA_CHAIRS",
+  "EXTERNAL_LIGHTING",
+  "HALL_SETUP",
+  "ARCHWAY",
+  "OUTSIDE_DECOR_FEE",
+  "FOOD_STALLS",
+  "FOOD_VAT",
+  "UNAPPROVED_DISCOUNT",
+] as const;
+export type LeakageRuleId = (typeof LEAKAGE_RULES)[number];
+
+export interface LeakageFinding {
+  id: string; // `${bookingId}:${ruleId}`
+  bookingId: string;
+  ruleId: LeakageRuleId;
+  title: string;
+  detail: string;
+  source: "PPM" | "FactSheet" | "Booking";
+  sourceRef: string;
+  expectedAmount: number;
+  /** The bill line "Add to bill" creates (absent for flag-only rules). */
+  line?: { name: string; unit: string; qty: number; rate: number };
+  status: "open" | "added" | "waived";
+  waivedReason?: string;
+  resolvedBy?: string;
+  resolvedAt?: string;
+  detectedAt?: string;
+}
+
+/** Readiness automation bookkeeping (milestones, escalation, ROI). */
+export interface ReadinessLog {
+  milestones: string[]; // "D-15" | "D-7" | "D-3"
+  escalatedAt?: string;
+  levelAtD15?: "ready" | "attention" | "risk";
+}
+
+/** Client portal answers (prefill the staff PPM). */
+export interface PortalPpmAnswers {
+  guests?: number;
+  management?: "iccb" | "own";
+  setup?: string;
+  stageSize?: string;
+  sound?: string;
+  sofaRows?: number;
+  headTable?: number;
+  banners?: string;
+  servingTime?: string;
+  driverFood?: "inside" | "packet" | "none";
+  vehicles?: number;
+  special?: string;
+  submittedAt?: string;
 }
 
 export interface ActivityItem {
@@ -434,7 +513,7 @@ export interface Booking extends BaseRecord {
   menus: MenuSelection[];
 
   addons: AddonLine[];
-  decoration: { provider: "iccb" | "outside" | "none"; firm?: string; category?: "A" | "B" | "C" };
+  decoration: { provider: "iccb" | "outside" | "none"; firm?: string; category?: "A" | "B" | "C"; vendorId?: string; override?: { by: string; reason: string; at: string } };
   discount: Discount;
   applyAit: boolean;
 
@@ -465,6 +544,17 @@ export interface Booking extends BaseRecord {
   approvedAt?: string;
   completedAt?: string;
   activity: ActivityItem[];
+
+  /* Business features */
+  leakage?: LeakageFinding[];
+  readiness?: ReadinessLog;
+  offerId?: string;
+  offerCode?: string;
+  promiseDate?: string;
+  portalAnswers?: PortalPpmAnswers;
+  policyAccepted?: { name: string; at: string };
+  /** Unseen client activity from the portal (badge on the booking). */
+  portalUnread?: number;
 }
 
 
@@ -700,7 +790,7 @@ export interface AuditEntry extends BaseRecord {
   actorRole: Role;
   entity: string;
   entityId: string;
-  action: "create" | "update" | "delete" | "restore" | "status" | "override" | "approve" | "reject" | "reset" | "import";
+  action: "create" | "update" | "delete" | "restore" | "status" | "override" | "approve" | "reject" | "reset" | "import" | "waive" | "revoke";
   summary: string;
   before?: unknown;
   after?: unknown;
@@ -732,6 +822,112 @@ export interface Settings extends BaseRecord {
   digitGrouping: "intl" | "bd";
   roundRobinCursor: number;
   ignoredSuggestions?: string[];
+  /* Business features (optional so older stored settings keep working — see featureSettings()). */
+  maxOfferDiscount?: number; // % — above this, Sales Manager approval
+  readinessWeights?: ReadinessWeights;
+  vendorThresholds?: { active: number; warning: number };
+  portalExpiryDays?: number; // days after the event
+}
+
+export interface ReadinessWeights {
+  payment: number;
+  documents: number;
+  ppm: number;
+  permissions: number;
+  vendors: number;
+}
+
+/* ─── Client portal ──────────────────────────────────────────────────────── */
+
+export interface PortalAccess extends BaseRecord {
+  /** 24 random chars. Frontend-only check against the store for now — real validation moves to the backend later. */
+  token: string;
+  bookingId: string;
+  createdBy: string;
+  expiresAt: string; // ISO
+  revoked: boolean;
+  lastOpenedAt?: string;
+}
+
+/* ─── Idle date offers ───────────────────────────────────────────────────── */
+
+export const OFFER_SEGMENTS = ["lost_leads", "enquiries", "past_clients", "radar", "repeat"] as const;
+export type OfferSegment = (typeof OFFER_SEGMENTS)[number];
+export const OFFER_SEGMENT_LABELS: Record<OfferSegment, string> = {
+  lost_leads: "Lost leads",
+  enquiries: "Enquiries not converted (12 months)",
+  past_clients: "Past clients",
+  radar: "Opportunity Radar organizers",
+  repeat: "Repeat-event organizers",
+};
+
+export interface Offer extends BaseRecord {
+  code: string;
+  name: string;
+  halls: string[]; // hall ids
+  dates: string[]; // yyyy-MM-dd
+  discountType: "percent" | "amount";
+  discountValue: number;
+  validUntil: string;
+  audience: OfferSegment[];
+  messageEn: string;
+  messageBn: string;
+  status: "draft" | "pending_approval" | "active" | "ended";
+  createdBy: string;
+  approvedBy?: string;
+  stats: { sent: number; responded: number; booked: number; revenue: number };
+}
+
+export interface OfferRecipient extends BaseRecord {
+  offerId: string;
+  contactName: string;
+  mobile: string;
+  source: OfferSegment;
+  sentAt?: string;
+  respondedAt?: string;
+  bookingId?: string;
+}
+
+/* ─── Vendors ────────────────────────────────────────────────────────────── */
+
+export const VENDOR_TYPES = ["decorator", "sound_light", "event_firm", "food_stall", "other"] as const;
+export type VendorType = (typeof VENDOR_TYPES)[number];
+export const VENDOR_TYPE_LABELS: Record<VendorType, string> = {
+  decorator: "Decorator",
+  sound_light: "Sound & light",
+  event_firm: "Event firm",
+  food_stall: "Food stall",
+  other: "Other",
+};
+export type VendorStatus = "active" | "warning" | "blacklisted";
+
+export interface Vendor extends BaseRecord {
+  name: string;
+  type: VendorType;
+  contactPerson: string;
+  mobile: string;
+  email?: string;
+  tradeLicenseNo?: string;
+  status: VendorStatus;
+  notes: string;
+}
+
+export interface GuidelineRule {
+  id: string;
+  title: string;
+}
+
+export interface VendorReview extends BaseRecord {
+  vendorId: string;
+  bookingId: string;
+  setupOnTime: boolean;
+  dismantledWithin24h: boolean;
+  damageAmount: number;
+  violations: string[]; // GuidelineRule ids
+  rating: number; // 1–5
+  notes: string;
+  reviewedBy: string;
+  date: string;
 }
 
 /** Re-exported convenience for repositories. */
@@ -760,7 +956,12 @@ export type Entity =
   | AnalyticsEvent
   | ContentItem
   | AuditEntry
-  | Settings;
+  | Settings
+  | PortalAccess
+  | Offer
+  | OfferRecipient
+  | Vendor
+  | VendorReview;
 
 /* ─── Form inputs (plain types — validation is minimal: name + phone only) ── */
 

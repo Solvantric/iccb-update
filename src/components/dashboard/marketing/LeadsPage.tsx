@@ -282,7 +282,7 @@ export function LeadsPage() {
           <Card>
             <CardHeader title="Pipeline by source" description="Leads per stage, with conversion per source." />
             <div className="px-3 pb-2">
-              <Bars data={stats.bySource} x="source" stacked series={[{ key: "new", label: "New", color: "#E24F5F" }, { key: "contacted", label: "Contacted", color: "#EE8591" }, { key: "meeting", label: "Meeting", color: "#B8394A" }, { key: "confirmed", label: "Confirmed", color: "#55525A" }, { key: "lost", label: "Lost", color: "#D9D6DC" }]} height={260} />
+              <Bars data={stats.bySource} x="source" stacked series={[{ key: "new", label: "New", color: "#EB2127" }, { key: "contacted", label: "Contacted", color: "#F16A6E" }, { key: "meeting", label: "Meeting", color: "#AC090A" }, { key: "confirmed", label: "Confirmed", color: "#55525A" }, { key: "lost", label: "Lost", color: "#D9D6DC" }]} height={260} />
             </div>
             <div className="flex flex-wrap gap-2 px-5 pb-5">
               {stats.bySource.map((r) => (

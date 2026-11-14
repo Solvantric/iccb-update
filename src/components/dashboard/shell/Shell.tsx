@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { runAutomations } from "@/services/crm/features.service";
+import { MatchmakerDrawer } from "../features/Matchmaker";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LockKey } from "@phosphor-icons/react";
@@ -72,6 +74,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
 function ShellInner({ children, pathname, mobileNav, setMobileNav, palette, setPalette, lang }: { children: React.ReactNode; pathname: string; mobileNav: boolean; setMobileNav: (v: boolean) => void; palette: boolean; setPalette: (v: boolean) => void; lang: string }) {
   const user = useCurrentUser();
   const allowed = canSeePath(user.role, pathname);
+  // Readiness milestones, risk escalation and vendor-review tasks (once per session).
+  useEffect(() => {
+    runAutomations();
+  }, []);
   return (
     <div className="flex h-screen overflow-hidden" lang={lang}>
       <Sidebar mobileOpen={mobileNav} onMobileClose={() => setMobileNav(false)} />
@@ -88,6 +94,7 @@ function ShellInner({ children, pathname, mobileNav, setMobileNav, palette, setP
       </div>
       <CommandPalette open={palette} onOpenChange={setPalette} />
       <QuickCreateModals />
+      <MatchmakerDrawer />
       <NotificationToaster />
     </div>
   );

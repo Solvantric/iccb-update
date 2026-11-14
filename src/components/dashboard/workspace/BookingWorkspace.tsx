@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import {
   ArrowArcLeft,
@@ -27,7 +27,13 @@ import {
   XCircle,
   CheckCircle,
   ArrowsLeftRight,
+  Globe,
 } from "@phosphor-icons/react";
+import { openFindings } from "@/lib/crm/leakage";
+import { findingsFor } from "@/services/crm/bookings.service";
+import { markPortalSeen } from "@/services/crm/features.service";
+import { ReadinessChip } from "../features/Readiness";
+import { PortalDrawer } from "../features/PortalPanel";
 import { toast } from "sonner";
 import { differenceInCalendarDays } from "date-fns";
 import { STATUS_LABELS } from "@/types/crm";
@@ -74,7 +80,10 @@ export function BookingWorkspace() {
   const invoices = useInvoices();
   const tasks = useTasks();
   const clients = useClients();
-  const [tab, setTab] = useState<WorkspaceTab>("overview");
+  const params = useSearchParams();
+  const TAB_IDS: WorkspaceTab[] = ["overview", "services", "estimate", "payments", "documents", "ppm", "event", "feedback", "activity"];
+  const [tab, setTab] = useState<WorkspaceTab>(() => (TAB_IDS.includes(params.get("tab") as WorkspaceTab) ? (params.get("tab") as WorkspaceTab) : "overview"));
+  const [portalOpen, setPortalOpen] = useState(false);
   const [more, setMore] = useState(false);
   const [meetingOpen, setMeetingOpen] = useState(false);
   const [shiftOpen, setShiftOpen] = useState(false);
@@ -156,9 +165,10 @@ export function BookingWorkspace() {
     return null;
   })();
 
+  const leakOpen = b.status !== "requested" && !b.closed ? openFindings(findingsFor(b)).length : 0;
   const tabs = [
     { value: "overview" as const, label: "Overview", icon: ListChecks },
-    { value: "services" as const, label: "Services", icon: Package },
+    { value: "services" as const, label: "Services & Bill", icon: Package, count: leakOpen },
     { value: "estimate" as const, label: "Estimate & invoice", icon: FileText },
     { value: "payments" as const, label: "Payments", icon: CurrencyCircleDollar, count: ws.payments.length },
     { value: "documents" as const, label: "Documents", icon: Files, count: b.documents.filter((d) => d.state === "pending").length },
@@ -169,6 +179,10 @@ export function BookingWorkspace() {
   ];
 
   const missing = checklistFor(b.status, b, ws.flow).filter((i) => i.required && !i.done).length;
+  const openPortal = () => {
+    setPortalOpen(true);
+    void markPortalSeen(b.id);
+  };
 
   return (
     <Ctx.Provider value={ws}>
@@ -197,6 +211,14 @@ export function BookingWorkspace() {
               <h1 className="text-[22px] font-bold leading-tight tracking-[-0.01em] text-crm-ink">{b.eventTitle}</h1>
               <StatusPill status={b.status} />
               <ClosedTag closed={b.closed} />
+              {b.status === "confirmed" && !b.closed && <ReadinessChip b={b} size={38} pulse />}
+              {!!b.portalUnread && (
+                <button onClick={openPortal} className="crm-pulse-once rounded-full">
+                  <Badge tone="brand" dot>
+                    {b.portalUnread} new from client
+                  </Badge>
+                </button>
+              )}
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-crm-ink-2">
               <span className="inline-flex items-center gap-1.5">
@@ -256,6 +278,7 @@ export function BookingWorkspace() {
                 {more && (
                   <m.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="absolute end-0 top-11 z-30 w-60 rounded-xl border border-crm-line bg-crm-surface p-1.5 shadow-[var(--crm-shadow-lg)]">
                     {[
+                      { icon: Globe, label: "Client portal", show: can(me.role, "view", "portal") && !b.closed, run: openPortal },
                       { icon: ArrowsLeftRight, label: "Shift / postpone date", show: ws.canEdit && !b.closed && b.status !== "completed", run: () => setShiftOpen(true) },
                       {
                         icon: ArrowArcLeft,
@@ -365,6 +388,7 @@ export function BookingWorkspace() {
 
       {meetingOpen && <ScheduleMeetingModal onClose={() => setMeetingOpen(false)} />}
       {shiftOpen && <ShiftModal onClose={() => setShiftOpen(false)} />}
+      {portalOpen && <PortalDrawer b={b} onClose={() => setPortalOpen(false)} />}
     </Ctx.Provider>
   );
 }

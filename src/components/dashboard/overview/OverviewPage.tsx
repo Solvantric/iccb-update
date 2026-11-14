@@ -41,6 +41,8 @@ import { Badge, Button, Card, CardHeader, EmptyState, Skeleton } from "../ui/cor
 import { KpiCard, ProgressRing } from "../ui/kpi";
 import { AreaTrend, Funnel } from "../ui/charts";
 import { StatusPill } from "../ui/status";
+import { RoiWidget } from "../features/Roi";
+import { EventsAtRisk } from "../features/Readiness";
 
 const pctDelta = (a: number, b: number) => (b ? Math.round(((a - b) / b) * 100) : a ? 100 : 0);
 
@@ -345,6 +347,8 @@ export function OverviewPage() {
   const hallName = (id?: string) => halls.find((h) => h.id === id)?.name ?? "—";
   const role: Role = me.role;
   const isSales = role === "admin" || role === "sales_manager" || role === "sales_executive";
+  const allBookings = useBookings();
+  const allPayments = usePayments();
 
   const kpis = (() => {
     switch (role) {
@@ -385,7 +389,7 @@ export function OverviewPage() {
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-crm-brand">{ROLE_LABELS[role]} · {format(new Date(), "EEEE, dd MMMM")}</p>
-            <h1 className="text-[24px] font-bold tracking-[-0.01em] text-crm-ink">
+            <h1 className="crm-display text-[28px] font-semibold leading-tight text-crm-ink">
               {greeting}, {me.name.split(" ")[0]}
             </h1>
             <p className="text-[13.5px] text-crm-muted">
@@ -404,6 +408,11 @@ export function OverviewPage() {
       <Item>
         <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{kpis}</div>
       </Item>
+      {(role === "admin" || role === "sales_manager") && allBookings.data && allPayments.data && (
+        <Item>
+          <RoiWidget bookings={allBookings.data} payments={allPayments.data} />
+        </Item>
+      )}
 
       {loading ? (
         <Item>
@@ -451,6 +460,7 @@ export function OverviewPage() {
               <Item>
                 <div className="grid gap-6 lg:grid-cols-2 2xl:grid-cols-3">
                   {(role === "admin" || role === "sales_manager") && <Approvals list={d.approvals} />}
+                  <EventsAtRisk bookings={d.live} />
                   <MyTasks list={d.myTasks} nowIso={d.nowIso} />
                   <UpcomingEvents list={d.upcoming} hallName={hallName} />
                   <Overdue tasks={d.overdueTasks.length} docs={d.overdueDocs} />
@@ -465,6 +475,7 @@ export function OverviewPage() {
               <div className="grid gap-6 lg:grid-cols-2">
                 <HotLeads list={d.hot} />
                 <MyTasks list={d.myTasks} nowIso={d.nowIso} />
+                <EventsAtRisk bookings={d.live} />
                 <StatusFunnel steps={d.funnel} closed={d.closedLost} />
                 <UpcomingEvents list={d.upcoming} hallName={hallName} />
               </div>
@@ -474,6 +485,7 @@ export function OverviewPage() {
           {role === "operations" && (
             <Item>
               <div className="grid gap-6 lg:grid-cols-2 2xl:grid-cols-3">
+                <EventsAtRisk bookings={d.live} />
                 <UpcomingEvents list={d.upcoming} hallName={hallName} />
                 <SimpleList icon={ClipboardText} title="PPM due this week" href="/dashboard/operations/ppm" empty="No PPMs due." items={d.ppmDue.map((b) => ({ id: b.id, title: b.eventTitle, sub: `Event ${fmtDate(firstEventDate(b))} · PPM by ${fmtDate(ppmDueDate(firstEventDate(b)))}`, href: `/dashboard/sales/bookings/${b.id}` }))} />
                 <SimpleList icon={Warning} title="Fact sheets to complete" href="/dashboard/operations/events" empty="All fact sheets done." items={d.factPending.map((b) => ({ id: b.id, title: b.eventTitle, sub: `${hallName(b.days[0]?.hallId)} · ${fmtDate(firstEventDate(b))}`, href: `/dashboard/sales/bookings/${b.id}` }))} />
@@ -487,7 +499,8 @@ export function OverviewPage() {
             <Item>
               <div className="grid gap-6 lg:grid-cols-2">
                 <RevenueChart data={d.revenue} />
-                <SimpleList icon={HandCoins} title="Security refunds due" href="/dashboard/sales/invoices" empty="No refunds pending." items={d.refundsDue.map((b) => ({ id: b.id, title: b.contact.name, sub: `Due ${fmtDate(b.refund!.dueDate)} · ${b.bfNo}`, right: <span className="font-semibold text-crm-ink tabular">{taka(b.refund!.amount)}</span>, href: `/dashboard/sales/bookings/${b.id}` }))} />
+                <EventsAtRisk bookings={d.live} />
+                <SimpleList icon={HandCoins} title="Security refunds due" href="/dashboard/sales/invoices?tab=collections" empty="No refunds pending." items={d.refundsDue.map((b) => ({ id: b.id, title: b.contact.name, sub: `Due ${fmtDate(b.refund!.dueDate)} · ${b.bfNo}`, right: <span className="font-semibold text-crm-ink tabular">{taka(b.refund!.amount)}</span>, href: `/dashboard/sales/bookings/${b.id}` }))} />
                 <UpcomingEvents list={d.upcoming} hallName={hallName} />
                 <MyTasks list={d.myTasks} nowIso={d.nowIso} />
               </div>

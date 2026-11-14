@@ -11,7 +11,7 @@ type BtnVariant = "primary" | "secondary" | "ghost" | "danger" | "soft";
 type BtnSize = "sm" | "md" | "lg" | "icon" | "icon-sm";
 
 const BTN_VARIANT: Record<BtnVariant, string> = {
-  primary: "bg-crm-brand text-white hover:bg-crm-brand-hover shadow-[0_1px_2px_rgba(226,79,95,0.3)]",
+  primary: "crm-btn-primary text-white hover:brightness-105",
   secondary: "bg-crm-surface text-crm-ink border border-crm-line hover:bg-crm-surface-2 hover:border-crm-muted/40",
   ghost: "text-crm-ink-2 hover:bg-crm-surface-2 hover:text-crm-ink",
   danger: "bg-[#D92D20] text-white hover:bg-[#B42318]",
@@ -42,7 +42,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       ref={ref}
       disabled={disabled || loading}
       className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-[6px] font-medium select-none",
+        "inline-flex items-center justify-center whitespace-nowrap rounded-[var(--radius-btn)] font-semibold select-none",
         "transition-[transform,background-color,border-color,color,box-shadow] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)]",
         "hover:-translate-y-px active:translate-y-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50",
         BTN_VARIANT[variant],
@@ -73,7 +73,7 @@ export function CardHeader({ title, description, action, icon: I, className }: {
     <div className={cn("flex items-start justify-between gap-3 px-5 pt-4 pb-3", className)}>
       <div className="min-w-0 flex items-start gap-2.5">
         {I && (
-          <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-crm-tint text-crm-brand">
+          <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-[var(--radius-btn)] bg-crm-tint text-crm-brand">
             <I size={16} weight="duotone" />
           </span>
         )}
@@ -118,7 +118,7 @@ export function CountPill({ n, className }: { n: number; className?: string }) {
 /* ─── Form controls ──────────────────────────────────────────────────────── */
 
 const fieldBase =
-  "w-full rounded-[8px] border border-crm-line bg-crm-surface text-crm-ink placeholder:text-crm-muted/80 text-[13.5px] transition-colors focus:outline-none focus:border-crm-brand focus:ring-2 focus:ring-crm-brand/15 disabled:opacity-60";
+  "w-full rounded-[var(--radius-input)] border border-crm-line bg-crm-surface text-crm-ink placeholder:text-crm-muted/80 text-[13.5px] transition-colors focus:outline-none focus:border-crm-brand focus:ring-2 focus:ring-crm-brand/15 disabled:opacity-60";
 
 export function Field({ label, hint, error, required, children, className }: { label?: React.ReactNode; hint?: React.ReactNode; error?: string | null; required?: boolean; children: React.ReactNode; className?: string }) {
   return (
@@ -240,13 +240,13 @@ export function Switch({ checked, onChange, label, disabled }: { checked: boolea
 export function Segmented<T extends string>({ value, onChange, options, className, size = "md" }: { value: T; onChange: (v: T) => void; options: { value: T; label: React.ReactNode; icon?: Icon }[]; className?: string; size?: "sm" | "md" }) {
   const id = useId();
   return (
-    <div className={cn("inline-flex rounded-[8px] border border-crm-line bg-crm-surface-2 p-0.5", className)}>
+    <div className={cn("inline-flex rounded-[var(--radius-btn)] border border-crm-line bg-crm-surface-2 p-0.5", className)}>
       {options.map((o) => {
         const active = o.value === value;
         const I = o.icon;
         return (
-          <button key={o.value} type="button" onClick={() => onChange(o.value)} className={cn("relative inline-flex items-center gap-1.5 rounded-[6px] font-medium transition-colors", size === "sm" ? "h-7 px-2.5 text-[12px]" : "h-8 px-3 text-[13px]", active ? "text-crm-ink" : "text-crm-muted hover:text-crm-ink")}>
-            {active && <m.span layoutId={`seg-${id}`} className="absolute inset-0 rounded-[6px] bg-crm-surface shadow-sm border border-crm-line" transition={{ type: "spring", stiffness: 500, damping: 38 }} />}
+          <button key={o.value} type="button" onClick={() => onChange(o.value)} className={cn("relative inline-flex items-center gap-1.5 rounded-[3px] font-medium transition-colors", size === "sm" ? "h-7 px-2.5 text-[12px]" : "h-8 px-3 text-[13px]", active ? "text-crm-ink" : "text-crm-muted hover:text-crm-ink")}>
+            {active && <m.span layoutId={`seg-${id}`} className="absolute inset-0 rounded-[3px] bg-crm-surface shadow-sm border border-crm-line" transition={{ type: "spring", stiffness: 500, damping: 38 }} />}
             <span className="relative inline-flex items-center gap-1.5">
               {I && <I size={15} />}
               {o.label}
@@ -260,7 +260,7 @@ export function Segmented<T extends string>({ value, onChange, options, classNam
 
 /* ─── Avatar ─────────────────────────────────────────────────────────────── */
 
-export function Avatar({ name, color = "#E24F5F", size = 28, className }: { name: string; color?: string; size?: number; className?: string }) {
+export function Avatar({ name, color = "#EB2127", size = 28, className }: { name: string; color?: string; size?: number; className?: string }) {
   return (
     <span className={cn("inline-grid shrink-0 place-items-center rounded-full font-semibold text-white", className)} style={{ width: size, height: size, background: color, fontSize: Math.max(10, size * 0.38) }} title={name}>
       {initials(name)}
@@ -304,9 +304,10 @@ export function PageHeader({ title, description, actions, eyebrow }: { title: Re
   return (
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        {eyebrow && <div className="mb-1 text-[11.5px] font-semibold uppercase tracking-[0.12em] text-crm-brand">{eyebrow}</div>}
-        <h1 className="text-[22px] sm:text-[24px] font-bold tracking-[-0.01em] text-crm-ink leading-tight">{title}</h1>
-        {description && <p className="mt-1 text-[13.5px] text-crm-muted max-w-2xl">{description}</p>}
+        {eyebrow && <div className="mb-1 text-[11.5px] font-bold uppercase tracking-[0.2em] text-crm-brand rtl:tracking-normal">{eyebrow}</div>}
+        <h1 className="crm-display text-[26px] sm:text-[28px] font-semibold text-crm-ink leading-tight">{title}</h1>
+        <m.span aria-hidden className="mt-2 block h-[3px] w-10 origin-left bg-crm-brand rtl:origin-right" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.1 }} />
+        {description && <p className="mt-2 text-[13.5px] text-crm-muted max-w-2xl">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
