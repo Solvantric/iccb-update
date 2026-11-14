@@ -1,48 +1,85 @@
+"use client";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useReducedMotion } from "framer-motion";
 import { Link } from "@/lib/i18n/navigation";
 import type { Locale } from "@/lib/i18n/routing";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRight } from "@phosphor-icons/react";
 
-function WhatsAppIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-    </svg>
-  );
-}
+const SLIDES = [
+  { src: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=90&w=2400", alt: "Grand wedding banquet hall" },
+  { src: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&q=90&w=2400", alt: "International expo hall" },
+  { src: "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?auto=format&fit=crop&q=90&w=2400", alt: "Premium restaurant interior" },
+  { src: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=90&w=2400", alt: "Elegant event table setting" },
+  { src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=90&w=2400", alt: "Fine dining venue" },
+];
+
+const INTERVAL_MS = 3000;
 
 interface FinalCTAProps {
   locale: Locale;
 }
 
 export function FinalCTA({ locale }: FinalCTAProps) {
-  const wa = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "8801991197719";
+  const reduced = useReducedMotion();
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    if (reduced) return;
+    const id = setInterval(() => setActive((i) => (i + 1) % SLIDES.length), INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [reduced]);
 
   return (
-    <section className="bg-[var(--accent)] py-4">
-      <div className="container-site flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6">
-        <p className="text-white text-[14px] md:text-[15px] font-medium text-center md:text-start">
-          <span className="text-white/60 text-[11px] tracking-[0.18em] uppercase me-3">Get in touch</span>
-          Planning an event? Let&apos;s hold your date.
-        </p>
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <Link
-            href="/enquiry"
-            locale={locale}
-            className="inline-flex items-center gap-2 bg-white text-[var(--accent)] rounded-[var(--radius-btn)] px-4 py-2 text-[12px] font-bold tracking-[0.1em] uppercase hover:bg-white/90 transition-colors"
-          >
-            Make an Enquiry
-            <ArrowRight size={12} weight="bold" className="rtl:-scale-x-100" />
-          </Link>
-          <a
-            href={`https://wa.me/${wa}?text=${encodeURIComponent("Hello, I'd like to plan an event at ICCB.")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 border border-white/50 text-white rounded-[var(--radius-btn)] px-4 py-2 text-[12px] font-bold tracking-[0.1em] uppercase hover:bg-white/10 hover:border-white transition-colors"
-          >
-            <WhatsAppIcon size={14} />
-            WhatsApp
-          </a>
+    <section className="relative overflow-hidden bg-[#111]">
+      {/* Background photos — crossfade every 3s */}
+      {SLIDES.map((s, i) => (
+        <Image
+          key={s.src}
+          src={s.src}
+          alt={s.alt}
+          fill
+          sizes="100vw"
+          priority={i === 0}
+          className={`object-cover transition-[opacity,transform] duration-[1200ms] ease-out ${
+            i === active ? "opacity-100 scale-100" : "opacity-0 scale-105"
+          }`}
+        />
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+
+      <div className="relative container-site py-16 md:py-20 lg:py-24 flex flex-col md:flex-row md:items-center justify-between gap-8">
+        <div className="max-w-3xl">
+          <h2 className="font-display uppercase text-white text-[clamp(1.75rem,3.6vw,3rem)] leading-[1.05] tracking-[0.01em]">
+            Planning an event? <span className="text-[var(--accent)]">Let&apos;s hold your date.</span>
+          </h2>
+          <span className="block w-16 h-[3px] bg-[var(--accent)] mt-5 mb-5" />
+          <p className="text-white/85 text-[15px] md:text-[17px] leading-relaxed">
+            Get in touch with our team for venue availability, catering menus or a customised event package.
+          </p>
         </div>
+
+        <Link
+          href="/enquiry"
+          locale={locale}
+          className="group inline-flex items-center justify-center gap-4 self-start md:self-center flex-shrink-0 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] text-white rounded-[var(--radius-btn)] px-9 py-5 text-[16px] md:text-[18px] font-medium shadow-[0_10px_30px_-10px_var(--accent-glow)] hover:brightness-110 transition"
+        >
+          Get in touch
+          <ArrowRight size={20} className="transition-transform group-hover:translate-x-1 rtl:-scale-x-100" />
+        </Link>
+      </div>
+
+      {/* Slide indicators */}
+      <div className="absolute bottom-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 flex gap-1.5">
+        {SLIDES.map((s, i) => (
+          <button
+            key={s.src}
+            type="button"
+            aria-label={`Show image ${i + 1}`}
+            onClick={() => setActive(i)}
+            className={`h-1 rounded-full transition-all ${i === active ? "w-6 bg-white" : "w-2 bg-white/40"}`}
+          />
+        ))}
       </div>
     </section>
   );

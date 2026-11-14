@@ -8,9 +8,9 @@ import { ExpoZone } from "@/components/sections/ExpoZone";
 import { VenturesSlider } from "@/components/sections/VenturesSlider";
 import { MenuBento } from "@/components/sections/MenuBento";
 import { WhyICCB } from "@/components/sections/WhyICCB";
+import { HistoryTimeline } from "@/components/sections/HistoryTimeline";
 import { GallerySlider } from "@/components/sections/GallerySlider";
 import { Testimonials } from "@/components/sections/Testimonials";
-import { GettingHere } from "@/components/sections/GettingHere";
 import { FinalCTA } from "@/components/sections/FinalCTA";
 import { HomeJsonLd } from "@/components/seo/HomeJsonLd";
 
@@ -66,14 +66,14 @@ export default async function HomePage({
       <VenturesSlider locale={locale} />
       {/* 7. Menu bento */}
       <MenuBento locale={locale} />
-      {/* 8. Why ICCB */}
+      {/* 8. Our history timeline */}
+      <HistoryTimeline />
+      {/* 8b. Why ICCB */}
       <WhyICCB />
       {/* 9. Gallery */}
       <GallerySlider locale={locale} />
       {/* 10. Testimonials */}
       <Testimonials />
-      {/* 11. Getting here */}
-      <GettingHere />
       {/* 12. Final CTA */}
       <FinalCTA locale={locale} />
     </>

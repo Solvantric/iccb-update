@@ -633,3 +633,15 @@ html.lenis { height: auto; }
   .doc-print-root { position: absolute; inset: 0; }
   .doc-a4 { box-shadow: none; margin: 0; }
 }
+
+/* ── Why ICCB — premium facility cards ───────────────────────── */
+@keyframes fac-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes fac-spin { to { transform: rotate(360deg); } }
+@keyframes fac-pulse { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.65); opacity: 0; } }
+.fac-float { animation: fac-float 4.2s ease-in-out infinite; }
+.fac-spin  { animation: fac-spin 14s linear infinite; }
+.fac-pulse { animation: fac-pulse 2.8s cubic-bezier(.22,1,.36,1) infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .fac-float, .fac-spin, .fac-pulse { animation: none; }
+}
+@keyframes fac-ripple { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.5); opacity: 0; } }
