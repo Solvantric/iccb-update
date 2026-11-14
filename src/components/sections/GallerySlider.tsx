@@ -3,7 +3,8 @@ import Image from "next/image";
 import { Link } from "@/lib/i18n/navigation";
 import type { Locale } from "@/lib/i18n/routing";
 import { ArrowRight } from "@phosphor-icons/react";
-import { galleryImages } from "@/data/images";
+import { galleryImages as STATIC_GALLERY } from "@/data/images";
+import { isAllowedImage, usePublishedContent } from "@/lib/crm/cms";
 import { FadeUp } from "@/components/motion/primitives";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
@@ -15,6 +16,11 @@ interface GallerySliderProps {
 const LOOP_SECONDS = 60;
 
 export function GallerySlider({ locale }: GallerySliderProps) {
+  // Website content (Marketing) overrides the static gallery once loaded.
+  const cms = usePublishedContent("gallery");
+  const galleryImages = cms?.length
+    ? cms.filter((c) => isAllowedImage(c.image)).map((c) => ({ id: c.id, src: c.image!, alt: { en: c.title }, category: c.subtitle ?? "" }))
+    : STATIC_GALLERY;
   // Two copies side by side; the track slides by half its width for a seamless loop.
   const strip = [...galleryImages, ...galleryImages];
 

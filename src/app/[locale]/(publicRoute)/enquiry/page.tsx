@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ArrowRight, CheckCircle } from "@phosphor-icons/react";
 import { RevealBlock } from "@/components/motion/RevealBlock";
 import { halls } from "@/data/halls";
-import { submitEnquiry } from "@/services/crm/sales.service";
+import { submitEnquiry } from "@/services/crm";
 import { generateReferenceNumber } from "@/lib/utils/format";
 import { useToast } from "@/components/ui/Toast";
 

@@ -8,50 +8,39 @@ import {
 } from "@phosphor-icons/react";
 import { Link } from "@/lib/i18n/navigation";
 import type { Locale } from "@/lib/i18n/routing";
-import { heroSlides } from "@/data/images";
+import { HERO_SLIDES, heroTitle, type HeroSlide } from "@/data/hero";
+import { heroSlides as HERO_CREDITS } from "@/data/images";
+import { isAllowedImage, usePublishedContent } from "@/lib/crm/cms";
 import { cn } from "@/lib/utils/cn";
 
 const AUTOPLAY_MS = 6000;
 
-const SLIDES = [
-  {
-    id: "grand-hall",
-    lines: ["Where the World", "Meets in"],
-    highlight: "Dhaka.",
-    sub: "South Asia's largest convention centre",
-  },
-  {
-    id: "expo",
-    lines: ["Bangladesh's Premier", "Exhibition"],
-    highlight: "Destination.",
-    sub: "Expo Village · 80,000 sq ft · 500+ booths · 40+ expos/year",
-  },
-  {
-    id: "conference",
-    lines: ["World-Class", "Conference"],
-    highlight: "Facilities.",
-    sub: "Multilingual conventions for 400–2,500 delegates",
-  },
-  {
-    id: "wedding",
-    lines: ["Your Dream", "Occasion,"],
-    highlight: "Perfected.",
-    sub: "Elegant banquet settings for 600–1,800 guests",
-  },
-  {
-    id: "concert",
-    lines: ["Stage the"],
-    highlight: "Extraordinary.",
-    sub: "Professional acoustics, lighting, and staging for 2,500+",
-  },
-];
+
+
+
+/** Website content (Marketing) → hero slides; the last word is the red highlight. */
+function useHeroSlides(): HeroSlide[] {
+  const cms = usePublishedContent("hero");
+  if (!cms?.length) return HERO_SLIDES;
+  return cms.map((c) => {
+    const known = HERO_SLIDES.find((h) => heroTitle(h) === c.title.trim());
+    const words = c.title.trim().split(/\s+/);
+    const highlight = known?.highlight ?? words.pop() ?? "";
+    const rest = known ? known.lines : words.length > 3 ? [words.slice(0, Math.ceil(words.length / 2)).join(" "), words.slice(Math.ceil(words.length / 2)).join(" ")] : [words.join(" ")].filter(Boolean);
+    const fallback = known ?? HERO_SLIDES[0];
+    return { id: c.id, lines: rest, highlight, sub: c.subtitle ?? "", src: isAllowedImage(c.image) ? c.image : fallback.src, alt: c.title };
+  });
+}
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 interface HeroSliderProps { locale: Locale }
 
 export function HeroSlider({ locale }: HeroSliderProps) {
-  const [index, setIndex] = useState(0);
+  const SLIDES = useHeroSlides();
+  const count = SLIDES.length;
+  const [indexRaw, setIndex] = useState(0);
+  const index = indexRaw % count;
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
@@ -59,9 +48,9 @@ export function HeroSlider({ locale }: HeroSliderProps) {
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const goTo = useCallback((next: number, d: 1 | -1 = 1) => {
     setDir(d);
-    setIndex((next + SLIDES.length) % SLIDES.length);
+    setIndex((next + count) % count);
     setProgress(0);
-  }, []);
+  }, [count]);
 
   const prev = () => goTo(index - 1, -1);
   const next = () => goTo(index + 1, 1);
@@ -71,11 +60,11 @@ export function HeroSlider({ locale }: HeroSliderProps) {
     if (paused) return;
     intervalRef.current = setInterval(() => {
       setDir(1);
-      setIndex((c) => (c + 1) % SLIDES.length);
+      setIndex((c) => (c + 1) % count);
       setProgress(0);
     }, AUTOPLAY_MS);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [paused, index]);
+  }, [paused, index, count]);
 
   /* Progress bar */
   useEffect(() => {
@@ -87,7 +76,8 @@ export function HeroSlider({ locale }: HeroSliderProps) {
   }, [paused, index]);
 
   const slide = SLIDES[index];
-  const image = heroSlides.find((s) => s.id === slide.id) || heroSlides[0];
+  const image = { src: slide.src, alt: { en: slide.alt } };
+  const credit = HERO_CREDITS.find((h) => h.src === slide.src);
 
   /* Keyboard */
   useEffect(() => {
@@ -244,7 +234,7 @@ export function HeroSlider({ locale }: HeroSliderProps) {
 
       {/* Photo credit */}
       <div className="absolute bottom-6 end-[clamp(1rem,4vw,3rem)] text-white/30 text-[10px] tracking-wider z-10">
-        {image.photographer} / {image.source}
+        {credit && [credit.photographer, credit.source].filter(Boolean).join(" / ")}
       </div>
     </section>
   );

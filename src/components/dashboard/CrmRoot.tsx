@@ -2,6 +2,7 @@
 import { CrmProvider } from "@/components/providers/CrmProvider";
 import { MotionProvider } from "./ui/motion";
 import { ConfirmProvider } from "./ui/overlay";
+import { NewBookingProvider } from "./bookings/NewBookingModal";
 
 /** Providers + `.crm` token scope for every /dashboard route. */
 export function CrmRoot({ children }: { children: React.ReactNode }) {
@@ -9,7 +10,9 @@ export function CrmRoot({ children }: { children: React.ReactNode }) {
     <div className="crm min-h-screen w-full">
       <CrmProvider>
         <MotionProvider>
-          <ConfirmProvider>{children}</ConfirmProvider>
+          <ConfirmProvider>
+            <NewBookingProvider>{children}</NewBookingProvider>
+          </ConfirmProvider>
         </MotionProvider>
       </CrmProvider>
     </div>

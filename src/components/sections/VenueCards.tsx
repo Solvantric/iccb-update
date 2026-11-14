@@ -4,7 +4,8 @@ import { Link } from "@/lib/i18n/navigation";
 import type { Locale } from "@/lib/i18n/routing";
 import { motion } from "framer-motion";
 import { ArrowRight, Users, Ruler } from "@phosphor-icons/react";
-import { halls } from "@/data/halls";
+import { halls as STATIC_HALLS } from "@/data/halls";
+import { isAllowedImage, usePublishedContent } from "@/lib/crm/cms";
 import { FadeUp } from "@/components/motion/primitives";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
@@ -21,7 +22,18 @@ const HALL_TYPE: Record<string, string> = {
 
 interface VenueCardsProps { locale: Locale }
 
+/** Website content (Marketing → Venues) controls which halls show, their order, name and photo. */
+function useVenueCards() {
+  const cms = usePublishedContent("venues");
+  if (!cms?.length) return STATIC_HALLS.slice(0, 6);
+  return cms.flatMap((c) => {
+    const hall = STATIC_HALLS.find((h) => h.name.en.toLowerCase() === c.title.trim().toLowerCase()) ?? STATIC_HALLS.find((h) => c.title.toLowerCase().includes(h.slug));
+    return hall ? [{ ...hall, name: { ...hall.name, en: c.title }, image: isAllowedImage(c.image) ? c.image : hall.image }] : [];
+  });
+}
+
 export function VenueCards({ locale }: VenueCardsProps) {
+  const halls = useVenueCards();
   return (
     <section className="section-y bg-[var(--bg)]">
       <div className="container-site">
@@ -38,7 +50,7 @@ export function VenueCards({ locale }: VenueCardsProps) {
           viewport={{ once: false, margin: "-8% 0px" }}
           variants={{ hidden: {}, show: { transition: { staggerChildren: 0.25, delayChildren: 0.1 } } }}
         >
-          {halls.slice(0, 6).map((hall) => (
+          {halls.map((hall) => (
             <motion.article
               key={hall.id}
               variants={{

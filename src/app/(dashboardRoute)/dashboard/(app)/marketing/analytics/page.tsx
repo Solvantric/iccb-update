@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { AnalyticsPage } from "@/components/dashboard/marketing/AnalyticsPage";
+import { AnalyticsPage } from "@/components/dashboard/pages/AnalyticsPage";
 
 export const metadata: Metadata = { title: "Analytics" };
+
 export default function Page() {
-  return (
-    <Suspense>
-      <AnalyticsPage />
-    </Suspense>
-  );
+  return <AnalyticsPage />;
 }

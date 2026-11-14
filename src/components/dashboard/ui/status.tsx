@@ -1,115 +1,58 @@
 "use client";
-import { CheckCircle, Circle, Lock, XCircle } from "@phosphor-icons/react";
 import { AnimatePresence } from "framer-motion";
-import type { ActivityItem, Booking, BookingStatus } from "@/types/crm";
-import { STATUS_LABELS } from "@/types/crm";
-import { STATUS_COLORS } from "@/lib/crm/workflow";
-import { ago, fmtDateTime } from "@/lib/crm/format";
+import type { BookingStatus, MeetingStatus } from "@/types/crm";
+import { MEETING_STATUS_LABELS, STATUS_LABELS } from "@/types/crm";
 import { cn } from "@/lib/utils/cn";
 import { m } from "./motion";
 
-const STATUS_BG: Record<BookingStatus, string> = {
-  requested: "rgba(245,158,11,0.12)",
-  confirmed: "rgba(235,33,39,0.12)",
-  completed: "rgba(18,183,106,0.12)",
+export const STATUS_STYLE: Record<BookingStatus, { pill: string; dot: string; chip: string }> = {
+  reserved: { pill: "bg-crm-reserved-bg text-crm-reserved-ink", dot: "bg-crm-reserved", chip: "bg-crm-reserved-bg text-crm-reserved-ink border-s-crm-reserved" },
+  booked: { pill: "bg-crm-booked-bg text-crm-brand-text", dot: "bg-crm-booked", chip: "bg-crm-booked-bg text-crm-brand-text border-s-crm-booked" },
+  closed: { pill: "bg-crm-closed-bg text-crm-muted", dot: "bg-crm-closed", chip: "bg-crm-closed-bg text-crm-muted border-s-crm-closed" },
+  cancelled: { pill: "bg-transparent text-crm-muted line-through ring-1 ring-inset ring-crm-line", dot: "bg-crm-line", chip: "" },
 };
 
-/** Colored pill — crossfades when the status changes. */
-export function StatusPill({ status, size = "md", className }: { status: BookingStatus; size?: "sm" | "md"; className?: string }) {
+/** Soft tinted pill + small dot; crossfades when the status changes. */
+export function StatusPill({ status, className }: { status: BookingStatus; className?: string }) {
+  const s = STATUS_STYLE[status];
   return (
-    <m.span
-      layout
-      animate={{ backgroundColor: STATUS_BG[status], color: STATUS_COLORS[status] }}
-      transition={{ duration: 0.3 }}
-      className={cn("inline-flex items-center gap-1.5 rounded-full font-semibold whitespace-nowrap", size === "sm" ? "px-2 py-0.5 text-[11px]" : "px-2.5 py-1 text-[12px]", className)}
-    >
-      <m.span animate={{ backgroundColor: STATUS_COLORS[status] }} className="h-1.5 w-1.5 rounded-full" />
-      <AnimatePresence mode="wait" initial={false}>
-        <m.span key={status} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}>
+    <span className={cn("relative inline-grid", className)}>
+      <AnimatePresence initial={false} mode="popLayout">
+        <m.span
+          key={status}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className={cn("inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-[12px] font-medium", s.pill)}
+        >
+          <span className={cn("h-1.5 w-1.5 rounded-full", s.dot)} />
           {STATUS_LABELS[status]}
         </m.span>
       </AnimatePresence>
-    </m.span>
-  );
-}
-
-export function ClosedTag({ closed, className }: { closed: Booking["closed"]; className?: string }) {
-  if (!closed) return null;
-  return (
-    <span title={closed.reason} className={cn("inline-flex items-center gap-1 rounded-full bg-[#F2F4F7] px-2 py-0.5 text-[11px] font-semibold text-[#475467] dark:bg-[#22252B] dark:text-[#98A2B3]", className)}>
-      <XCircle size={12} weight="fill" />
-      {closed.kind === "cancelled" ? "Cancelled" : "Lost"}
     </span>
   );
 }
 
-/** Horizontal 3-status progress (Requested → Confirmed → Completed). */
-export function StatusTrack({ status, closed }: { status: BookingStatus; closed?: boolean }) {
-  const order: BookingStatus[] = ["requested", "confirmed", "completed"];
-  const idx = order.indexOf(status);
+const MEETING_STYLE: Record<MeetingStatus, string> = {
+  scheduled: "bg-crm-reserved-bg text-crm-reserved-ink",
+  done: "bg-crm-success-bg text-crm-success",
+  cancelled: "bg-crm-closed-bg text-crm-muted",
+};
+
+export function MeetingPill({ status }: { status: MeetingStatus }) {
+  return <span className={cn("inline-flex h-6 items-center rounded-full px-2.5 text-[12px] font-medium", MEETING_STYLE[status])}>{MEETING_STATUS_LABELS[status]}</span>;
+}
+
+export function StatusLegend({ className }: { className?: string }) {
   return (
-    <div className="flex items-center gap-1.5">
-      {order.map((s, i) => (
-        <div key={s} className="flex items-center gap-1.5">
-          <m.span
-            initial={false}
-            animate={{ backgroundColor: i <= idx && !closed ? STATUS_COLORS[s] : "var(--crm-line)", scale: i === idx ? 1.15 : 1 }}
-            className="h-2 w-2 rounded-full"
-          />
-          {i < order.length - 1 && <m.span initial={false} animate={{ backgroundColor: i < idx && !closed ? STATUS_COLORS[order[i + 1]] : "var(--crm-line)" }} className="h-0.5 w-5 rounded-full" />}
-        </div>
+    <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-crm-muted", className)}>
+      {(["reserved", "booked", "closed"] as BookingStatus[]).map((s) => (
+        <span key={s} className="inline-flex items-center gap-1.5">
+          <span className={cn("h-2 w-2 rounded-full", STATUS_STYLE[s].dot)} />
+          {STATUS_LABELS[s]}
+        </span>
       ))}
     </div>
   );
 }
-
-/** Animated check icon — the stroke draws in. */
-export function DrawnCheck({ done, size = 20, color = "#12B76A" }: { done: boolean; size?: number; color?: string }) {
-  if (!done) return <Circle size={size} className="text-crm-line" weight="bold" />;
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <m.circle cx="12" cy="12" r="10" fill={color} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 500, damping: 25 }} />
-      <m.path d="M7.5 12.5l3 3 6-6.5" stroke="#fff" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.3, delay: 0.08 }} />
-    </svg>
-  );
-}
-
-export function LockedDot() {
-  return <Lock size={16} className="text-crm-muted" />;
-}
-
-/* ─── Timeline ───────────────────────────────────────────────────────────── */
-
-const TL_COLOR: Record<ActivityItem["type"], string> = {
-  status: "#EB2127",
-  note: "#8A8690",
-  call: "#2E90FA",
-  change: "#7A5AF8",
-  payment: "#12B76A",
-  document: "#0BA5EC",
-  approval: "#F59E0B",
-  system: "#98A2B3",
-};
-
-export function Timeline({ items, empty = "No activity yet." }: { items: ActivityItem[]; empty?: string }) {
-  const sorted = [...items].sort((a, b) => b.at.localeCompare(a.at));
-  if (!sorted.length) return <p className="text-[13px] text-crm-muted">{empty}</p>;
-  return (
-    <ol className="relative">
-      <AnimatePresence initial={false}>
-        {sorted.map((it, i) => (
-          <m.li key={it.id} layout initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="relative ps-7 pb-5 last:pb-0">
-            {i < sorted.length - 1 && <span className="absolute start-[7px] top-4 bottom-0 w-px bg-crm-line" />}
-            <span className="absolute start-0 top-1 grid h-[15px] w-[15px] place-items-center rounded-full border-2 border-crm-surface" style={{ background: TL_COLOR[it.type] }} />
-            <p className="text-[13.5px] text-crm-ink leading-snug whitespace-pre-wrap">{it.text}</p>
-            <p className="mt-0.5 text-[12px] text-crm-muted" title={fmtDateTime(it.at)}>
-              {it.by} · {ago(it.at)}
-            </p>
-          </m.li>
-        ))}
-      </AnimatePresence>
-    </ol>
-  );
-}
-
-export { CheckCircle };

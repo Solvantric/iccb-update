@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { ArrowRight, CheckCircle } from "@phosphor-icons/react";
 import { useToast } from "@/components/ui/Toast";
-import { submitEnquiry } from "@/services/crm/sales.service";
+import { submitEnquiry } from "@/services/crm";
 
 export function ContactForm() {
   const toast = useToast();

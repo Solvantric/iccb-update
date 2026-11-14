@@ -2,77 +2,72 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import * as Dialog from "@radix-ui/react-dialog";
 import { AnimatePresence } from "framer-motion";
-import { ArrowSquareOut, CaretDoubleLeft, X } from "@phosphor-icons/react";
+import { SidebarSimple } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils/cn";
 import { useCurrentUser, useSession } from "@/lib/crm/db";
+import { useBookings, useMeetings } from "@/lib/crm/hooks";
+import { todayYmd } from "@/lib/crm/format";
 import { canSeePath } from "@/lib/crm/permissions";
-import { ROLE_LABELS } from "@/types/crm";
 import { m } from "../ui/motion";
-import { Avatar, CountPill } from "../ui/core";
-import { activeNav, NAV, T } from "./nav";
-import { useCounters } from "./counters";
+import { activeItem, NAV } from "./nav";
 
-const LOGO = "https://res.cloudinary.com/sgufp9aq/image/upload/v1794418824/iccb-logo.png";
+export const LOGO = "https://res.cloudinary.com/sgufp9aq/image/upload/v1794418824/iccb-logo.png";
 
 function SidebarBody({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   const user = useCurrentUser();
-  const lang = useSession((s) => s.lang);
   const setCollapsed = useSession((s) => s.setCollapsed);
-  const counters = useCounters();
-  const active = activeNav(pathname);
+  const leads = useBookings().filter((b) => b.status === "reserved").length;
+  const today = todayYmd();
+  const ppm = useMeetings().filter((m) => m.status === "scheduled" && m.date === today).length;
+  const active = activeItem(pathname);
 
   return (
     <div className="flex h-full flex-col">
-      {/* Logo */}
-      <div className={cn("flex h-16 shrink-0 items-center gap-3 border-b border-crm-line", collapsed ? "justify-center px-2" : "px-5")}>
-        <m.div layout className="relative shrink-0" style={{ width: collapsed ? 34 : 40, height: collapsed ? 34 : 40 }}>
-          <Image src={LOGO} alt="ICCB" fill sizes="40px" className="object-contain" />
-        </m.div>
-        <AnimatePresence initial={false}>
-          {!collapsed && (
-            <m.div initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -6 }} className="min-w-0">
-              <p className="text-[15px] font-bold leading-tight text-crm-ink">ICCB CRM</p>
-              <p className="text-[11px] text-crm-muted truncate">International Convention City</p>
-            </m.div>
-          )}
-        </AnimatePresence>
+      <div className={cn("flex h-16 shrink-0 items-center gap-3", collapsed ? "justify-center px-2" : "px-5")}>
+        <Link href="/dashboard" onClick={onNavigate} className="relative h-9 w-9 shrink-0">
+          <Image src={LOGO} alt="ICCB" fill sizes="36px" className="object-contain" />
+        </Link>
+        {!collapsed && (
+          <div className="min-w-0">
+            <p className="text-[15px] font-semibold leading-tight text-crm-ink">ICCB</p>
+            <p className="truncate text-[12px] text-crm-muted">Booking dashboard</p>
+          </div>
+        )}
       </div>
 
-      {/* Nav */}
-      <nav className="crm-scroll flex-1 overflow-y-auto overflow-x-hidden px-3 py-4">
+      <nav className="crm-scroll flex-1 overflow-y-auto overflow-x-hidden px-3 pt-2 pb-4">
         {NAV.map((g) => {
           const items = g.items.filter((i) => canSeePath(user.role, i.href));
           if (!items.length) return null;
           return (
-            <div key={g.key} className="mb-4 last:mb-0">
-              {collapsed ? (
-                <div className="mx-auto mb-2 h-px w-6 bg-crm-line" />
-              ) : (
-                <p className="mb-1.5 px-3 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-crm-muted">{g.title[lang]}</p>
-              )}
+            <div key={g.title} className="mb-5 last:mb-0">
+              {collapsed ? <div className="mx-auto mb-2 h-px w-6 bg-crm-line" /> : <p className="mb-1.5 px-3 text-[12px] text-crm-muted">{g.title}</p>}
               <ul className="space-y-0.5">
                 {items.map((i) => {
-                  const isActive = active?.key === i.key;
-                  const n = i.counter ? counters[i.counter] : 0;
+                  const on = active?.href === i.href;
                   const I = i.icon;
+                  const count = i.counter === "leads" ? leads : i.counter === "ppm" ? ppm : 0;
                   return (
-                    <li key={i.key} className="relative">
-                      {isActive && <m.span layoutId="nav-active-bar" className="absolute -start-3 top-1.5 bottom-1.5 w-[3px] rounded-e-full bg-crm-brand" transition={{ type: "spring", stiffness: 500, damping: 40 }} />}
+                    <li key={i.href}>
                       <Link
                         href={i.href}
                         onClick={onNavigate}
-                        title={collapsed ? i.label[lang] : undefined}
-                        className={cn(
-                          "relative flex items-center gap-3 rounded-[8px] text-[13.5px] font-medium transition-colors",
-                          collapsed ? "h-10 justify-center" : "h-9 px-3",
-                          isActive ? "bg-crm-tint text-crm-brand" : "text-crm-ink-2 hover:bg-crm-surface-2 hover:text-crm-ink"
-                        )}
+                        title={collapsed ? i.label : undefined}
+                        aria-current={on ? "page" : undefined}
+                        className={cn("relative flex items-center gap-3 rounded-[8px] text-[14px] font-medium transition-colors duration-200", collapsed ? "h-10 justify-center" : "h-10 px-3", on ? "text-crm-brand-text" : "text-crm-ink-2 hover:bg-crm-surface-2 hover:text-crm-ink")}
                       >
-                        <I size={19} weight={isActive ? "fill" : "regular"} className="shrink-0" />
-                        {!collapsed && <span className="flex-1 truncate">{i.label[lang]}</span>}
-                        {n > 0 && (collapsed ? <span className="absolute end-1.5 top-1.5 h-2 w-2 rounded-full bg-crm-brand ring-2 ring-crm-surface" /> : <CountPill n={n} />)}
+                        {on && <m.span layoutId="nav-active" className="absolute inset-0 rounded-[8px] bg-crm-tint" transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }} />}
+                        <I size={19} weight={on ? "fill" : "regular"} className="relative shrink-0" />
+                        {!collapsed && <span className="relative flex-1 truncate">{i.label}</span>}
+                        {count > 0 &&
+                          (collapsed ? (
+                            <span className="absolute end-1.5 top-1.5 h-2 w-2 rounded-full bg-crm-reserved" />
+                          ) : (
+                            <span className="relative grid h-5 min-w-5 place-items-center rounded-full bg-crm-reserved-bg px-1.5 text-[11.5px] font-semibold text-crm-reserved-ink tabular">{count}</span>
+                          ))}
                       </Link>
                     </li>
                   );
@@ -83,66 +78,44 @@ function SidebarBody({ collapsed, onNavigate }: { collapsed: boolean; onNavigate
         })}
       </nav>
 
-      {/* User card */}
-      <div className="shrink-0 border-t border-crm-line p-3">
-        <div className={cn("flex items-center gap-2.5 rounded-[10px] p-2", !collapsed && "bg-crm-surface-2")}>
-          <Avatar name={user.name} color={user.color} size={32} />
-          {!collapsed && (
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-semibold text-crm-ink">{user.name}</p>
-              <p className="truncate text-[11.5px] text-crm-muted">{ROLE_LABELS[user.role]}</p>
-            </div>
-          )}
-          {!collapsed && (
-            <Link href="/" target="_blank" title={T.viewSite[lang]} className="grid h-7 w-7 place-items-center rounded-md text-crm-muted hover:bg-crm-surface hover:text-crm-ink">
-              <ArrowSquareOut size={15} />
-            </Link>
-          )}
-        </div>
-        {!onNavigate && (
-          <button onClick={() => setCollapsed(!collapsed)} className="mt-2 hidden w-full items-center justify-center gap-2 rounded-md py-1.5 text-[12px] text-crm-muted hover:bg-crm-surface-2 hover:text-crm-ink lg:flex">
-            <m.span animate={{ rotate: collapsed ? 180 : 0 }} className="grid rtl:-scale-x-100">
-              <CaretDoubleLeft size={14} />
-            </m.span>
-            {!collapsed && T.collapse[lang]}
+      {!onNavigate && (
+        <div className="hidden shrink-0 border-t border-crm-line p-3 lg:block">
+          <button type="button" onClick={() => setCollapsed(!collapsed)} className={cn("flex h-9 w-full items-center gap-2 rounded-[8px] text-[13px] text-crm-muted transition-colors hover:bg-crm-surface-2 hover:text-crm-ink", collapsed ? "justify-center" : "px-3")} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
+            <SidebarSimple size={18} className="rtl:-scale-x-100" />
+            {!collapsed && "Collapse"}
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
 
 export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; onMobileClose: () => void }) {
-  const collapsedPref = useSession((s) => s.collapsed);
+  const collapsed = useSession((s) => s.collapsed);
+  const rtl = typeof document !== "undefined" && document.documentElement.dir === "rtl";
   return (
     <>
-      {/* Desktop / tablet */}
-      <m.aside
-        initial={false}
-        animate={{ width: collapsedPref ? 76 : 264 }}
-        transition={{ type: "spring", stiffness: 400, damping: 40 }}
-        className="hidden lg:block h-screen shrink-0 border-e border-crm-line bg-crm-surface"
-      >
-        <SidebarBody collapsed={collapsedPref} />
-      </m.aside>
-      {/* Tablet icon rail */}
-      <aside className="hidden md:block lg:hidden h-screen w-[76px] shrink-0 border-e border-crm-line bg-crm-surface">
-        <SidebarBody collapsed />
+      <aside className={cn("hidden shrink-0 border-e border-crm-line bg-crm-surface transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:block", collapsed ? "w-[72px]" : "w-[240px]")}>
+        <SidebarBody collapsed={collapsed} />
       </aside>
-      {/* Mobile drawer */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <>
-            <m.div className="fixed inset-0 z-[60] bg-[#2B2A2E]/40 md:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onMobileClose} />
-            <m.aside className="fixed inset-y-0 start-0 z-[61] w-[280px] border-e border-crm-line bg-crm-surface md:hidden" initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "spring", stiffness: 380, damping: 38 }}>
-              <button onClick={onMobileClose} className="absolute end-3 top-4 z-10 grid h-8 w-8 place-items-center rounded-md text-crm-muted hover:bg-crm-surface-2" aria-label="Close menu">
-                <X size={16} />
-              </button>
-              <SidebarBody collapsed={false} onNavigate={onMobileClose} />
-            </m.aside>
-          </>
-        )}
-      </AnimatePresence>
+      <Dialog.Root open={mobileOpen} onOpenChange={(v) => !v && onMobileClose()}>
+        <AnimatePresence>
+          {mobileOpen && (
+            <Dialog.Portal forceMount>
+              <Dialog.Overlay asChild forceMount>
+                <m.div className="fixed inset-0 z-[60] bg-black/30 lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
+              </Dialog.Overlay>
+              <Dialog.Content asChild forceMount>
+                <m.aside className="crm fixed inset-y-0 start-0 z-[61] w-[264px] max-w-[85vw] border-e border-crm-line bg-crm-surface lg:hidden" initial={{ x: rtl ? "100%" : "-100%" }} animate={{ x: 0 }} exit={{ x: rtl ? "100%" : "-100%" }} transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}>
+                  <Dialog.Title className="sr-only">Navigation</Dialog.Title>
+                  <Dialog.Description className="sr-only">Dashboard pages</Dialog.Description>
+                  <SidebarBody collapsed={false} onNavigate={onMobileClose} />
+                </m.aside>
+              </Dialog.Content>
+            </Dialog.Portal>
+          )}
+        </AnimatePresence>
+      </Dialog.Root>
     </>
   );
 }

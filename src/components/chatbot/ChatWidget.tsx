@@ -7,7 +7,7 @@ import { nanoid } from "nanoid";
 import { cn } from "@/lib/utils/cn";
 import type { Locale } from "@/lib/i18n/routing";
 import { chatService } from "@/services/chat.service";
-import { submitEnquiry } from "@/services/crm/sales.service";
+import { submitEnquiry } from "@/services/crm";
 import { useChatStore } from "./chat-store";
 import { FAQ, GREETING, HUMAN, UI, localAnswer, type ChatAction, type ChatLang } from "./faq";
 

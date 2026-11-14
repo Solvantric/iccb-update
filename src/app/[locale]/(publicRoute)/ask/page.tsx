@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { submitEnquiry } from "@/services/crm/sales.service";
+import { submitEnquiry } from "@/services/crm";
 import { ArrowRight, CheckCircle } from "@phosphor-icons/react";
 import { RevealBlock } from "@/components/motion/RevealBlock";
 import { useToast } from "@/components/ui/Toast";

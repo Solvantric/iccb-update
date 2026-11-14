@@ -492,7 +492,8 @@ html.lenis { height: auto; }
 /* ─── Print ──────────────────────────────────────────────────────────────── */
 @media print { .no-print { display: none !important; } }
 
-/* ═══ ICCB CRM dashboard tokens (scoped to .crm) ═══════════════════════════ */
+/* ═══ ICCB CRM v3 dashboard tokens (scoped to .crm) ════════════════════════
+   Aliases the homepage tokens (docs/design.md §7): same red, fonts, light/dark. */
 @theme inline {
   --color-crm-bg:        var(--crm-bg);
   --color-crm-surface:   var(--crm-surface);
@@ -503,29 +504,48 @@ html.lenis { height: auto; }
   --color-crm-line:      var(--crm-line);
   --color-crm-brand:     var(--crm-brand);
   --color-crm-brand-hover: var(--crm-brand-hover);
+  --color-crm-brand-text: var(--accent-text);
   --color-crm-tint:      var(--crm-tint);
   --color-crm-tint-2:    var(--crm-tint-2);
-  --color-crm-requested: #F59E0B;
-  --color-crm-confirmed: var(--accent);
-  --color-crm-completed: #12B76A;
-  --color-crm-closed:    #98A2B3;
-  --color-crm-info:      #2E90FA;
+  --color-crm-reserved:  var(--crm-reserved);
+  --color-crm-reserved-ink: var(--crm-reserved-ink);
+  --color-crm-reserved-bg: var(--crm-reserved-bg);
+  --color-crm-booked:    var(--crm-booked);
+  --color-crm-booked-bg: var(--crm-booked-bg);
+  --color-crm-closed:    var(--crm-closed);
+  --color-crm-closed-bg: var(--crm-closed-bg);
+  --color-crm-success:   var(--crm-success);
+  --color-crm-success-bg: var(--crm-success-bg);
+  --color-crm-danger:    var(--crm-danger);
+  --color-crm-whatsapp:  #25D366;
+  --radius-crm:          var(--crm-radius);
 }
 
-/* The dashboard aliases the homepage tokens (docs/design.md §7) — one brand everywhere. */
 .crm {
-  --crm-bg: var(--bg-soft);
+  --crm-bg: color-mix(in srgb, var(--bg-soft) 60%, var(--bg));
   --crm-surface: var(--surface);
   --crm-surface-2: color-mix(in srgb, var(--bg-soft) 55%, var(--surface));
   --crm-ink: var(--ink);
   --crm-ink-2: var(--ink-body);
   --crm-muted: var(--ink-muted);
-  --crm-line: var(--line);
+  --crm-line: color-mix(in srgb, var(--line) 85%, var(--surface));
   --crm-brand: var(--accent);
   --crm-brand-hover: var(--accent-hover);
   --crm-tint: var(--bg-tint);
   --crm-tint-2: #FDE3E4;
-  --crm-shadow: none;
+  /* Booking status hues (design.md §2.3) */
+  --crm-reserved: #F59E0B;
+  --crm-reserved-ink: #B54708;
+  --crm-reserved-bg: #FEF3C7;
+  --crm-booked: var(--accent);
+  --crm-booked-bg: var(--bg-tint);
+  --crm-closed: #98A2B3;
+  --crm-closed-bg: #F2F4F7;
+  --crm-success: #12B76A;
+  --crm-success-bg: #ECFDF3;
+  --crm-danger: #B42318;
+  --crm-radius: 12px;
+  --crm-shadow-hover: 0 6px 18px -10px color-mix(in srgb, var(--ink-body) 30%, transparent);
   --crm-shadow-lg: var(--shadow-card);
   --crm-ease: cubic-bezier(0.22, 1, 0.36, 1);
   font-family: var(--font-sans);
@@ -533,10 +553,15 @@ html.lenis { height: auto; }
   line-height: 1.5;
   color: var(--crm-ink-2);
   background: var(--crm-bg);
-  font-feature-settings: "tnum" 0;
 }
-.dark .crm, .crm.dark {
+.dark .crm, .crm.dark, .dark.crm {
+  --crm-bg: var(--bg);
   --crm-tint-2: #2A1416;
+  --crm-reserved-ink: #FDB022;
+  --crm-reserved-bg: color-mix(in srgb, #F59E0B 16%, transparent);
+  --crm-closed-bg: color-mix(in srgb, #98A2B3 16%, transparent);
+  --crm-success-bg: color-mix(in srgb, #12B76A 16%, transparent);
+  --crm-danger: #F97066;
 }
 [lang="bn"] .crm, .crm[lang="bn"] { font-family: var(--font-noto-bengali), var(--font-inter), sans-serif; }
 .crm .tabular, .crm .num { font-variant-numeric: tabular-nums; }
@@ -544,94 +569,28 @@ html.lenis { height: auto; }
 .crm-card {
   background: var(--crm-surface);
   border: 1px solid var(--crm-line);
-  border-radius: var(--radius-card-lg);
-  box-shadow: var(--crm-shadow);
+  border-radius: var(--crm-radius);
 }
-/* Clickable dashboard cards: homepage card-hover, lighter lift. */
-.crm-card-hover {
-  position: relative;
-  transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1), transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.4s ease;
-}
-.crm-card-hover::before {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  top: -1px;
-  height: 3px;
-  z-index: 2;
-  border-radius: var(--radius-card-lg) var(--radius-card-lg) 0 0;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-[dir="rtl"] .crm-card-hover::before { transform-origin: right; }
-.crm-card-hover:hover { box-shadow: var(--shadow-card); transform: translateY(-2px); }
-.crm-card-hover:hover::before { transform: scaleX(1); }
-/* Primary dashboard button: homepage red → deep-red gradient with a light sweep. */
-.crm-btn-primary {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-deep) 100%);
-  box-shadow: 0 8px 22px -12px var(--accent-glow);
-}
-.crm-btn-primary::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.28) 50%, transparent 70%);
-  transform: translateX(-120%);
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.crm-btn-primary:hover::after { transform: translateX(120%); }
-.crm-display { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0; }
-[dir="rtl"] .crm-display { text-transform: none; }
-@keyframes crm-pulse-once { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pulse, var(--accent)) 45%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
-.crm-pulse-once { animation: crm-pulse-once 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.4s 1; }
-@keyframes crm-shake-once { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-3px); } 40% { transform: translateX(3px); } 60% { transform: translateX(-2px); } 80% { transform: translateX(2px); } }
-.crm-shake-once { animation: crm-shake-once 0.5s ease 0.6s 1; }
+/* Clickable cards: a tiny shadow on hover only. */
+.crm-card-hover { transition: box-shadow 0.25s var(--crm-ease), border-color 0.25s ease; }
+.crm-card-hover:hover { box-shadow: var(--crm-shadow-hover); border-color: color-mix(in srgb, var(--crm-muted) 30%, var(--crm-line)); }
+/* The one solid brand button per view. */
+.crm-btn-primary { background: var(--accent); color: var(--on-accent); }
+.crm-btn-primary:hover { background: var(--accent-hover); }
+.crm-display { font-family: var(--font-display); letter-spacing: 0.01em; }
 .crm-scroll { scrollbar-width: thin; scrollbar-color: var(--crm-line) transparent; }
 .crm-skeleton {
   background: linear-gradient(90deg, var(--crm-surface-2) 0%, var(--crm-line) 50%, var(--crm-surface-2) 100%);
   background-size: 200% 100%;
   animation: crm-shimmer 1.4s ease-in-out infinite;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 @keyframes crm-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
-.crm-striped {
-  background-image: repeating-linear-gradient(135deg, transparent 0 6px, color-mix(in srgb, var(--crm-muted) 22%, transparent) 6px 8px);
-}
-.crm-focus:focus-visible, .crm :focus-visible { outline: 2px solid color-mix(in srgb, var(--crm-brand) 55%, transparent); outline-offset: 2px; }
+@keyframes crm-flash { from { background-color: var(--crm-tint); } to { background-color: transparent; } }
+.crm-flash { animation: crm-flash 1.2s var(--crm-ease) 1; }
+.crm :focus-visible { outline: 2px solid color-mix(in srgb, var(--crm-brand) 55%, transparent); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
-  .crm-skeleton, .crm-pulse-once, .crm-shake-once { animation: none; }
-  .crm-card-hover:hover { transform: none; }
-}
-
-/* ─── A4 print documents ─────────────────────────────────────────────────── */
-.doc-a4 {
-  width: 210mm;
-  min-height: 297mm;
-  padding: 14mm 14mm 18mm;
-  background: #fff;
-  color: #2B2A2E;
-  font-family: var(--font-noto), system-ui, sans-serif;
-  font-size: 10.5pt;
-  line-height: 1.45;
-  margin: 0 auto;
-  box-shadow: 0 10px 40px -12px rgba(43, 42, 46, 0.25);
-  font-variant-numeric: tabular-nums;
-}
-.doc-a4 table { width: 100%; border-collapse: collapse; }
-.doc-a4 th, .doc-a4 td { border: 1px solid #D9D6DC; padding: 4px 6px; text-align: start; vertical-align: top; }
-.doc-a4 th { background: #FEF2F2; color: #2B2A2E; font-weight: 600; font-size: 9pt; }
-@media print {
-  @page { size: A4; margin: 0; }
-  body * { visibility: hidden !important; }
-  .doc-print-root, .doc-print-root * { visibility: visible !important; }
-  .doc-print-root { position: absolute; inset: 0; }
-  .doc-a4 { box-shadow: none; margin: 0; }
+  .crm-skeleton, .crm-flash { animation: none; }
 }
 
 /* ── Why ICCB — premium facility cards ───────────────────────── */

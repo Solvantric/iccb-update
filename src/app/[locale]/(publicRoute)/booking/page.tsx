@@ -2,13 +2,13 @@
 import Image from "next/image";
 import { PublicBookingForm } from "@/components/booking/PublicBookingForm";
 import { FadeUp, LineGrow } from "@/components/motion/primitives";
-import { CalendarCheck, CurrencyDollar, CheckCircle, ArrowRight } from "@phosphor-icons/react";
+import { CalendarCheck, CheckCircle, ArrowRight, Phone } from "@phosphor-icons/react";
 
 const TRUST_POINTS = [
-  "A booking manager calls you to confirm",
-  "Dedicated event representative assigned",
-  "60% of venue rent as advance confirms the date",
-  "No online payment — cash, cheque or pay order",
+  "Your date is reserved instantly",
+  "A representative calls you to confirm",
+  "Visit ICCB to choose add-ons",
+  "No online payment — pay at ICCB",
 ];
 
 export default function BookingPage() {
@@ -38,8 +38,8 @@ export default function BookingPage() {
           </FadeUp>
           <FadeUp delay={0.14}>
             <p className="text-white/75 text-[16px] max-w-xl leading-relaxed mb-8">
-              Check real-time availability, get an instant budget estimate, and secure
-              South Asia&apos;s most prestigious event venue.
+              Pick a hall and a free date, and we hold it for you while our team
+              calls to confirm.
             </p>
           </FadeUp>
 
@@ -61,9 +61,9 @@ export default function BookingPage() {
       <section className="bg-[var(--accent)] text-white">
         <div className="container-site grid grid-cols-3 divide-x divide-white/20">
           {[
-            { n: "01", icon: CalendarCheck, label: "Check Availability", desc: "Browse hall availability by date" },
-            { n: "02", icon: CurrencyDollar, label: "Get Your Estimate",  desc: "Instant budget breakdown"         },
-            { n: "03", icon: CheckCircle,    label: "Submit Request",     desc: "A booking manager calls you"      },
+            { n: "01", icon: CalendarCheck, label: "Reserve a date",   desc: "Fill in one short form"            },
+            { n: "02", icon: Phone,         label: "We call you",      desc: "Plan a visit to ICCB"              },
+            { n: "03", icon: CheckCircle,   label: "Confirm booking",  desc: "Pick add-ons and pay at ICCB"      },
           ].map(({ n, icon: Icon, label, desc }) => (
             <div key={n} className="flex items-start gap-4 py-6 px-6 md:px-8">
               <div className="text-[32px] font-bold text-white/20 leading-none flex-shrink-0 hidden md:block">
@@ -96,7 +96,7 @@ export default function BookingPage() {
             </FadeUp>
             <FadeUp delay={0.14}>
               <p className="text-[var(--ink-muted)] text-[15px] mt-4 max-w-2xl">
-                Live hall availability and an indicative estimate as you go. A booking manager calls you to confirm the date, final price and terms.
+                Taken dates are greyed out. Once you submit, your date is reserved and our representative calls you.
               </p>
             </FadeUp>
           </div>
