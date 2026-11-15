@@ -257,8 +257,11 @@ const TABS: { key: TabKey; label: string; icon: React.ElementType }[] = [
 export function BookingCard({ locale }: BookingCardProps) {
   const [tab, setTab] = useState<TabKey>("availability");
   const [form, setForm] = useState({ eventType: "", date: "", guests: "" });
+  const [kind, setKind] = useState<"halls" | "expo">("halls");
+  const [expo, setExpo] = useState({ expoType: "", date: "", days: "3" });
 
-  const availUrl = `/booking?eventType=${form.eventType}&date=${form.date}&guests=${form.guests}`;
+  const availUrl = `/booking?eventType=${form.eventType}&date=${form.date}&guests=${form.guests}#booking-form-section`;
+  const expoUrl = `/booking?mode=expo&expoType=${encodeURIComponent(expo.expoType)}&date=${expo.date}&days=${expo.days}#booking-form-section`;
 
   return (
     <motion.div
@@ -296,18 +299,86 @@ export function BookingCard({ locale }: BookingCardProps) {
         {/* Tab content */}
         <div className="p-5 md:p-6">
           {tab === "availability" && (
+            <div>
+            {/* Two kinds of booking: the 6 halls, or Expo Village */}
+            <div className="mb-4 inline-flex rounded-full border border-[var(--line)] p-1">
+              {([["halls", "Hall events · 6 halls"], ["expo", "Expo Village"]] as const).map(([k, label]) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setKind(k)}
+                  className={cn(
+                    "relative rounded-full px-4 py-1.5 text-[12.5px] font-semibold transition-colors",
+                    kind === k ? "text-white" : "text-[var(--ink-muted)] hover:text-[var(--ink)]"
+                  )}
+                >
+                  {kind === k && <motion.span layoutId="kind-pill" className="absolute inset-0 rounded-full bg-[var(--accent)]" />}
+                  <span className="relative">{label}</span>
+                </button>
+              ))}
+            </div>
+            {kind === "expo" ? (
+              <div className="flex flex-wrap gap-3 items-end">
+                <div className="flex-1 min-w-[160px]">
+                  <label className="text-eyebrow block mb-1.5">Expo Type</label>
+                  <select
+                    value={expo.expoType}
+                    onChange={(e) => setExpo((f) => ({ ...f, expoType: e.target.value }))}
+                    className="w-full border border-[var(--line)] rounded-[var(--radius-input)] px-3 py-2.5 text-[14px] text-[var(--ink)] bg-[var(--bg-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
+                  >
+                    <option value="">Choose type</option>
+                    {["Trade fair", "Exhibition", "Product launch", "Auto & motor show", "Education fair", "Job fair", "Food & lifestyle fair", "Other"].map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1 min-w-[140px]">
+                  <label className="text-eyebrow block mb-1.5">Start Date</label>
+                  <input
+                    type="date"
+                    value={expo.date}
+                    onChange={(e) => setExpo((f) => ({ ...f, date: e.target.value }))}
+                    min={new Date().toISOString().split("T")[0]}
+                    className="w-full border border-[var(--line)] rounded-[var(--radius-input)] px-3 py-2.5 text-[14px] text-[var(--ink)] bg-[var(--bg-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
+                  />
+                </div>
+                <div className="flex-1 min-w-[110px]">
+                  <label className="text-eyebrow block mb-1.5">Show Days</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={expo.days}
+                    onChange={(e) => setExpo((f) => ({ ...f, days: e.target.value }))}
+                    className="w-full border border-[var(--line)] rounded-[var(--radius-input)] px-3 py-2.5 text-[14px] text-[var(--ink)] bg-[var(--bg-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
+                  />
+                </div>
+                <Link href={expoUrl} locale={locale} className="btn btn-primary btn-sm whitespace-nowrap">
+                  Check Expo Village <ArrowRight size={13} weight="bold" />
+                </Link>
+              </div>
+            ) : (
             <div className="flex flex-wrap gap-3 items-end">
               <div className="flex-1 min-w-[140px]">
                 <label className="text-eyebrow block mb-1.5">Event Type</label>
                 <select
                   value={form.eventType}
-                  onChange={(e) => setForm((f) => ({ ...f, eventType: e.target.value }))}
+                  onChange={(e) => {
+                    // Expo goes straight to the Expo Village booking
+                    if (e.target.value === "expo") {
+                      setKind("expo");
+                      setExpo((x) => ({ ...x, date: x.date || form.date }));
+                      return;
+                    }
+                    setForm((f) => ({ ...f, eventType: e.target.value }));
+                  }}
                   className="w-full border border-[var(--line)] rounded-[var(--radius-input)] px-3 py-2.5 text-[14px] text-[var(--ink)] bg-[var(--bg-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
                 >
                   <option value="">All types</option>
-                  {["Conference", "Exhibition", "Wedding", "Concert", "Corporate", "Expo", "Seminar", "Other"].map((t) => (
+                  {["Wedding", "Reception", "Corporate", "Conference", "Seminar", "Concert", "Other"].map((t) => (
                     <option key={t} value={t.toLowerCase()}>{t}</option>
                   ))}
+                  <option value="expo">Expo / Exhibition → Expo Village</option>
                 </select>
               </div>
               <div className="flex-1 min-w-[140px]">
@@ -335,11 +406,13 @@ export function BookingCard({ locale }: BookingCardProps) {
                 <Link href={availUrl} locale={locale} className="btn btn-primary btn-sm whitespace-nowrap">
                   Check Availability <ArrowRight size={13} weight="bold" />
                 </Link>
-                <Link href="/booking#calculator" locale={locale}
+                <Link href="/booking#estimate" locale={locale}
                   className="text-[12px] text-[var(--accent-text)] hover:text-[var(--accent)] font-semibold text-center underline-grow">
                   Get a budget estimate →
                 </Link>
               </div>
+            </div>
+            )}
             </div>
           )}
           {tab === "enquiry" && (
@@ -357,7 +430,7 @@ export function BookingCard({ locale }: BookingCardProps) {
               <p className="text-[var(--ink-body)] text-[14px] max-w-md">
                 Interested in exhibiting or sponsoring at ICCB Expo Village? Contact our expo team.
               </p>
-              <Link href="/expo-zone#exhibitor-enquiry" locale={locale} className="btn btn-primary btn-sm whitespace-nowrap">
+              <Link href="/booking?mode=expo#booking-form-section" locale={locale} className="btn btn-primary btn-sm whitespace-nowrap">
                 Expo Enquiry <ArrowRight size={13} weight="bold" />
               </Link>
             </div>

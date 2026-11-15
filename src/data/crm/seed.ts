@@ -227,7 +227,7 @@ export const contentSeed = (): ContentItem[] => {
     items.map((it, i) => ({ ...S, ...it, id: `${section}-${i + 1}`, section, published: true, order: i, createdAt: iso(60) }));
   return [
     ...c("hero", HERO_SLIDES.map((h) => ({ title: heroTitle(h), subtitle: h.sub, image: h.src }))),
-    ...c("venues", STATIC_HALLS.slice(0, 5).map((h) => ({ title: h.name.en, subtitle: `Up to ${h.capacity.theatre.toLocaleString("en-IN")} guests`, body: h.features[0]?.en, image: h.image }))),
+    ...c("venues", STATIC_HALLS.slice(0, 6).map((h) => ({ title: h.name.en, subtitle: `Up to ${h.capacity.theatre.toLocaleString("en-IN")} guests`, body: h.features[0]?.en, image: h.image }))),
     ...c("gallery", galleryImages.slice(0, 6).map((g) => ({ title: g.alt.en, subtitle: g.category, image: g.src }))),
     ...c("faq", [
       { title: "How do I book a hall?", body: "Fill in the booking form on our website. Your date is reserved and our representative calls you to confirm.", subtitle: "booking" },

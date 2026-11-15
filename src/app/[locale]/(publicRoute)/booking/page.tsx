@@ -1,14 +1,14 @@
 "use client";
 import Image from "next/image";
-import { PublicBookingForm } from "@/components/booking/PublicBookingForm";
+import { BookingSwitcher } from "@/components/booking/BookingSwitcher";
+import { EstimatorSection } from "@/components/booking/EstimatorSection";
 import { FadeUp, LineGrow } from "@/components/motion/primitives";
 import { CalendarCheck, CheckCircle, ArrowRight, Phone } from "@phosphor-icons/react";
 
 const TRUST_POINTS = [
-  "Your date is reserved instantly",
-  "A representative calls you to confirm",
-  "Visit ICCB to choose add-ons",
-  "No online payment — pay at ICCB",
+  "Live availability calendar",
+  "Instant price estimate",
+  "Our team contacts you very soon",
 ];
 
 export default function BookingPage() {
@@ -61,9 +61,9 @@ export default function BookingPage() {
       <section className="bg-[var(--accent)] text-white">
         <div className="container-site grid grid-cols-3 divide-x divide-white/20">
           {[
-            { n: "01", icon: CalendarCheck, label: "Reserve a date",   desc: "Fill in one short form"            },
-            { n: "02", icon: Phone,         label: "We call you",      desc: "Plan a visit to ICCB"              },
-            { n: "03", icon: CheckCircle,   label: "Confirm booking",  desc: "Pick add-ons and pay at ICCB"      },
+            { n: "01", icon: CalendarCheck, label: "Check availability", desc: "Pick a venue and a free date"   },
+            { n: "02", icon: CheckCircle,   label: "Choose & book",      desc: "Event type, packages, details"  },
+            { n: "03", icon: Phone,         label: "We contact you",     desc: "Our team confirms your booking" },
           ].map(({ n, icon: Icon, label, desc }) => (
             <div key={n} className="flex items-start gap-4 py-6 px-6 md:px-8">
               <div className="text-[32px] font-bold text-white/20 leading-none flex-shrink-0 hidden md:block">
@@ -86,7 +86,7 @@ export default function BookingPage() {
         <div className="container-site">
           <div className="mb-8">
             <FadeUp>
-              <span className="text-eyebrow block mb-2">Booking request</span>
+              <span className="text-eyebrow block mb-2">Book your event</span>
             </FadeUp>
             <FadeUp delay={0.06}>
               <h2 className="text-h2">
@@ -96,11 +96,18 @@ export default function BookingPage() {
             </FadeUp>
             <FadeUp delay={0.14}>
               <p className="text-[var(--ink-muted)] text-[15px] mt-4 max-w-2xl">
-                Taken dates are greyed out. Once you submit, your date is reserved and our representative calls you.
+                Choose a venue and date, add your event details and packages, and see an instant estimate. Our team will contact you very soon.
               </p>
             </FadeUp>
           </div>
-          <PublicBookingForm />
+          <BookingSwitcher />
+        </div>
+      </section>
+
+      {/* ── Budget estimator ─────────────────────────────── */}
+      <section id="estimate" className="section-y bg-[var(--bg)]">
+        <div className="container-site">
+          <EstimatorSection />
         </div>
       </section>
 

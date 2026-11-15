@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Users, Ruler } from "@phosphor-icons/react";
 import { halls as STATIC_HALLS } from "@/data/halls";
 import { isAllowedImage, usePublishedContent } from "@/lib/crm/cms";
+import { db } from "@/lib/crm/db";
 import { FadeUp } from "@/components/motion/primitives";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
@@ -17,19 +18,29 @@ const HALL_TYPE: Record<string, string> = {
   "rajdarshan":     "CONVENTION HALL",
   "noboratri":      "CONVENTION HALL",
   "pushpanjali":    "CONVENTION HALL",
-  "gulnaksha-seminar": "SEMINAR HALL",
+  "seminar-hall":      "SEMINAR HALL",
 };
 
 interface VenueCardsProps { locale: Locale }
 
 /** Website content (Marketing → Venues) controls which halls show, their order, name and photo. */
+const matchHall = (title: string) =>
+  STATIC_HALLS.find((h) => h.name.en.toLowerCase() === title.trim().toLowerCase()) ??
+  STATIC_HALLS.find((h) => title.toLowerCase().includes(h.slug));
+
 function useVenueCards() {
   const cms = usePublishedContent("venues");
+  const allVenueItems = db.content.store((s) => s.items).filter((c) => c.section === "venues");
   if (!cms?.length) return STATIC_HALLS.slice(0, 6);
-  return cms.flatMap((c) => {
-    const hall = STATIC_HALLS.find((h) => h.name.en.toLowerCase() === c.title.trim().toLowerCase()) ?? STATIC_HALLS.find((h) => c.title.toLowerCase().includes(h.slug));
+  const fromCms = cms.flatMap((c) => {
+    const hall = matchHall(c.title);
     return hall ? [{ ...hall, name: { ...hall.name, en: c.title }, image: isAllowedImage(c.image) ? c.image : hall.image }] : [];
   });
+  // Halls the CMS has never listed (e.g. Seminar Hall, added after older saved data) still show,
+  // unless Marketing has an entry for them — published or hidden — which then decides.
+  const known = new Set(allVenueItems.map((c) => matchHall(c.title)?.slug).filter(Boolean));
+  const missing = STATIC_HALLS.slice(0, 6).filter((h) => !known.has(h.slug));
+  return [...fromCms, ...missing];
 }
 
 export function VenueCards({ locale }: VenueCardsProps) {
