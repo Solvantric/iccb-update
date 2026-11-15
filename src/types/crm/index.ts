@@ -142,6 +142,47 @@ export interface Booking extends BaseRecord {
   damages?: DamageItem[];
 }
 
+/* ─── Client review links (Quality) ──────────────────────────────────────── */
+
+export const REVIEW_QUESTIONS = [
+  "How easy was it to book ICCB?",
+  "How helpful was our sales representative?",
+  "How was the hall's cleanliness and comfort?",
+  "How was the hall set-up and layout on the day?",
+  "How was the food quality and taste?",
+  "How was the food service and serving staff?",
+  "How was the sound, light and AV support?",
+  "How were parking and guest arrival?",
+  "How good was the value for money?",
+  "How likely are you to book ICCB again?",
+] as const;
+export const REVIEW_RATINGS = ["Bad", "Normal", "Good", "Excellent"] as const;
+export type ReviewRating = (typeof REVIEW_RATINGS)[number];
+
+export interface ReviewRequest extends BaseRecord {
+  /** Secret part of the shareable link. */
+  token: string;
+  bookingId?: string;
+  /** Who the link was sent to (from the booking). */
+  clientName: string;
+  mobile?: string;
+  eventName?: string;
+  sentBy: string;
+  status: "pending" | "submitted";
+  /** One value per question, 1 = Bad … 4 = Excellent. */
+  answers?: number[];
+  comment?: string;
+  /** Who actually filled the form (pre-filled from the booking, editable). */
+  reviewerName?: string;
+  reviewerMobile?: string;
+  submittedAt?: string;
+}
+
+/** 1–4 average → Bad / Normal / Good / Excellent. */
+export function ratingLabel(avg: number): ReviewRating {
+  return avg >= 3.5 ? "Excellent" : avg >= 2.5 ? "Good" : avg >= 1.5 ? "Normal" : "Bad";
+}
+
 /* ─── Payments ───────────────────────────────────────────────────────────── */
 
 export const PAYMENT_METHODS = ["Cash", "Bank transfer", "Cheque", "bKash", "Nagad", "Card at counter"] as const;
@@ -276,6 +317,8 @@ export interface RadarItem extends BaseRecord {
   eventType: EventType;
   guests: number;
   dismissed: boolean;
+  /** Set when staff clicked "Add as lead". */
+  leadAt?: string;
 }
 
 export type TrafficSource = "Google" | "Facebook" | "Direct" | "WhatsApp" | "Other";

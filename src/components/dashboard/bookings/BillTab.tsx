@@ -1,14 +1,15 @@
 "use client";
 import { useState } from "react";
 import { nanoid } from "nanoid";
-import { FilePdf, Plus, Trash } from "@phosphor-icons/react";
+import { Eye, FilePdf, Plus, Trash } from "@phosphor-icons/react";
 import type { AddOns, Booking, Decoration, Meal } from "@/types/crm";
 import { MEAL_LABELS, MEALS, SERVICE_CATEGORIES } from "@/types/crm";
 import { BILL_GROUPS, decorationPrice } from "@/lib/crm/bill";
 import { useBill, useHallMap, useMenus, useSecurityHeld, useServices, useSettingsValue } from "@/lib/crm/hooks";
 import { money, num } from "@/lib/crm/format";
 import { setAddOns } from "@/services/crm";
-import { pdfBill } from "@/lib/pdf/actions";
+import { invoiceModel, pdfBill } from "@/lib/pdf/actions";
+import { viewPdf } from "../ui/PdfViewer";
 import { cn } from "@/lib/utils/cn";
 import { Button, Card, CardTitle, Checkbox, Input, Select } from "../ui/core";
 import { AnimatedNumber } from "../ui/motion";
@@ -242,9 +243,14 @@ export function BillTab({ booking: b }: { booking: Booking }) {
           <CardTitle
             title="Bill"
             action={
-              <Button size="sm" icon={FilePdf} onClick={() => pdfBill(b)}>
-                Download bill
-              </Button>
+              <div className="flex gap-1.5">
+                <Button size="sm" icon={Eye} onClick={() => viewPdf(invoiceModel(b))}>
+                  View invoice
+                </Button>
+                <Button size="icon-sm" variant="ghost" aria-label="Download bill PDF" title="Download bill PDF" onClick={() => pdfBill(b)}>
+                  <FilePdf size={17} />
+                </Button>
+              </div>
             }
           />
           <div className="px-5 pb-5 text-[14px]">

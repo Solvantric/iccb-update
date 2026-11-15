@@ -55,7 +55,7 @@ function OrgCard() {
   );
 }
 
-const LABEL: Record<string, string> = { bookings: "Bookings", clients: "Clients", payments: "Payments", meetings: "Meetings", enquiries: "Enquiries", halls: "Venues", specials: "Special prices", menus: "Menu packages", services: "Services", radar: "Radar items", content: "Website content", users: "Users", analytics: "Analytics events" };
+const LABEL: Record<string, string> = { bookings: "Bookings", clients: "Clients", payments: "Payments", meetings: "Meetings", enquiries: "Enquiries", halls: "Venues", specials: "Special prices", menus: "Menu packages", services: "Services", radar: "Radar items", reviews: "Client reviews", content: "Website content", users: "Users", analytics: "Analytics events" };
 
 /** Live record count for one store. */
 function Count({ name }: { name: DbName }) {

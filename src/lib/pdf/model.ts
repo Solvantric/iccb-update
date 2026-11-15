@@ -114,6 +114,43 @@ export function billDoc(b: Booking, hall: Hall | undefined, bill: Bill): DocMode
   };
 }
 
+/** Invoice: the bill plus every payment recorded against it. */
+export function invoiceDoc(b: Booking, hall: Hall | undefined, bill: Bill, payments: Payment[]): DocModel {
+  return {
+    fileName: `ICCB-Invoice-${shortNo(b.ref)}.pdf`,
+    title: "Invoice",
+    meta: [
+      ["Invoice no", `INV-${shortNo(b.ref)}`],
+      ["Ref no", b.ref],
+      ["Date", today()],
+    ],
+    blocks: [
+      {
+        type: "kv",
+        items: [
+          ["Bill to", b.organization ? `${b.name} · ${b.organization}` : b.name],
+          ["Mobile", b.mobile],
+          ["Email", b.email ?? "—"],
+          ["Event", b.eventName],
+          ["Hall · Date", `${hall?.name ?? "—"} · ${fmtDate(b.date)}`],
+          ["Slot · Guests", `${b.slot} · ${num(b.guests)}`],
+        ],
+        cols: 3,
+      },
+      ...billBlocks(bill),
+      { type: "heading", text: "Payments received" },
+      payments.length
+        ? {
+            type: "table",
+            columns: [{ label: "Receipt", width: "12%" }, { label: "Date", width: "15%" }, { label: "Type" }, { label: "Method" }, { label: "Reference" }, { label: "Amount", align: "right", width: "16%" }],
+            rows: payments.map((p) => [p.receiptNo, fmtDate(p.date), p.kind, p.method, p.reference ?? "—", p.kind === "Security refund" ? `- ${tk(p.amount)}` : tk(p.amount)]),
+          }
+        : { type: "text", text: "No payments recorded yet.", muted: true },
+      { type: "signature", labels: ["Client", "For ICCB"] },
+    ],
+  };
+}
+
 export function receiptDoc(p: Payment, b: Booking | undefined, hall: Hall | undefined): DocModel {
   return {
     fileName: `ICCB-Receipt-${p.receiptNo}.pdf`,

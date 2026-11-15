@@ -4,6 +4,7 @@
  * for API calls later; the UI stays the same.
  */
 import { addDays, format } from "date-fns";
+import { nanoid } from "nanoid";
 import type { AddOns, Booking, BookingStatus, Client, ContentItem, DamageItem, Enquiry, EnquirySource, EventType, Feedback, Layout, Meeting, Payment, PaymentKind, PaymentMethod, RadarItem, RunStep, Slot } from "@/types/crm";
 import { normMobile, validateContact } from "@/types/crm";
 import { db, currentUser, getSettings } from "@/lib/crm/db";
@@ -292,6 +293,39 @@ export function saveDamages(id: string, damages: DamageItem[]) {
   const clean = damages.filter((d) => d.item.trim() && d.qty > 0);
   return db.bookings.update(id, (b) => ({ damages: clean, history: log(b, clean.length ? `Damage claim: ${clean.length} item(s)` : "Damage claim cleared") }));
 }
+
+/* ─── Client review links ────────────────────────────────────────────────── */
+
+/** A one-time review link for a booking's client (or a general one). */
+export function createReviewLink(bookingId?: string) {
+  const b = bookingId ? db.bookings.get(bookingId) : undefined;
+  const open = db.reviews.all().find((r) => r.bookingId && r.bookingId === bookingId && r.status === "pending");
+  if (open) return open;
+  return db.reviews.create({
+    token: nanoid(14),
+    bookingId: b?.id,
+    clientName: b?.name ?? "Any client",
+    mobile: b?.mobile,
+    eventName: b?.eventName,
+    sentBy: staffName(),
+    status: "pending",
+  });
+}
+
+export const findReview = (token: string) => db.reviews.all().find((r) => r.token === token);
+
+export function submitReview(token: string, input: { answers: number[]; comment?: string; reviewerName: string; reviewerMobile?: string }) {
+  const r = findReview(token);
+  if (!r) throw new Error("This review link is not valid.");
+  if (r.status === "submitted") throw new Error("This review was already submitted. Thank you!");
+  if (input.answers.length !== 10 || input.answers.some((a) => !(a >= 1 && a <= 4))) throw new Error("Please answer all 10 questions.");
+  if (!input.reviewerName.trim()) throw new Error("Please enter your name.");
+  const done = db.reviews.update(r.id, { status: "submitted", answers: input.answers, comment: input.comment?.trim() || undefined, reviewerName: input.reviewerName.trim(), reviewerMobile: input.reviewerMobile?.trim() || undefined, submittedAt: nowIso() });
+  if (r.bookingId && db.bookings.get(r.bookingId)) db.bookings.update(r.bookingId, (b) => ({ history: [...b.history, { at: nowIso(), by: done.reviewerName ?? "Client", text: "Client review submitted" }] }));
+  return done;
+}
+
+export const deleteReview = (id: string) => db.reviews.remove(id);
 
 /* ─── Marketing ──────────────────────────────────────────────────────────── */
 

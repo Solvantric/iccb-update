@@ -125,9 +125,6 @@ export function ClientsPage() {
     },
     { key: "type", header: "Type", cell: (c) => c.type },
     { key: "mobile", header: "Mobile", cell: (c) => <span className="whitespace-nowrap tabular">{c.mobile}</span> },
-    { key: "bk", header: "Bookings", align: "end", cell: (c) => st(c.id).bookings },
-    { key: "billed", header: "Billed", align: "end", cell: (c) => money(st(c.id).billed) },
-    { key: "due", header: "Due", align: "end", cell: (c) => <span className={st(c.id).due > 0 ? "text-crm-brand-text" : "text-crm-muted"}>{money(st(c.id).due)}</span> },
     { key: "next", header: "Next / last event", cell: (c) => <span className="whitespace-nowrap text-[13px]">{st(c.id).next ? fmtDate(st(c.id).next) : st(c.id).last ? <span className="text-crm-muted">{fmtDate(st(c.id).last)}</span> : "—"}</span> },
     {
       key: "a",

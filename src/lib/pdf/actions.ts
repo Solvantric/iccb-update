@@ -5,7 +5,7 @@ import { isBillPayment } from "@/types/crm";
 import { db, getSettings } from "@/lib/crm/db";
 import { calcBill } from "@/lib/crm/bill";
 import { downloadPdf } from "./index";
-import { billDoc, bookingDoc, bookingsListDoc, clientStatementDoc, eventSheetDoc, invoicesListDoc, meetingDoc, receiptDoc } from "./model";
+import { billDoc, bookingDoc, invoiceDoc, bookingsListDoc, clientStatementDoc, eventSheetDoc, invoicesListDoc, meetingDoc, receiptDoc } from "./model";
 import type { Client } from "@/types/crm";
 
 export function currentBill(b: Booking) {
@@ -38,4 +38,14 @@ export const pdfEventSheet = (b: Booking) =>
 export function pdfClientStatement(c: Client) {
   const rows = db.bookings.all().filter((b) => b.clientId === c.id).sort((x, y) => y.date.localeCompare(x.date));
   return downloadPdf(clientStatementDoc(c, rows.map((b) => ({ b, hall: hallOf(b.hallId), bill: currentBill(b) }))));
+}
+
+/* ─── Models for the in-page PDF viewer ─────────────────────────────────── */
+
+const paymentsOf = (bookingId: string) => db.payments.all().filter((p) => p.bookingId === bookingId).sort((a, b) => a.date.localeCompare(b.date));
+export const invoiceModel = (b: Booking) => invoiceDoc(b, hallOf(b.hallId), currentBill(b), paymentsOf(b.id));
+export const billModel = (b: Booking) => billDoc(b, hallOf(b.hallId), currentBill(b));
+export function receiptModel(p: Payment) {
+  const b = bookingOf(p.bookingId);
+  return receiptDoc(p, b, hallOf(b?.hallId));
 }

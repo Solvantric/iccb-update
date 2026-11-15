@@ -2,13 +2,14 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { AnimatePresence } from "framer-motion";
-import { Money, Plus, Receipt, Trash } from "@phosphor-icons/react";
+import { Eye, Money, Plus, Receipt, Trash } from "@phosphor-icons/react";
 import type { Booking, PaymentKind, PaymentMethod } from "@/types/crm";
 import { PAYMENT_KINDS, PAYMENT_METHODS } from "@/types/crm";
 import { useBill, usePayments, useSecurityHeld } from "@/lib/crm/hooks";
 import { fmtDate, money, todayYmd } from "@/lib/crm/format";
 import { addPayment, deletePayment } from "@/services/crm";
-import { pdfReceipt } from "@/lib/pdf/actions";
+import { invoiceModel, receiptModel } from "@/lib/pdf/actions";
+import { viewPdf } from "../ui/PdfViewer";
 import { Button, Card, EmptyState, Field, Input, ProgressBar, Select, Textarea } from "../ui/core";
 import { Modal, useConfirm } from "../ui/overlay";
 import { AnimatedNumber, m } from "../ui/motion";
@@ -63,11 +64,16 @@ export function PaymentsTab({ booking: b }: { booking: Booking }) {
       <Card>
         <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-3">
           <h2 className="text-[16px] font-semibold text-crm-ink">Payments</h2>
-          {b.status !== "cancelled" && (
-            <Button variant="primary" size="sm" icon={Plus} onClick={() => setOpen(true)}>
-              Add payment
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" icon={Eye} onClick={() => viewPdf(invoiceModel(b))}>
+              View invoice
             </Button>
-          )}
+            {b.status !== "cancelled" && (
+              <Button variant="primary" size="sm" icon={Plus} onClick={() => setOpen(true)}>
+                Add payment
+              </Button>
+            )}
+          </div>
         </div>
         {payments.length === 0 ? (
           <EmptyState icon={Money} text="No payment recorded yet." action={b.status !== "cancelled" && <Button onClick={() => setOpen(true)}>Add payment</Button>} />
@@ -88,8 +94,8 @@ export function PaymentsTab({ booking: b }: { booking: Booking }) {
                     </p>
                   </div>
                   <span className="text-[12px] text-crm-muted tabular">#{p.receiptNo}</span>
-                  <Button size="sm" variant="ghost" icon={Receipt} onClick={() => pdfReceipt(p)}>
-                    Receipt PDF
+                  <Button size="sm" variant="ghost" icon={Receipt} onClick={() => viewPdf(receiptModel(p))}>
+                    View receipt
                   </Button>
                   <Button
                     size="icon-sm"
@@ -143,7 +149,7 @@ function PaymentForm({ booking, due, securityLeft, refundable, first, onDone }: 
   const save = () => {
     try {
       const p = addPayment(booking.id, { amount, date, method, kind, reference, note });
-      toast.success(`${money(p.amount)} recorded`, { action: { label: "Receipt PDF", onClick: () => pdfReceipt(p) } });
+      toast.success(`${money(p.amount)} recorded`, { action: { label: "View receipt", onClick: () => viewPdf(receiptModel(p)) } });
       onDone();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Couldn't save");

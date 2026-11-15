@@ -7,6 +7,7 @@ import { calcBill } from "@/lib/crm/bill";
 import { HERO_SLIDES, heroTitle } from "@/data/hero";
 import { galleryImages } from "@/data/images";
 import { halls as STATIC_HALLS } from "@/data/halls";
+import type { ReviewRequest } from "@/types/crm";
 import type { AnalyticsEvent, AnalyticsType, Booking, Client, ContentItem, Device, Enquiry, Hall, Meeting, MenuPackage, Payment, RadarItem, ServiceItem, Settings, SpecialPrice, TrafficSource, User } from "@/types/crm";
 
 const ymd = (d: Date) => format(d, "yyyy-MM-dd");
@@ -204,10 +205,22 @@ export const usersSeed = (): User[] => [
 
 export const specialPricesSeed = (): SpecialPrice[] => [];
 
+export const reviewsSeed = (): ReviewRequest[] => [
+  {
+    ...S, id: "rv-1", token: "demo-mitu-holud", bookingId: "bk-5", clientName: "Farhana Akter Mitu", mobile: "01611-998877", eventName: "Mitu's Holud Night", sentBy: "Sabbir Ahmed",
+    status: "submitted", answers: [4, 4, 3, 4, 3, 4, 3, 2, 3, 4], comment: "Beautiful hall and very caring staff. Parking was a bit slow at 8 PM.", reviewerName: "Farhana Akter Mitu", reviewerMobile: "01611-998877", submittedAt: iso(7), createdAt: iso(9),
+  },
+  {
+    ...S, id: "rv-2", token: "demo-green-earth", bookingId: "bk-9", clientName: "Nasrin Sultana", mobile: "01799-454545", eventName: "Green Earth Climate Seminar", sentBy: "Sabbir Ahmed",
+    status: "submitted", answers: [3, 4, 4, 3, 2, 3, 2, 3, 3, 3], comment: "Good venue for seminars. The projector needs a quicker setup.", reviewerName: "Rafiq Islam (event manager)", reviewerMobile: "01799-121212", submittedAt: iso(21), createdAt: iso(23),
+  },
+  { ...S, id: "rv-3", token: "demo-bengal-townhall", bookingId: "bk-7", clientName: "Kamal Hossain", mobile: "01552-334455", eventName: "Bengal Tech Townhall", sentBy: "Nusrat Jahan", status: "pending", createdAt: iso(0, 3) },
+];
+
 export const radarSeed = (): RadarItem[] => [
   { ...S, id: "rd-1", scope: "national", title: "Dhaka Apparel Sourcing Expo", organizer: "BD Garments Forum", date: day(70), location: "Dhaka", category: "Exhibition", score: 88, summary: "Annual sourcing fair; last venue is under renovation.", eventType: "Exhibition", guests: 2500, dismissed: false, createdAt: iso(2) },
   { ...S, id: "rd-2", scope: "national", title: "National Pharma Conference", organizer: "Pharma Society BD", date: day(95), location: "Dhaka", category: "Conference", score: 74, summary: "1,200 delegates, two-day plenary plus dinner.", eventType: "Conference", guests: 1200, dismissed: false, createdAt: iso(3) },
-  { ...S, id: "rd-3", scope: "national", title: "Chattogram Bankers' Gala", organizer: "Port City Bankers Club", date: day(48), location: "Chattogram", category: "Gala", score: 61, summary: "Looking for a larger hall in Dhaka this year.", eventType: "Corporate", guests: 800, dismissed: false, createdAt: iso(5) },
+  { ...S, id: "rd-3", scope: "national", title: "Chattogram Bankers' Gala", organizer: "Port City Bankers Club", date: day(48), location: "Chattogram", category: "Gala", score: 61, summary: "Looking for a larger hall in Dhaka this year.", eventType: "Corporate", guests: 800, dismissed: false, leadAt: iso(1), createdAt: iso(5) },
   { ...S, id: "rd-4", scope: "international", title: "South Asia Fintech Week", organizer: "SA Fintech Alliance", date: day(130), location: "Rotating · Asia", category: "Conference", score: 82, summary: "Host city for next edition not yet decided.", eventType: "Conference", guests: 1500, dismissed: false, createdAt: iso(2) },
   { ...S, id: "rd-5", scope: "international", title: "Asian Textile Machinery Show", organizer: "ATM Expo Ltd", date: day(160), location: "Singapore → Dhaka?", category: "Exhibition", score: 69, summary: "Organizer exploring a Bangladesh edition.", eventType: "Exhibition", guests: 3000, dismissed: false, createdAt: iso(6) },
   { ...S, id: "rd-7", scope: "national", title: "Bangladesh Wedding Expo", organizer: "Shaadi Fair BD", date: day(55), location: "Dhaka", category: "Exhibition", score: 77, summary: "Bridal fair with 120 stalls; wants a weekend date.", eventType: "Exhibition", guests: 4000, dismissed: false, createdAt: iso(4) },

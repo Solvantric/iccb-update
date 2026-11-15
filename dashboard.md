@@ -1,186 +1,133 @@
-# ICCB CRM Dashboard — Route Guide
+# ICCB Dashboard — Route Guide
 
 This guide covers every dashboard page: **what it is for** and **who uses it**. All routes start with `/dashboard`.
 
-> **The booking flow in one line:** a request comes in (**Requested**) → the representative meets the client, the advance is paid and a manager approves (**Confirmed**) → the event happens, the bill is settled and the security money is refunded (**Completed**).
-> A booking can also be **closed** as Cancelled or Lost.
+> **The booking flow in one line:** a client fills in the website form, or staff add a walk-in, and the date is held (**Reserved**) → the representative calls, meets the client, adds add-ons and records a payment, then clicks **Confirm booking** (**Booked**) → after the event, **Close event** (**Closed**).
+> **Cancel** releases the date (**Cancelled**). A hall and date can only have one Reserved or Booked record.
 
-**Roles:** Admin · Sales Manager (SM) · Sales Executive (SE) · Marketing · Operations (Ops) · Accounts. The sidebar only shows the pages a role can use.
+**Roles:** Admin · Sales · Operations · Marketing. The sidebar only shows the pages a role can use. Sign-in is a demo role picker, not real authentication.
+
+**Data:** everything is sample data stored in the browser (`localStorage`, key prefix `iccb-crm-v4`). There is no backend. The website and the dashboard share the same browser storage.
 
 ---
 
-## Sign-in
+## Sidebar
+
+| Group | Pages |
+|---|---|
+| Overview | Overview |
+| Sales | Leads · Bookings · Clients · Calendar · Enquiries · Invoices |
+| Operations | PPM · Quality |
+| Marketing | Analytics · Opportunity Radar · Demand & Pricing · Website content |
+| Admin | Pricing · Venues · Users |
+| Personal | Profile |
+
+Settings (`/dashboard/admin/settings`) is hidden from the sidebar but still opens by URL. It holds organisation details, payment terms, record counts, **Export JSON** and **Reset demo data**.
+
+## Sign-in and public pages
 
 | Route | Why |
 |---|---|
-| `/dashboard/sign-in` | Demo login. Pick a role card to see that role's view. This is not real authentication. |
+| `/dashboard/sign-in` | Demo login. Pick Admin, Sales, Operations or Marketing. |
+| `/dashboard/review/[token]` | **Client review form**, opened from a link staff share (see Quality). It has no sidebar and needs no sign-in. Each link works once. |
 
 ## Overview
 
 | Route | Why | Who |
 |---|---|---|
-| `/dashboard` | **Home page.** It changes by role. Sales staff see KPIs, the first-response timer, revenue and status charts, pending approvals, today's tasks, upcoming events, overdue items and hot leads. Marketing, Ops and Accounts each get their own widgets. Every role sees **Events at risk**. Admin and SM also see **Value delivered this month** (the ROI widget). | Everyone |
+| `/dashboard` | **Home page.** Period (this month / last month / this year) and hall filters. Four KPIs: new leads, booked events, money collected, meetings today. Cards for upcoming events, today's meetings, outstanding dues and the latest enquiries, plus a bookings-per-month chart. | Everyone |
 
 ## Sales
 
 | Route | Why | Who |
 |---|---|---|
-| `/dashboard/sales/bookings` | **All bookings** in a table or a Kanban board. Drag a card to change its status (the checklist must be complete first). Filter by hall, date, type, rep or source; bulk-assign, export, or open the Trash. | Admin, SM, SE (own) |
-| `/dashboard/sales/bookings/new` | **Create a booking** for a walk-in or phone client. Step 1 is the **Smart Hall Matchmaker** (skip it if you already know the hall). Step 2 is the same form as the website, plus source and representative. | Admin, SM, SE |
-| `/dashboard/sales/bookings/[id]` | **Booking workspace**, where most of the work happens. See the section below. | Admin, SM, SE, read-only for Ops and Accounts |
-| `/dashboard/sales/calendar` | **Availability.** Month, week and hall-timeline views. Click an empty day to book it; drag a booking to shift its date (shows the charge and needs approval). | Sales, Ops, Accounts |
-| `/dashboard/sales/clients` | **Client list.** Profile drawer, bookings, total paid, documents, notes and tags. Warns about duplicate mobile numbers. | Sales, Accounts (read) |
-| `/dashboard/sales/enquiries` | **Inbox** for website enquiries, Ask-a-question, contact forms and chatbot leads. Reply, assign, **convert to booking** or close. | Sales, Marketing (read) |
-| `/dashboard/sales/follow-ups` | **Tasks and reminders:** calls, meetings, balance due, documents due, PPM due, refunds due and repeat events. Shown as a list or a calendar; tick done or snooze. | Sales |
-| `/dashboard/sales/invoices` | **Every document:** estimates, invoices, money receipts, booking forms and refund notes. Preview, download as PDF or print. Also shows outstanding balances and refunds due. Extra tabs: **Collections** (Accounts, SM, Admin) and **Leakage** (the Leakage Guard report). | Sales, Accounts |
+| `/dashboard/leads` | **New Reserved requests**, newest first. Call or WhatsApp the client, schedule a meeting, mark them "Contacted", open the booking or cancel it (which frees the date). | Admin, Sales |
+| `/dashboard/bookings` | **Every booking.** The table shows ref, client, event (with the date under it), hall, status, total and due. Filter by status, search, hall or payment, and sort. Row actions: PDF, Close event, Delete (with Undo). **New booking** opens the same form as the website. **Export PDF** prints the filtered list. | Admin, Sales, Operations |
+| `/dashboard/bookings/[id]` | **Booking detail.** See the section below. | Admin, Sales, Operations |
+| `/dashboard/clients` | **Client list** (Individual / Corporate / Government / NGO). The KPIs show repeat clients and outstanding due. The table shows client, type, mobile and the next or last event. The side drawer shows contact details, money, bookings, payments, **New booking** and a **statement PDF**. A client is created automatically from the mobile number when someone books. | Admin, Sales |
+| `/dashboard/calendar` | **Month view.** Each date shows chips with "Name · Event" in orange (Reserved), red (Booked) or grey (Closed). Click a chip to open the booking; click an empty day to book it. On mobile it becomes an agenda list. | Admin, Sales, Operations |
+| `/dashboard/enquiries` | **Every website form:** booking form, contact, ask-a-question, enquiry and chatbot. A "New" dot shows until the item is opened. The drawer shows the full message, call / WhatsApp buttons and a link to the booking. | Admin, Sales |
+| `/dashboard/invoices` | **Every payment recorded by staff.** The table shows receipt, client, event (with the payment date under it), amount, method (with the payment type under it) and received by. Filter by date range, type, method or search. Shows "Total collected" and security money held. Receipt PDF for each row, and the filtered list exports as PDF. | Admin, Sales |
 
-### Booking workspace tabs (`/sales/bookings/[id]`)
+### Booking detail tabs (`/bookings/[id]`)
+
+The header shows the client, event, status, hall, date, slot and guests, with **Confirm booking** (when Reserved) or **Close event** (when Booked), **Download PDF**, and a ⋯ menu (Schedule meeting, Cancel, Delete). Below the header is a strip showing **Total · Paid · Due · Security**.
 
 | Tab | Why |
 |---|---|
-| Overview | Event, days table, guests, layout and capacity warning. Request steps: assign → call → meeting. |
-| Services & Bill | Add catering menus, ICCB services, catalogue charges, an outside decorator or custom items. Request a discount; large discounts need approval. The **Leakage Guard** card at the top lists items that are not on the bill. Pick the outside decorator from the vendor list, which shows its score. Enter an **offer code** here. |
-| Estimate & invoice | Line items and totals. Generate the estimate, booking form or invoice. Client acknowledgement and signature. Version history. The final invoice is **blocked** while any leakage item is still open. |
-| Payments | Money receipts (cash, cheque or pay order), the 60% advance bar, the balance due date and security money. |
-| Documents | NID/Passport check and the required-documents checklist with due dates. Overdue items turn red. Files the client uploads through the portal show **Accept / Reject** buttons. |
-| PPM | Program Preparation Meeting minutes with the 24-item agenda (due at least 15 days before the event). **Chargeable items agreed** (chair covers, chairs, archways, food stalls, external lighting, sound provider) feed the Leakage Guard. The client's portal answers appear here and prefill empty agenda items. |
-| Event day | Program Fact Sheet. Extra hours and extra guests are added to the invoice automatically. |
-| Feedback & damage | Client evaluation (14 criteria), damage claim and the security-money refund. |
-| Activity | Timeline of every change, call and note. Use `@Name` to mention a colleague. |
-
-The **status stepper** on the left lists what is still missing before the booking can move to the next status. The **right rail** holds the client contact, open tasks and quick notes.
-
-On a **Confirmed** booking, the header also shows the **readiness ring**; hover it to see the 5 areas. A red **"N new from client"** badge appears when the client did something in the portal. **More → Client portal** opens the portal link manager.
-
-## Marketing
-
-| Route | Why | Who |
-|---|---|---|
-| `/dashboard/marketing/leads` | **Lead pipeline:** intake flow, SOP, conversion by source, hot-lead alerts and lost reasons. Includes lead CRUD. | Marketing, SM |
-| `/dashboard/marketing/analytics` | **Website traffic:** visitors, sources, languages, top pages and the booking funnel (Visit → … → Confirmed). | Marketing, SM |
-| `/dashboard/marketing/opportunity-radar` | **Upcoming events ICCB can pitch to.** Each card shows a score, AI summary and pitch. Convert one to a lead, write a pitch, or press Refresh to find new items. | Marketing, SM (read) |
-| `/dashboard/marketing/demand` | **Demand heatmap** (hall × month) plus **Smart Pricing** suggestions. "Apply" creates a special tariff for that month. The **Idle dates** tab turns empty hall-days into offers. | Marketing, SM (approves offers) |
-| `/dashboard/marketing/content` | **Website CMS:** hero, venues, services, FAQ, testimonials and more. Edit, reorder, publish or hide. Changes show on the public site. | Marketing |
+| Details | Event card: name, type, hall, date, time slot, layout, guests, cars, coordinator, source and note. Client card: name, mobile, email, organisation, client no and a link to the client. Both are edited inline. Also shows the booking's meetings and its history (last 6 changes). |
+| Add-ons & Bill | **Venue:** extra hours. **Decoration:** ICCB Basic / Standard / Premium, or an outside firm in category A/B/C (fee) with the firm name. **Food:** breakfast, lunch, snacks and dinner, each with a menu package and number of persons. **ICCB services** from the catalogue, with quantity. **Other items** (custom lines). **Discount** (an amount, or 5/10/15%). The bill updates live, grouped as Venue / Decoration / Food / Services / Other, then subtotal, discount, VAT on food, total, paid and due, plus the 60% advance and the security money. Buttons: **View invoice** (opens the PDF in the page) and download bill. |
+| Payments | Paid-vs-total progress bar, the advance, security required / held / damages. List of payments with type (Advance, Installment, Final, Security deposit, Security refund), method, reference, received by and **View receipt**. **View invoice** and **Add payment** (offline record only, with no online gateway). |
 
 ## Operations
 
 | Route | Why | Who |
 |---|---|---|
-| `/dashboard/operations/events` | **Event-day board:** confirmed events for today, this week or upcoming, with document warnings and a **readiness ring** on each card. Sort by "Most at risk", filter by level, and see the "Next 30 days" strip. Opens the PPM, fact sheet and damage claim. | Ops |
-| `/dashboard/operations/ppm` | **All PPMs** sorted by due date (due, scheduled, done). Fill in or export the minutes. | Ops |
-| `/dashboard/operations/quality` | **Evaluations** (scores by criterion and by hall), **damage claims** (by department) and the **Vendors** tab (the vendor and decorator scorecard). | Ops |
+| `/dashboard/operations/ppm` | **Meetings:** PPM, site visits, follow-up calls and final briefings, grouped as Today / Upcoming / Past. The status (Scheduled / Done / Cancelled) changes right in the list. Edit to add an outcome. Meeting PDF. KPIs: today, next 7 days, PPMs, done. Meetings come from the website form checkbox, from Leads, or from **New meeting**. | Admin, Sales, Operations |
+| `/dashboard/operations/quality` | **Quality after events.** KPIs: average rating, feedback collected, happy clients, damages claimed. One chart of the score by area. Table of past events with staff-entered feedback (5 areas, 1–5 stars) and **damage claims**, which are deducted from security money. **Client reviews** button: see below. | Admin, Operations |
+
+### Client reviews (Quality → "Client reviews")
+
+- A side panel with **10 questions** (booking, sales help, cleanliness, set-up, food quality, food service, sound and light, parking, value, booking again). Each is rated **Bad · Normal · Good · Excellent**, followed by a written review.
+- **Create & copy link** for a booking, or as a general link. Share it by copying, by WhatsApp (the message is pre-filled) or by opening it.
+- **Who reviewed:** each link belongs to one booking (client and event). The form asks for the name and mobile, pre-filled from the booking, and records the time. A link can be used only once, and the booking history gets "Client review submitted".
+- Answered links show the overall rating and every answer. The Quality page also shows the 3 latest reviews.
+- **Limitation:** data is stored in the browser, so a link only works in the same browser until a backend is connected.
+
+## Marketing
+
+| Route | Why | Who |
+|---|---|---|
+| `/dashboard/marketing/analytics` | **Website traffic.** Range (7 / 30 / 90 days), source and device filters. KPIs: visitors, form submissions, conversion and average daily visitors. **Daily visitors** strip. **Visitors by source** chart and the **funnel** (Visit → Venue page → Form opened → Form submitted). **Source performance** table (visitors, share, forms and conversion per channel). **Venue interest** (venue page views compared with real booking requests per hall). **Website leads → bookings** (forms received, still reserved, confirmed, cancelled, the form-to-booking rate and the latest requests). Visitors by device and top pages. | Admin, Marketing |
+| `/dashboard/marketing/opportunity-radar` | **Events that could come to ICCB.** KPIs: open opportunities (and how many were added as leads), National, International and hot leads (80+). National / International tabs with counts. Each card shows the score ring, date, location, guests, organiser, **best hall** (the smallest one that fits), **estimated value** (weekday rent plus lunch for every guest) and the days until the event. **Add as lead** opens the New booking form prefilled and marks the card "Lead added". Dismiss or Restore. **Refresh** adds a new sample idea; live AI comes later. Below the cards: **Coming up** (the nearest dates) and **By category**. | Admin, Marketing |
+| `/dashboard/marketing/demand` | **Demand & Pricing.** Heat-map calendar of requests per date (3 or 6 months), with filters for hall, event type and request status. Suggestions: "Increase price by 10%" for busy dates and "Offer 10% off" for quiet weekdays. **Apply** adds a special price in Pricing. | Admin, Marketing |
+| `/dashboard/marketing/content` | **Website content:** hero slides, venues, gallery, FAQ and testimonials. Add, edit, delete, publish or hide, and drag to reorder. Changes show on the website right away. | Admin, Marketing |
 
 ## Admin
 
 | Route | Why | Who |
 |---|---|---|
-| `/dashboard/admin/pricing` | **Every rate:** hall tariff, security money, service charges, decoration, expo zones, cancellation chart, taxes, menus and services. Each rate has an "effective from" date, so new prices only apply to new estimates. | Admin |
-| `/dashboard/admin/venues` | **Halls and expo zones:** facilities, generator capacity, photos and capacity by layout. | Admin |
-| `/dashboard/admin/users` | **Users and roles,** active or inactive, and the order in which new requests are assigned to sales reps. | Admin |
-| `/dashboard/admin/settings` | **Rules and tools:** organisation info, number formats, balance-due days (15 or 7), discount limit and holidays. **Business features:** max offer discount, portal link expiry, vendor score thresholds and readiness weights. Also data reset, export and import, and the **audit log**. | Admin |
-
-## Public: client portal
-
-| Route | Why | Who |
-|---|---|---|
-| `/portal/[token]` (also `/bn/…`, `/ar/…`, `/zh/…`) | **Client self-service page.** It opens from a secure link with no login. Search engines are told not to index it. See feature 3 below. | The client |
+| `/dashboard/admin/pricing` | Tabs: **Add-ons & food** (decoration prices, default meal rates, service charge, VAT %), **Menu packages** (CRUD), **ICCB services** (CRUD, with how many bookings use each), **Security & weekends** (security money by event type, weekend days, refund period) and **Special prices** (date ranges ±%). | Admin |
+| `/dashboard/admin/venues` | **Halls:** code, capacity, area, weekday / weekend / extra-hour rates, facilities, active toggle and upcoming bookings. Inactive halls are hidden from the booking form. | Admin |
+| `/dashboard/admin/users` | **Users:** name, email, phone, role and active status, with a workload count (meetings, payments, events coordinated). | Admin |
 
 ## Personal
 
 | Route | Why | Who |
 |---|---|---|
-| `/dashboard/profile` | Your details, password (demo), notification settings, theme and language (EN/BN). | Everyone |
+| `/dashboard/profile` | Your name and email, a role switch, and **My activity**: upcoming meetings, payments you received and events you coordinate. | Everyone |
 
 ---
 
-## Business features
+## PDFs
 
-These 7 features sit inside existing pages; there are no new dashboard routes. Every decision listed below (waive, add to bill, approvals, blacklist, portal links, document review) is written to the **audit log**.
+All PDFs use one shared A4 template: the ICCB logo and name, a red accent line, and the address and phone in the footer. Money prints as "Tk" because the PDF font has no ৳ sign.
 
-### 1. Revenue Leakage Guard
-**Problem:** extras used on the event day are not billed.
-**What it does:** checks the PPM, the Program Fact Sheet and the booking for chargeable items that are missing from the bill. It covers extra hours, extra guests above 10%, service-charge gap, generator time, chair covers, extra chairs, external lighting, hall set-up, extra archway gates, outside decoration fee, outside food stalls and Food VAT. An unapproved discount is flagged, but it has no amount.
-**Where:** Booking → **Services & Bill** (alert card: Add to bill, Add all, Waive) and Sales → Invoices → **Leakage** (KPIs, findings table and filters, chart of recovered amounts by rule).
-**Rules:** the final invoice can't be generated while items are open. Only SM or Admin can waive, and a reason is required. Findings recalculate whenever the PPM, fact sheet or bill lines change.
-**Who:** Sales add to the bill; SM and Admin waive; Accounts can view.
-
-### 2. Event Readiness Score
-**Problem:** payment, documents, the PPM or permissions are still missing close to the event.
-**What it does:** gives every Confirmed event a 0–100 score from five areas: Payment 30, Documents 25, PPM 20, Permissions 15, Vendors 10. An item that is not yet due counts as half done; an overdue item counts as zero. **Ready** is 80 and above, **Attention** 50–79, **Risk** below 50.
-**Automation:** at D-15, D-7 and D-3 it creates follow-up tasks for anything incomplete. If an event is at Risk 7 days or less before the date, it notifies the Sales Manager and Operations.
-**Where:** the ring in the booking header, the Events board (sort by risk, filter by level, 30-day strip), and the **Events at risk** widget on the Overview.
-**Who:** all staff can view it.
-
-### 3. Client Self-Service Portal
-**Problem:** paperwork, repeated phone calls and chasing documents.
-**What it does:** a secure link with no login. In English, Bangla, Arabic or Chinese, the client can see their status timeline, booking details, bill and payment schedule (with a PDF download and how to pay; there is no online payment). They can also upload documents (image or PDF, up to 5 MB), answer the pre-PPM questions, accept ICCB's policies by typing their full name, give feedback after the event, and call or WhatsApp their representative.
-**Staff side:** Booking → More → **Client portal** to create, copy, share on WhatsApp (EN or BN), regenerate or revoke the link. Uploads are reviewed in the Documents tab; a rejection note is shown to the client. Every client action notifies the assigned representative.
-**Rules:** the link expires 30 days after the event (this can be changed in Settings). Expired, revoked and unknown links show a friendly page with ICCB's contact numbers. For now the token is only checked in the browser; this moves to the backend later.
-**Who:** Sales create and revoke links.
-
-### 4. Idle Date Recovery
-**Problem:** empty halls earn nothing, especially on weekdays and from February to November.
-**What it does:** shows every hall-day in the next 90 days that has no request or confirmed booking (preparation days count as used), with the rent at risk. Select cells by clicking or dragging, then use **Create offer** (3 steps):
-1. Dates and discount.
-2. Audience: lost leads, enquiries not converted, past clients, Opportunity Radar organizers and repeat-event organizers, with live counts. You can untick individual contacts.
-3. Message: English and Bangla templates with placeholders and a live preview.
-
-Then send the offer one by one on WhatsApp, copy the contact list, or email it.
-**Tracking:** the client's offer code is entered in the booking's Services & Bill tab. It adds a discount line and links the booking to the offer. The offers table shows sent, responded, booked, revenue recovered and conversion rate.
-**Rules:** a discount above the max offer discount (Settings) needs Sales Manager approval.
-**Where:** Marketing → Demand → **Idle dates**.
-
-### 5. Smart Hall Matchmaker + 2-minute quote
-**Problem:** answering "Which hall, and how much?" takes too long on the phone.
-**What it does:** you enter the event type, guests (or square feet for an exhibition), layout, a date or a flexible month, an optional budget, food and decoration. It checks capacity, looks for availability within ±14 days or across the whole month, prices each option with the pricing engine, and shows up to 3 options: **Best fit**, **Best value** and **Alternative date**. Each option shows utilisation, the estimated total with a breakdown, the saving (for example "Wednesday instead of Friday saves ৳50,000") and any warnings. If the guests are more than any single hall holds, it suggests combined halls or an Expo Zone.
-**Actions:** **Use this option** (prefills the booking form), **Download quote** (a PDF marked Provisional) and **Share on WhatsApp**.
-**Where:** Sales → New booking (step 1), and ⌘K → **Find a hall**.
-**Who:** Sales.
-
-### 6. Collections & Cash-flow Forecast
-**Problem:** there is no single view of dues, overdue balances, security money held and refunds.
-**What it does:** builds a due schedule for each booking. The advance (60% of the venue rent) is due at confirmation, the balance by the event minus the balance-due days, and extras within 7 days after the event. Overdue money is grouped by age: 1–7, 8–15, 16–30 and 30+ days.
-**Where:** Sales → Invoices → **Collections**:
-- KPIs: expected in 30, 60 and 90 days; overdue; collected this month; security held; refunds due or overdue.
-- Receivables table: record a payment, send a reminder (EN or BN, logged to Activity), set a promise-to-pay date.
-- Refund queue: security minus damages minus dues, due 15 working days after the event (Fri, Sat and holidays skipped). Mark "cheque prepared" or "refunded".
-- 13-week chart of expected vs received, aging donut, CSV export.
-
-**Who:** Accounts, SM, Admin.
-
-### 7. Vendor & Decorator Scorecard
-**Problem:** outside vendors cause damage and break ICCB's premises rules.
-**What it does:** every vendor starts at 100. Penalties: late set-up −10, dismantling after 24 h −15, each of the 22 premises-guideline violations −10, damage up to ৳20k −10 and above −20. The rating adds or removes (rating − 3) × 5. The score is the average of the last 10 reviews. Suggested status: active at 70+, warning at 50–69, below 50 review for blacklist (Admin confirms).
-**Where:** Operations → Quality → **Vendors**: vendor table, a detail drawer (history, damages chart, violations), add/edit/delete, and the review form (damage is prefilled from the Damage Claim). A "Review vendor" task is created after each completed event that used an outside vendor. In the booking's Services & Bill tab the decorator picker shows the score badge. A vendor on warning gets an amber notice; a blacklisted vendor can only be chosen by an Admin with a written override reason.
-**Who:** Ops write reviews and manage vendors; only Admin can blacklist or lift a blacklist.
-
-### ROI widget: "Value delivered this month"
-**Where:** Overview, for Admin and SM. It shows five figures, each with a 6-month sparkline and a link to its report:
-- Revenue recovered by the Leakage Guard
-- Revenue from idle-date offers
-- Average first-response time (target under 2 h)
-- On-time collections %
-- Events at risk prevented (Risk at D-15, Ready on the day)
-
-### Who can do what
-
-| Feature | Who |
+| PDF | Where |
 |---|---|
-| Leakage | Sales: add to bill · SM / Admin: waive |
-| Readiness | All staff: view |
-| Portal | Sales: create / revoke |
-| Idle offers | Marketing: create · SM: approve above the max discount |
-| Matchmaker | Sales |
-| Collections | Accounts, SM, Admin |
-| Vendors | Ops: reviews and records · Admin: blacklist |
+| Booking | Bookings table, booking header |
+| Bill | Add-ons & Bill tab |
+| **Invoice** (bill + all payments) | **View invoice** on the Add-ons & Bill and Payments tabs. It opens in the page, with Download and Open-in-new-tab buttons. |
+| Payment receipt | Payments tab (**View receipt**), Invoices |
+| Meeting note | PPM |
+| Client statement | Clients |
+| Bookings list / Payments list | **Export PDF** on Bookings and Invoices |
 
-> **Demo data:** sample data exists for every feature (leakage on completed events, events at each readiness level, 2 portal links such as `/portal/ICCBdemoPortalLink000001`, 3 offers, 8 vendors, overdue balances in every aging bucket and pending refunds). A browser that used the CRM before needs **Admin → Settings → Data → Reset demo data** to load them.
+## Filters
 
----
+Every list page has a short filter row (at most 4–5 controls: search, a few dropdowns and sort), a result count and a "Clear filters" chip.
 
-## Shortcuts available on every page
+## Website ↔ dashboard
 
-- **⌘K / Ctrl K:** search bookings (by BF No), clients (by name or mobile) and pages; quick actions, including **Find a hall (2-minute quote)**.
-- **+ Create:** new booking, client, task or enquiry.
-- **Bell:** notifications. Hot leads also pop up as a toast with a red bar.
-- **Theme and language** toggles in the top bar.
+- The website **booking form** creates a Reserved booking, an enquiry and a client, plus a meeting if the visitor asks for one. The form's date picker hides dates that are already taken.
+- The **contact, ask, enquiry and chatbot** forms create question enquiries.
+- **Website content** (hero, venues, gallery, FAQ, testimonials) is read by the homepage and the FAQ page.
+- Website visits feed **Analytics**.
+
+## For developers
+
+- Pages live in `src/app/(dashboardRoute)/dashboard/(app)/…`, and their components are in `src/components/dashboard/pages/*`.
+- Data: `src/types/crm`, `src/data/crm/seed.ts`, `src/lib/crm/{db,repository,bill,hooks,format,permissions}.ts`, `src/services/crm/index.ts` (all actions).
+- The bill is the pure function `calcBill()` in `src/lib/crm/bill.ts`; run the tests with `npx vitest run`.
+- PDFs: `src/lib/pdf/*` and `src/components/dashboard/ui/PdfViewer.tsx`.
+- Check your work with `npx tsc --noEmit` and `npx eslint .`.

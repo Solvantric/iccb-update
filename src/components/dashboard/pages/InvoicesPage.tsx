@@ -46,18 +46,28 @@ export function InvoicesPage() {
 
   const columns: Column<Payment>[] = [
     { key: "no", header: "Receipt", cell: (p) => <span className="text-[13px] text-crm-muted tabular">#{p.receiptNo}</span> },
-    { key: "date", header: "Date", cell: (p) => <span className="whitespace-nowrap tabular">{fmtDate(p.date)}</span> },
     { key: "client", header: "Client name", cell: (p) => <span className="font-medium text-crm-ink">{bookingMap.get(p.bookingId)?.name ?? "—"}</span> },
-    { key: "event", header: "Event name", cell: (p) => <span className="line-clamp-1">{bookingMap.get(p.bookingId)?.eventName ?? "—"}</span> },
-    { key: "kind", header: "Type", cell: (p) => <span className={cn("whitespace-nowrap rounded-full px-2 py-0.5 text-[12px]", isBillPayment(p.kind) ? "bg-crm-surface-2 text-crm-ink-2" : "bg-crm-reserved-bg text-crm-reserved-ink")}>{p.kind}</span> },
+    {
+      key: "event",
+      header: "Event name",
+      cell: (p) => (
+        <span className="block min-w-0">
+          <span className="block truncate text-crm-ink-2">{bookingMap.get(p.bookingId)?.eventName ?? "—"}</span>
+          <span className="block text-[12.5px] text-crm-muted tabular">{fmtDate(p.date, "EEE, d MMM yyyy")}</span>
+        </span>
+      ),
+    },
     { key: "amount", header: "Amount (৳)", align: "end", cell: (p) => <span className="font-medium text-crm-ink">{p.kind === "Security refund" ? `− ${money(p.amount)}` : money(p.amount)}</span> },
     {
       key: "method",
       header: "Method",
       cell: (p) => (
-        <span>
-          <span className="block">{p.method}</span>
-          {p.reference && <span className="block text-[12px] text-crm-muted">{p.reference}</span>}
+        <span className="block">
+          <span className="block whitespace-nowrap">
+            {p.method}
+            {p.reference && <span className="text-[12px] text-crm-muted"> · {p.reference}</span>}
+          </span>
+          <span className={cn("mt-0.5 inline-block whitespace-nowrap rounded-full px-2 py-px text-[11.5px]", isBillPayment(p.kind) ? "bg-crm-surface-2 text-crm-ink-2" : "bg-crm-reserved-bg text-crm-reserved-ink")}>{p.kind}</span>
         </span>
       ),
     },

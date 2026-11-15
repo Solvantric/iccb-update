@@ -57,9 +57,17 @@ export function BookingsPage() {
   const columns: Column<Booking>[] = [
     { key: "ref", header: "Ref no", cell: (b) => <span className="text-[13px] text-crm-muted tabular">{b.ref.replace(/^.*-(\d+)$/, "#$1")}</span> },
     { key: "name", header: "Client", cell: (b) => <span className="font-medium text-crm-ink">{b.name}</span> },
-    { key: "event", header: "Event", cell: (b) => <span className="line-clamp-1">{b.eventName}</span> },
+    {
+      key: "event",
+      header: "Event",
+      cell: (b) => (
+        <span className="block min-w-0">
+          <span className="block truncate text-crm-ink-2">{b.eventName}</span>
+          <span className="block text-[12.5px] text-crm-muted tabular">{fmtDate(b.date, "EEE, d MMM yyyy")}</span>
+        </span>
+      ),
+    },
     { key: "hall", header: "Hall", cell: (b) => hallMap.get(b.hallId)?.name ?? "—" },
-    { key: "date", header: "Date", cell: (b) => <span className="whitespace-nowrap tabular">{fmtDate(b.date)}</span> },
     { key: "status", header: "Status", cell: (b) => <StatusPill status={b.status} /> },
     { key: "total", header: "Total", align: "end", cell: (b) => <span className={b.status === "cancelled" ? "text-crm-muted" : "text-crm-ink"}>{money(bills.get(b.id)?.total ?? 0)}</span> },
     { key: "due", header: "Due", align: "end", cell: (b) => (dueOf(b) > 0 ? <span className="font-medium text-crm-brand-text">{money(dueOf(b))}</span> : <span className="text-crm-muted">—</span>) },

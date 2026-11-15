@@ -5,6 +5,7 @@
  */
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import type { ReviewRequest } from "@/types/crm";
 import type { AnalyticsEvent, Booking, Client, ContentItem, Enquiry, Hall, Meeting, MenuPackage, Payment, RadarItem, ServiceItem, Settings, SpecialPrice, User } from "@/types/crm";
 import { createRepository, STORAGE_PREFIX } from "./repository";
 import {
@@ -19,6 +20,7 @@ import {
   meetingsSeed,
   paymentsSeed,
   radarSeed,
+  reviewsSeed,
   settingsSeed,
   specialPricesSeed,
   usersSeed,
@@ -35,6 +37,7 @@ export const db = {
   menus: createRepository<MenuPackage>("menus", menusSeed),
   services: createRepository<ServiceItem>("services", servicesSeed),
   radar: createRepository<RadarItem>("radar", radarSeed),
+  reviews: createRepository<ReviewRequest>("reviews", reviewsSeed),
   content: createRepository<ContentItem>("content", contentSeed),
   users: createRepository<User>("users", usersSeed),
   analytics: createRepository<AnalyticsEvent>("analytics", analyticsSeed),

@@ -24,3 +24,10 @@ export async function downloadPdf(model: DocModel) {
     toast.error(e instanceof Error ? e.message : "Couldn't create the PDF", { id });
   }
 }
+
+/** Render a PDF to a blob URL for in-page preview (caller revokes it). */
+export async function pdfBlobUrl(model: DocModel): Promise<string> {
+  const { renderPdf } = await import("./template");
+  const blob = await renderPdf(model, getSettings());
+  return URL.createObjectURL(blob);
+}

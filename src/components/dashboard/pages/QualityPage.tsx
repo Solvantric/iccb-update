@@ -1,7 +1,10 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChatCircleText, ShieldWarning, Smiley, Star } from "@phosphor-icons/react";
+import { ChatCircleText, LinkSimple, ShieldWarning, Smiley, Star } from "@phosphor-icons/react";
+import { ratingLabel } from "@/types/crm";
+import { db } from "@/lib/crm/db";
+import { RatingChip, ReviewsDrawer, reviewAvg } from "../operations/ReviewsDrawer";
 import type { Booking } from "@/types/crm";
 import { FEEDBACK_AREAS } from "@/types/crm";
 import { useBookings, useHallMap, useHalls } from "@/lib/crm/hooks";
@@ -20,6 +23,9 @@ export function QualityPage() {
   const today = todayYmd();
   const [fb, setFb] = useState<Booking | null>(null);
   const [dmg, setDmg] = useState<Booking | null>(null);
+  const [reviewsOpen, setReviewsOpen] = useState(false);
+  const reviews = db.reviews.store((st) => st.items);
+  const answeredReviews = useMemo(() => reviews.filter((rv) => rv.status === "submitted").sort((a, b) => (b.submittedAt ?? "").localeCompare(a.submittedAt ?? "")), [reviews]);
   const { f, set, reset, active } = useFilters({ q: "", hall: "", rating: "", damage: "", sort: "date" });
 
   /** Events that have happened (closed, or booked with a past date). */
@@ -104,7 +110,15 @@ export function QualityPage() {
 
   return (
     <>
-      <PageHeader title="Quality" description="Client feedback after each event, and damage claims deducted from security money." />
+      <PageHeader
+        title="Quality"
+        description="Client feedback after each event, and damage claims deducted from security money."
+        action={
+          <Button variant="primary" icon={LinkSimple} onClick={() => setReviewsOpen(true)}>
+            Client reviews{answeredReviews.length ? ` · ${answeredReviews.length}` : ""}
+          </Button>
+        }
+      />
       <Stagger className="mb-6 grid grid-cols-2 gap-5 xl:grid-cols-4">
         <Item>
           <Kpi label="Average rating" value={kpi.avg} icon={Star} format={(n) => `${n.toFixed(1)} / 5`} />
@@ -119,6 +133,33 @@ export function QualityPage() {
           <Kpi label="Damages claimed" value={kpi.damage} icon={ShieldWarning} format={money} />
         </Item>
       </Stagger>
+
+      {answeredReviews.length > 0 && (
+        <Card className="mb-6">
+          <CardTitle
+            title="Latest client reviews"
+            action={
+              <Button size="sm" variant="ghost" onClick={() => setReviewsOpen(true)}>
+                All reviews
+              </Button>
+            }
+          />
+          <ul className="grid grid-cols-1 gap-3 px-5 pb-5 md:grid-cols-3">
+            {answeredReviews.slice(0, 3).map((rv) => (
+              <li key={rv.id} className="rounded-[10px] border border-crm-line p-3.5">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="min-w-0">
+                    <span className="block truncate text-[14px] font-medium text-crm-ink">{rv.reviewerName}</span>
+                    <span className="block truncate text-[12px] text-crm-muted">{rv.eventName ?? "General review"}</span>
+                  </span>
+                  <RatingChip label={ratingLabel(reviewAvg(rv))} />
+                </div>
+                {rv.comment && <p className="mt-2 line-clamp-3 text-[13px] text-crm-ink-2">“{rv.comment}”</p>}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       <Card className="mb-6">
         <CardTitle title="Average score by area" action={<span className="text-[12.5px] text-crm-muted">Out of 5 · filtered events</span>} />
@@ -166,6 +207,7 @@ export function QualityPage() {
         }}
       />
       <FeedbackModal booking={fb} onClose={() => setFb(null)} />
+      <ReviewsDrawer open={reviewsOpen} onOpenChange={setReviewsOpen} />
       <DamageModal booking={dmg} onClose={() => setDmg(null)} />
     </>
   );
