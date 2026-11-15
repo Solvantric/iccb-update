@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2fa84f"/><stop offset="1" stop-color="#14652d"/></linearGradient>
+    <path id="aT" d="M30,100 a70,70 0 0,1 140,0"/>
+    <path id="aB" d="M38,104 a62,62 0 0,0 124,0"/>
+  </defs>
+  <circle cx="100" cy="100" r="96" fill="url(#h)"/>
+  <circle cx="100" cy="100" r="86" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="3 4" opacity=".7"/>
+  <circle cx="100" cy="100" r="58" fill="#fff"/>
+  <text font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="15" fill="#fff" letter-spacing="3"><textPath href="#aT" startOffset="50%" text-anchor="middle">FOOD SAFETY</textPath></text>
+  <text font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="13" fill="#fff" letter-spacing="3"><textPath href="#aB" startOffset="50%" text-anchor="middle">★ CERTIFIED ★</textPath></text>
+  <path d="M100 66 l20 8 v16 c0 14 -9 24 -20 28 c-11 -4 -20 -14 -20 -28 v-16 z" fill="#14652d"/>
+  <path d="M91 92 l7 7 l13 -14" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="100" y="140" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="19" fill="#14652d">HACCP</text>
+</svg>

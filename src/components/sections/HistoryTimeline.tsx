@@ -9,7 +9,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 const u = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=90&w=3840`;
 
 /** ICCB milestones — sourced from public news coverage; edit freely as the team confirms details. */
-const MILESTONES = [
+export const MILESTONES = [
   {
     year: "2015",
     title: "The Doors Open",
@@ -43,7 +43,7 @@ const MILESTONES = [
     title: "Showcasing Bangladesh",
     highlight: "Bangladesh",
     desc: "The first-ever Bangladesh Jewellery Expo begins at ICCB — one of many landmark exhibitions that put local industries in the spotlight.",
-    image: u("1611591437281-460bfbe1220a"),
+    image: u("1778402566957-c21d77a67d0d"),
   },
   {
     year: "2025",
