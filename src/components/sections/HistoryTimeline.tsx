@@ -130,7 +130,7 @@ const EVENT_TYPES = [
   },
 ];
 
-const AUTOPLAY_MS = 2000;
+const AUTOPLAY_MS = 3000;
 
 /** Title → animated chunks with the highlight in red; works for spaced (en/bn/ar) and unspaced (zh) text. */
 function titleParts(title: string, highlight: string) {

@@ -132,9 +132,6 @@ export function MenuBento({ locale }: MenuBentoProps) {
             <Link href="/contact" locale={locale} className="btn btn-primary">
               {t("quote")} <ArrowRight size={14} weight="bold" className="rtl:-scale-x-100" />
             </Link>
-            <Link href="/menu" locale={locale} className="btn btn-secondary whitespace-nowrap">
-              {t("viewAll")} <ArrowRight size={14} weight="bold" className="rtl:-scale-x-100" />
-            </Link>
           </div>
         </FadeUp>
       </div>
