@@ -43,7 +43,7 @@ export function AboutHero() {
 }
 
 /** Full-width hero slider: Ken Burns photos, headline lines rising out of a blur, progress dots. */
-export function HeroSlides({ eyebrow, slides, raiseDots = false }: { eyebrow: string; slides: HeroSlide[]; raiseDots?: boolean }) {
+export function HeroSlides({ eyebrow, slides, raiseDots = false, lightOverlay = false }: { eyebrow: string; slides: HeroSlide[]; raiseDots?: boolean; lightOverlay?: boolean }) {
   const reduced = useReducedMotion();
   const [i, setI] = useState(0);
 
@@ -72,11 +72,11 @@ export function HeroSlides({ eyebrow, slides, raiseDots = false }: { eyebrow: st
             animate={{ scale: 1.02 }}
             transition={{ duration: AUTOPLAY / 1000 + 1.5, ease: "easeOut" }}
           >
-            <Image src={s.image} alt={`${s.lines.join(" ")} ${s.highlight}`} fill priority={i === 0} sizes="100vw" className="object-cover" />
+            <Image src={s.image} alt={`${s.lines.join(" ")} ${s.highlight}`} fill priority={i === 0} sizes="100vw" quality={90} className="object-cover" />
           </motion.div>
         </motion.div>
       </AnimatePresence>
-      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-black/10" />
+      <div className={`absolute inset-0 bg-gradient-to-r ${lightOverlay ? "from-black/65 via-black/25 to-transparent" : "from-black/80 via-black/45 to-black/10"}`} />
       <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/50 to-transparent" />
 
       <div className="relative h-full container-site flex items-center">

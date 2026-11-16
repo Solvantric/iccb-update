@@ -214,11 +214,11 @@ export function EstimateCalculator() {
       </div>
 
       {/* Result */}
-      <div className="lg:sticky lg:top-28 overflow-hidden rounded-2xl bg-[#111214] text-white shadow-[0_30px_60px_-35px_rgba(0,0,0,0.6)]">
+      <div className="lg:sticky lg:top-28 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] shadow-[0_30px_60px_-40px_rgba(0,0,0,0.35)]">
         <div className="relative h-[96px]">
-          {venue?.image && <Image src={venue.image} alt="" fill sizes="320px" className="object-cover opacity-55" />}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#111214] to-transparent" />
-          <div className="absolute bottom-2.5 start-5 flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/80">
+          {venue?.image && <Image src={venue.image} alt="" fill sizes="320px" className="object-cover opacity-90" />}
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface)] via-[var(--surface)]/40 to-transparent" />
+          <div className="absolute bottom-2.5 start-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--ink)]">
             <Calculator size={15} /> Budget estimate
           </div>
         </div>
@@ -227,25 +227,25 @@ export function EstimateCalculator() {
             {lines.map((l) => (
               <div key={l.label} className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-white/90 truncate">{l.label}</p>
-                  <p className="text-[11px] text-white/45">{l.sub}</p>
+                  <p className="text-[var(--ink)] truncate">{l.label}</p>
+                  <p className="text-[11px] text-[var(--ink-muted)]">{l.sub}</p>
                 </div>
-                <span className="tabular-nums text-white/90 whitespace-nowrap">{l.value ? taka(l.value) : "—"}</span>
+                <span className="tabular-nums text-[var(--ink)] whitespace-nowrap">{l.value ? taka(l.value) : "—"}</span>
               </div>
             ))}
           </div>
-          <div className="mt-4 border-t border-white/10 pt-3">
-            <p className="text-[10.5px] uppercase tracking-[0.16em] text-white/50">Estimated total</p>
+          <div className="mt-4 border-t border-[var(--line)] pt-3">
+            <p className="text-[10.5px] uppercase tracking-[0.16em] text-[var(--ink-muted)]">Estimated total</p>
             <AnimatePresence mode="wait">
               <motion.p key={Math.round(low)} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.22 }}
                 className="mt-0.5 font-display text-[24px] leading-tight tabular-nums">
                 {taka(low)} – <span className="text-[var(--accent)]">{taka(high)}</span>
               </motion.p>
             </AnimatePresence>
-            {guests > 0 && <p className="mt-0.5 text-[11.5px] text-white/55">≈ {taka(high / guests)} per guest</p>}
+            {guests > 0 && <p className="mt-0.5 text-[11.5px] text-[var(--ink-muted)]">≈ {taka(high / guests)} per guest</p>}
           </div>
           <a href="#booking-form-section" className="btn btn-primary w-full mt-4 justify-center">Check availability &amp; reserve</a>
-          <p className="mt-2.5 text-[11px] leading-relaxed text-white/45">Rough guide only — the upper figure adds ~12% for setup and small extras. Our team will share an exact quote.</p>
+          <p className="mt-2.5 text-[11px] leading-relaxed text-[var(--ink-muted)]">Rough guide only — the upper figure adds ~12% for setup and small extras. Our team will share an exact quote.</p>
         </div>
       </div>
     </div>

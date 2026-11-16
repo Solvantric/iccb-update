@@ -13,6 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { VenuesMegaMenu, VenuesMobileList } from "./VenuesMenu";
 
 /* ─── Nav structure ──────────────────────────────────────────────────────── */
 const NAV_LINKS = [
@@ -22,10 +23,7 @@ const NAV_LINKS = [
   {
     href: "/venues", labelKey: "venues",
     children: [
-      { href: "/venues", label: "All Halls", icon: Buildings },
-      { href: "/venues/gulnaksha", label: "Gulnaksha Hall", icon: Buildings },
-      { href: "/venues/pushpoguchcho", label: "Pushpoguchcho Hall", icon: Buildings },
-      { href: "/venues/rajdarshan", label: "Rajdarshan Hall", icon: Buildings },
+      { href: "/venues", label: "All Venues", icon: Buildings },
     ],
   },
   {
@@ -56,6 +54,7 @@ export function Header({ locale }: HeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [mobileVenues, setMobileVenues] = useState(false);
   const dropdownTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -159,6 +158,9 @@ export function Header({ locale }: HeaderProps) {
                     />
                   </Link>
 
+                  {link.href === "/venues" ? (
+                    <VenuesMegaMenu open={open} locale={locale} activePath={basePath} onNavigate={() => setOpenDropdown(null)} />
+                  ) : (
                   <div
                     className={cn(
                       "absolute start-0 top-full z-50 pt-4 transition-opacity",
@@ -166,7 +168,7 @@ export function Header({ locale }: HeaderProps) {
                     )}
                   >
                     <ul className="min-w-[15rem] overflow-hidden rounded-md border border-[var(--line)] bg-[var(--bg)] py-1 shadow-lg">
-                      {(link as typeof NAV_LINKS[3]).children.map((child) => (
+                      {(link as { children: readonly { href: string; label: string }[] }).children.map((child) => (
                         <li key={child.href}>
                           <Link
                             href={child.href}
@@ -184,6 +186,7 @@ export function Header({ locale }: HeaderProps) {
                       ))}
                     </ul>
                   </div>
+                  )}
                 </div>
               );
             })}
@@ -313,6 +316,25 @@ export function Header({ locale }: HeaderProps) {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05 + 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   >
+                    {href === "/venues" ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setMobileVenues((v) => !v)}
+                          aria-expanded={mobileVenues}
+                          className={cn(
+                            "flex w-full items-center justify-between px-6 py-3.5 text-[15px] font-semibold border-b border-[var(--line)] transition-colors",
+                            isActive(href) ? "text-[var(--accent)]" : "text-[var(--ink)] hover:text-[var(--accent)] hover:bg-[var(--bg-tint)]"
+                          )}
+                        >
+                          {t(labelKey as never)}
+                          <CaretDown size={16} className={cn("text-[var(--accent)] transition-transform", mobileVenues && "rotate-180")} />
+                        </button>
+                        <AnimatePresence initial={false}>
+                          {mobileVenues && <VenuesMobileList locale={locale} onNavigate={() => setMenuOpen(false)} />}
+                        </AnimatePresence>
+                      </>
+                    ) : (
                     <Link
                       href={href}
                       locale={locale}
@@ -327,6 +349,7 @@ export function Header({ locale }: HeaderProps) {
                       {t(labelKey as never)}
                       <ArrowRight size={16} className="text-[var(--accent)]" />
                     </Link>
+                    )}
                   </motion.div>
                 ))}
               </nav>

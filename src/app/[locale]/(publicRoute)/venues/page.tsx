@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import Image from "next/image";
 import { Link } from "@/lib/i18n/navigation";
 import type { Locale } from "@/lib/i18n/routing";
 import { routing } from "@/lib/i18n/routing";
 import { halls } from "@/data/halls";
-import { RevealBlock, RevealGroup, RevealItem } from "@/components/motion/RevealBlock";
-import { Users, Ruler, ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import { CountUpStats } from "@/components/why/CountUpStats";
+import { VenuesHero } from "@/components/venues/VenuesHero";
+import { HallGrid } from "@/components/venues/HallGrid";
+import { CapacityExplorer } from "@/components/venues/CapacityExplorer";
+import { Ornament } from "@/components/venues/Ornament";
+import { RevealBlock } from "@/components/motion/RevealBlock";
+import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -14,102 +18,64 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return { title: t("venuesTitle"), description: t("venuesDescription") };
 }
 
+
 export default async function VenuesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params;
   const locale = (routing.locales.includes(rawLocale as Locale) ? rawLocale : "en") as Locale;
+  const totalArea = halls.reduce((s, h) => s + h.area, 0);
+  const largest = Math.max(...halls.map((h) => h.capacity.theatre));
 
   return (
     <div className="pt-[88px] sm:pt-[112px]">
-      <section className="bg-[var(--bg-soft)] py-12 border-b border-[var(--line)]">
-        <div className="max-w-[1440px] mx-auto px-[clamp(1rem,4vw,3rem)]">
-          <RevealBlock>
-            <span className="meta-label block mb-2">(VENUES)</span>
-            <h1 className="display-lg text-[var(--ink)]">OUR CONVENTION HALLS</h1>
-            <p className="text-[var(--ink-muted)] text-[16px] mt-3 max-w-xl">
-              Six world-class spaces designed for every scale of event — from intimate seminars to mega expos with 10,000+ attendees.
-            </p>
-          </RevealBlock>
-        </div>
+      <VenuesHero halls={halls} locale={locale} />
+
+      {/* Intro */}
+      <section className="pt-16 md:pt-20">
+        <RevealBlock className="container-site mx-auto max-w-3xl text-center">
+          <p className="font-display text-[13px] tracking-[0.3em] text-[var(--accent)]">THE HALLS OF ICCB</p>
+          <h2 className="mt-4 font-display uppercase text-[clamp(2rem,4.4vw,3.4rem)] leading-[1.05] text-[var(--ink)]">
+            A Hall for <span className="text-[var(--accent)]">Every Story</span>
+          </h2>
+          <Ornament className="mt-6" />
+          <p className="mt-6 text-[16px] leading-relaxed text-[var(--ink-body)]">
+            Each of our six halls carries its own character — named in the tradition of Bengal, built to international standards, and
+            served by one in-house team for catering, décor and event management.
+          </p>
+        </RevealBlock>
       </section>
 
-      <section className="py-16 md:py-20">
-        <div className="max-w-[1440px] mx-auto px-[clamp(1rem,4vw,3rem)]">
-          <RevealGroup className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {halls.map((hall, i) => (
-              <RevealItem key={hall.id}>
-                <article className="group bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius-card)] overflow-hidden hover:shadow-lg transition-all duration-500">
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <Image
-                      src={hall.image}
-                      alt={hall.name.en}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <div className="absolute top-3 start-3 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase">
-                      0{i + 1}
-                    </div>
-                  </div>
-                  <div className="p-5">
-                    <h2 className="font-display text-2xl text-[var(--ink)] font-light uppercase group-hover:text-[var(--accent)] transition-colors mb-3">
-                      {hall.name.en}
-                    </h2>
-                    <div className="flex gap-4 mb-4 text-[var(--ink-muted)] text-[13px]">
-                      <div className="flex items-center gap-1.5">
-                        <Users size={14} weight="light" />
-                        Up to {hall.capacity.theatre.toLocaleString()}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Ruler size={14} weight="light" />
-                        {hall.area.toLocaleString()} sq ft
-                      </div>
-                    </div>
-                    <ul className="space-y-1.5 mb-5">
-                      {hall.features.slice(0, 3).map((f, fi) => (
-                        <li key={fi} className="flex items-start gap-2 text-[var(--ink-muted)] text-[13px]">
-                          <span className="w-1 h-1 rounded-full bg-[var(--accent)] mt-1.5 flex-shrink-0" />
-                          {f.en}
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="grid grid-cols-3 gap-2 mb-4">
-                      {[
-                        { l: "Theatre", v: hall.capacity.theatre },
-                        { l: "Banquet", v: hall.capacity.banquet },
-                        { l: "Classroom", v: hall.capacity.classroom || 0 },
-                      ].filter((c) => c.v > 0).map((cap) => (
-                        <div key={cap.l} className="text-center bg-[var(--bg-soft)] rounded-lg p-2">
-                          <p className="font-display text-lg text-[var(--ink)] font-light">{cap.v.toLocaleString()}</p>
-                          <p className="text-[9px] text-[var(--ink-muted)] tracking-wider uppercase">{cap.l}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <Link
-                      href={`/venues/${hall.slug}`}
-                      locale={locale}
-                      className="flex items-center gap-2 text-[var(--accent-text)] text-[12px] font-medium tracking-[0.12em] uppercase hover:gap-3 transition-all"
-                    >
-                      View Details
-                      <ArrowRight size={12} />
-                    </Link>
-                  </div>
-                </article>
-              </RevealItem>
-            ))}
-          </RevealGroup>
+      <HallGrid halls={halls} locale={locale} />
 
-          {/* CTA */}
-          <RevealBlock delay={0.1} className="mt-14 text-center">
-            <Link
-              href="/booking"
-              locale={locale}
-              className="inline-flex items-center gap-2 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] shadow-[0_8px_22px_-10px_var(--accent-glow)] hover:-translate-y-px text-white rounded-[var(--radius-btn)] px-8 py-4 text-[12px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-colors"
-            >
-              Check Availability
-              <ArrowRight size={14} weight="bold" />
+      <CountUpStats
+        items={[
+          { value: 6, label: "Halls", plain: true },
+          { value: totalArea, suffix: "+", label: "Sq ft of halls" },
+          { value: largest, suffix: "", label: "Largest hall (theatre)" },
+          { value: 20000, suffix: "+", label: "Guests at once" },
+          { value: 3500, suffix: "+", label: "Car parking" },
+          { value: 2015, label: "Serving since", plain: true },
+        ]}
+      />
+
+      <CapacityExplorer halls={halls} locale={locale} />
+
+      {/* CTA */}
+      <section className="section-y bg-[var(--bg)]">
+        <RevealBlock className="container-site mx-auto max-w-3xl text-center">
+          <h2 className="font-display uppercase text-[clamp(1.9rem,3.8vw,3rem)] leading-[1.05] text-[var(--ink)]">
+            Found the <span className="text-[var(--accent)]">Perfect Hall?</span>
+          </h2>
+          <Ornament className="mt-5" />
+          <p className="mt-5 text-[15.5px] text-[var(--ink-muted)]">Check live availability and get an instant estimate — our team will reach you right away.</p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link href="/booking" locale={locale} className="btn btn-primary">
+              Check Availability <ArrowRight size={14} weight="bold" />
             </Link>
-          </RevealBlock>
-        </div>
+            <Link href="/booking#estimate" locale={locale} className="btn btn-secondary">
+              Estimate My Budget
+            </Link>
+          </div>
+        </RevealBlock>
       </section>
     </div>
   );

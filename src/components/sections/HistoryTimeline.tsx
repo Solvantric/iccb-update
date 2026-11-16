@@ -61,12 +61,72 @@ export const MILESTONES = [
   },
 ];
 
+/** Home page "events we host" slider — same stage design as the old year timeline; the rail lists event types. */
+const EVENT_TYPES = [
+  {
+    label: "Wedding",
+    title: "Weddings Dressed in Grandeur",
+    highlight: "Grandeur",
+    desc: "From the stage to the last table, we craft wedding nights for up to thousands of guests — décor, lighting, catering and a dedicated coordinator under one roof.",
+    image: u("1743684821666-05b9c5046937"),
+  },
+  {
+    label: "Holud",
+    title: "Colours of Holud & Mehendi",
+    highlight: "Holud",
+    desc: "Marigold, music and turmeric-yellow joy — intimate halls and themed décor that bring every pre-wedding tradition to life.",
+    image: u("1741201864879-c5e7f81c98b0"),
+  },
+  {
+    label: "Reception",
+    title: "Receptions to Remember",
+    highlight: "Remember",
+    desc: "Elegant banquet set-ups, signature menus from our double kitchen and seamless service for receptions of every size.",
+    image: u("1519167758481-83f550bb49b3"),
+  },
+  {
+    label: "Corporate",
+    title: "Corporate Programs That Impress",
+    highlight: "Impress",
+    desc: "Annual general meetings, dealer conferences, award nights and product launches — with stage, sound, LED walls and hospitality handled for you.",
+    image: u("1511578314322-379afb476865"),
+  },
+  {
+    label: "Conference",
+    title: "Conferences on a National Scale",
+    highlight: "National",
+    desc: "Pillar-free halls, interpretation booths and video conferencing make ICCB the home of summits and international conventions.",
+    image: u("1540575467063-178a50c2df87"),
+  },
+  {
+    label: "Seminar",
+    title: "Seminars Built for Focus",
+    highlight: "Focus",
+    desc: "Theatre or classroom layouts, projectors and crystal-clear audio — ready for trainings, workshops and academic programmes.",
+    image: u("1559223607-a43c990c692c"),
+  },
+  {
+    label: "Concert",
+    title: "Concerts & Cultural Nights",
+    highlight: "Cultural",
+    desc: "Professional rigging, 10,000W sound and room for thousands — the stage is set for music, shows and cultural celebrations.",
+    image: u("1505236858219-8359eb29e329"),
+  },
+  {
+    label: "Expo",
+    title: "Exhibitions & Trade Fairs",
+    highlight: "Trade",
+    desc: "Expo Village — the country's largest single-roof exhibition space — hosts national fairs, product showcases and international expos.",
+    image: u("1778402566957-c21d77a67d0d"),
+  },
+];
+
 const AUTOPLAY_MS = 2000;
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function HistoryTimeline() {
   const reduced = useReducedMotion();
-  const N = MILESTONES.length;
+  const N = EVENT_TYPES.length;
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState(1);
   const [paused, setPaused] = useState(false);
@@ -86,7 +146,7 @@ export function HistoryTimeline() {
     return () => clearTimeout(id);
   }, [active, paused, reduced, go]);
 
-  const m = MILESTONES[active];
+  const m = EVENT_TYPES[active];
 
   // Subtle mouse parallax on the photo
   const px = useMotionValue(0);
@@ -106,18 +166,18 @@ export function HistoryTimeline() {
         {/* Heading */}
         <div className="text-center max-w-2xl mx-auto mb-10 lg:mb-14">
           <RevealBlock>
-            <SectionLabel>(OUR HISTORY)</SectionLabel>
+            <SectionLabel>(EVENTS WE HOST)</SectionLabel>
           </RevealBlock>
           <RevealBlock delay={0.08}>
             <h2 className="display-lg text-[var(--ink)] mt-3 mb-5">
-              OUR JOURNEY <span className="text-[var(--accent)]">SINCE 2015</span>
+              ONE VENUE, <span className="text-[var(--accent)]">EVERY OCCASION</span>
             </h2>
           </RevealBlock>
           <RevealBlock delay={0.12}>
             <span aria-hidden className="block h-[3px] w-14 bg-[var(--accent)] mx-auto mb-5" />
             <p className="text-[var(--ink-body)] text-[16px] leading-relaxed">
-              Over a decade of milestones, firsts and unforgettable moments — the story of Bangladesh&apos;s
-              premier convention destination.
+              Weddings, receptions, corporate programs, conferences, seminars and concerts — every kind of
+              celebration and gathering finds its perfect stage at ICCB.
             </p>
           </RevealBlock>
         </div>
@@ -141,13 +201,13 @@ export function HistoryTimeline() {
             }}
             tabIndex={0}
             aria-roledescription="carousel"
-            aria-label="ICCB history timeline"
+            aria-label="Events hosted at ICCB"
           >
             {/* Photo — reveals as an expanding circle from the year rail, with Ken Burns zoom + parallax */}
             <motion.div className="absolute -inset-4" style={{ x: sx, y: sy }}>
               <AnimatePresence initial={false} custom={dir}>
                 <motion.div
-                  key={m.year}
+                  key={m.label}
                   custom={dir}
                   className="absolute inset-0"
                   variants={{
@@ -181,7 +241,7 @@ export function HistoryTimeline() {
             {/* Light sweep on every change */}
             <AnimatePresence>
               <motion.span
-                key={`sweep-${m.year}`}
+                key={`sweep-${m.label}`}
                 aria-hidden
                 className="absolute z-[4] inset-y-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none"
                 initial={{ left: "-40%", opacity: 0 }}
@@ -195,23 +255,23 @@ export function HistoryTimeline() {
             <div className="absolute z-[4] bottom-[70px] md:bottom-[84px] start-6 md:start-10 pointer-events-none select-none">
               <AnimatePresence mode="wait">
                 <motion.span
-                  key={m.year}
+                  key={m.label}
                   initial={{ opacity: 0, x: -40, filter: "blur(8px)" }}
                   animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
                   exit={{ opacity: 0, x: 30, filter: "blur(8px)" }}
                   transition={{ duration: 0.9, ease: EASE }}
                   className="block font-display leading-[1.1] pe-4 text-[clamp(5rem,13vw,11rem)] text-transparent [-webkit-text-stroke:1.2px_rgba(255,255,255,0.45)]"
                 >
-                  {m.year}
+                  {String(active + 1).padStart(2, "0")}
                 </motion.span>
               </AnimatePresence>
             </div>
 
             {/* Content */}
-            <div className="absolute z-[5] inset-y-0 end-0 flex items-center pe-[92px] md:pe-[160px] ps-6 w-full md:w-[64%] lg:w-[54%] justify-end">
+            <div className="absolute z-[5] inset-y-0 end-0 flex items-center pe-[108px] md:pe-[190px] ps-6 w-full md:w-[64%] lg:w-[54%] justify-end">
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={m.year}
+                  key={m.label}
                   className="text-end max-w-[500px]"
                   initial="hidden"
                   animate="show"
@@ -224,10 +284,10 @@ export function HistoryTimeline() {
                 >
                   {/* Year — digits flip in one by one */}
                   <p
-                    className="font-display text-white text-[clamp(3.5rem,6.5vw,5.5rem)] leading-[1.1] [perspective:600px]"
-                    aria-label={m.year}
+                    className="font-display uppercase text-white text-[clamp(2.6rem,5vw,4.4rem)] leading-[1.1] [perspective:600px]"
+                    aria-label={m.label}
                   >
-                    {m.year.split("").map((d, i) => (
+                    {m.label.split("").map((d, i) => (
                       <motion.span
                         key={i}
                         aria-hidden
@@ -275,24 +335,24 @@ export function HistoryTimeline() {
             </div>
 
             {/* Year rail */}
-            <div className="absolute z-[6] inset-y-0 end-0 w-[72px] md:w-[120px] flex flex-col items-center justify-center gap-3 border-s border-white/15 bg-black/20 backdrop-blur-[6px]">
+            <div className="absolute z-[6] inset-y-0 end-0 w-[96px] md:w-[150px] flex flex-col items-center justify-center gap-3 border-s border-white/15 bg-black/20 backdrop-blur-[6px]">
               <button
                 type="button"
                 onClick={() => go(active - 1)}
-                aria-label="Previous year"
+                aria-label="Previous event type"
                 className="grid place-items-center h-9 w-9 rounded-full border border-white/25 text-white/80 hover:bg-[var(--accent)] hover:border-[var(--accent)] hover:text-white transition-colors"
               >
                 <CaretUp size={16} weight="bold" />
               </button>
 
               <ul className="relative flex flex-col items-center gap-1 py-2">
-                {MILESTONES.map((x, i) => {
+                {EVENT_TYPES.map((x, i) => {
                   const on = i === active;
                   return (
-                    <li key={x.year} className="relative">
+                    <li key={x.label} className="relative">
                       {on && (
                         <motion.span
-                          layoutId="year-pill"
+                          layoutId="event-pill"
                           className="absolute inset-0 rounded-full bg-[var(--accent)] shadow-[0_6px_18px_-6px_rgba(235,33,39,0.9)]"
                           transition={{ type: "spring", stiffness: 380, damping: 32 }}
                         />
@@ -301,17 +361,17 @@ export function HistoryTimeline() {
                         type="button"
                         onClick={() => go(i)}
                         aria-current={on ? "step" : undefined}
-                        className={`relative block px-3 md:px-4 py-1.5 font-display tabular-nums tracking-wide transition-all duration-300 ${
-                          on ? "text-white text-[15px] md:text-[17px]" : "text-white/55 text-[12px] md:text-[14px] hover:text-white"
+                        className={`relative block whitespace-nowrap px-3 md:px-4 py-1.5 font-display uppercase tracking-wide transition-all duration-300 ${
+                          on ? "text-white text-[13px] md:text-[16px]" : "text-white/55 text-[11px] md:text-[13.5px] hover:text-white"
                         }`}
                       >
-                        {x.year}
+                        {x.label}
                       </button>
                       {/* autoplay progress under the active year */}
                       {on && !reduced && (
                         <span className="absolute -bottom-0.5 inset-x-3 h-[2px] rounded-full bg-white/20 overflow-hidden">
                           <motion.span
-                            key={`${x.year}-${paused}`}
+                            key={`${x.label}-${paused}`}
                             className="block h-full bg-white origin-left"
                             initial={{ scaleX: 0 }}
                             animate={{ scaleX: paused ? 0 : 1 }}
@@ -327,7 +387,7 @@ export function HistoryTimeline() {
               <button
                 type="button"
                 onClick={() => go(active + 1)}
-                aria-label="Next year"
+                aria-label="Next event type"
                 className="grid place-items-center h-9 w-9 rounded-full border border-white/25 text-white/80 hover:bg-[var(--accent)] hover:border-[var(--accent)] hover:text-white transition-colors"
               >
                 <CaretDown size={16} weight="bold" />

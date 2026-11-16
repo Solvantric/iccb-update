@@ -70,7 +70,7 @@ export const services: Service[] = [
       zh: "我们的内部装饰团队为婚礼、晚会、企业活动和展览创造令人惊叹的环境。",
     },
     icon: "Sparkle",
-    image: "https://images.unsplash.com/photo-1519167758481-83f29c2df87?auto=format&fit=crop&q=95&w=3840",
+    image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=95&w=3840",
     features: [
       { en: "Classic, Premium & Royal tiers", bn: "ক্লাসিক, প্রিমিয়াম এবং রয়্যাল টায়ার" },
       { en: "Floral, lighting & draping", bn: "ফুলের সজ্জা, আলোকসজ্জা এবং ড্রেপিং" },
