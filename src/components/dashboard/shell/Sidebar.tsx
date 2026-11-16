@@ -4,7 +4,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import { AnimatePresence } from "framer-motion";
-import { SidebarSimple } from "@phosphor-icons/react";
+import { House, SidebarSimple } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils/cn";
 import { useCurrentUser, useSession } from "@/lib/crm/db";
 import { useBookings, useMeetings } from "@/lib/crm/hooks";
@@ -27,7 +27,7 @@ function SidebarBody({ collapsed, onNavigate }: { collapsed: boolean; onNavigate
   return (
     <div className="flex h-full flex-col">
       <div className={cn("flex h-16 shrink-0 items-center gap-3", collapsed ? "justify-center px-2" : "px-5")}>
-        <Link href="/dashboard" onClick={onNavigate} className="relative h-9 w-9 shrink-0">
+        <Link href="/" onClick={onNavigate} title="Go to home page" aria-label="ICCB home page" className="relative h-9 w-9 shrink-0">
           <Image src={LOGO} alt="ICCB" fill sizes="36px" className="object-contain" />
         </Link>
         {!collapsed && (
@@ -78,8 +78,19 @@ function SidebarBody({ collapsed, onNavigate }: { collapsed: boolean; onNavigate
         })}
       </nav>
 
+      <div className="shrink-0 border-t border-crm-line p-3 pb-1">
+        <Link
+          href="/"
+          onClick={onNavigate}
+          title={collapsed ? "Back to home" : undefined}
+          className={cn("crm-btn-primary flex h-10 w-full items-center gap-2 rounded-[8px] text-[14px] font-medium shadow-[0_6px_16px_-8px_var(--accent-glow)] transition-colors", collapsed ? "justify-center" : "px-3")}
+        >
+          <House size={18} weight="fill" className="shrink-0" />
+          {!collapsed && "Back to home"}
+        </Link>
+      </div>
       {!onNavigate && (
-        <div className="hidden shrink-0 border-t border-crm-line p-3 lg:block">
+        <div className="hidden shrink-0 p-3 pt-2 lg:block">
           <button type="button" onClick={() => setCollapsed(!collapsed)} className={cn("flex h-9 w-full items-center gap-2 rounded-[8px] text-[13px] text-crm-muted transition-colors hover:bg-crm-surface-2 hover:text-crm-ink", collapsed ? "justify-center" : "px-3")} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
             <SidebarSimple size={18} className="rtl:-scale-x-100" />
             {!collapsed && "Collapse"}
