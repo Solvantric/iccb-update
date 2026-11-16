@@ -7,6 +7,7 @@ import { CookieBanner } from "@/components/layout/CookieBanner";
 import { ChatWidget } from "@/components/chatbot/ChatWidget";
 import { ToastProvider } from "@/components/ui/Toast";
 import { PublicCrm } from "@/components/providers/PublicCrm";
+import { AutoTranslate } from "@/components/layout/AutoTranslate";
 import type { Locale } from "@/lib/i18n/routing";
 import { routing } from "@/lib/i18n/routing";
 
@@ -32,6 +33,7 @@ export default async function PublicLayout({
       <ChatWidget locale={locale} />
       <CookieBanner />
       <PublicCrm />
+      <AutoTranslate locale={locale} />
     </ToastProvider>
   );
 }

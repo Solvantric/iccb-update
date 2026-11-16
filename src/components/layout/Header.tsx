@@ -196,7 +196,7 @@ export function Header({ locale }: HeaderProps) {
 
             {/* Language + theme */}
             <div className="flex items-center gap-3">
-              <div className="relative group">
+              <div className="relative group notranslate" translate="no">
                 <button
                   type="button"
                   aria-label="Change language"
@@ -373,7 +373,7 @@ export function Header({ locale }: HeaderProps) {
                 </Link>
               </div>
 
-              <div className="px-6 pb-5 flex items-center gap-4">
+              <div className="px-6 pb-5 flex items-center gap-4 notranslate" translate="no">
                 {(Object.entries(localeNames) as [Locale, string][]).map(([loc, name]) => (
                   <Link
                     key={loc}

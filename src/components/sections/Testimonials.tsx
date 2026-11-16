@@ -5,8 +5,11 @@ import { Star, ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 import { testimonials as staticTestimonials } from "@/data/testimonials";
 import { usePublishedContent } from "@/lib/crm/cms";
 import { RevealBlock } from "@/components/motion/RevealBlock";
+import { useLocale, useTranslations } from "next-intl";
 
 export function Testimonials() {
+  const t = useTranslations("home.testimonials");
+  const locale = useLocale() as "en" | "bn" | "ar" | "zh";
   const [currentRaw, setCurrent] = useState(0);
   const cms = usePublishedContent("testimonials");
   // Website CMS (Marketing) overrides the static list once loaded.
@@ -22,8 +25,8 @@ export function Testimonials() {
     <section className="bg-[var(--bg)] py-[clamp(4rem,10vw,9rem)]">
       <div className="max-w-[1440px] mx-auto px-[clamp(1rem,4vw,3rem)]">
         <RevealBlock className="text-center mb-14">
-          <span className="meta-label block mb-3">(TESTIMONIALS)</span>
-          <h2 className="display-md text-[var(--ink)]">WHAT CLIENTS SAY</h2>
+          <span className="meta-label block mb-3">{t("label")}</span>
+          <h2 className="display-md text-[var(--ink)]">{t("title")}</h2>
         </RevealBlock>
 
         <div className="max-w-3xl mx-auto">
@@ -42,7 +45,7 @@ export function Testimonials() {
                 ))}
               </div>
               <blockquote className="font-display text-2xl md:text-3xl text-[var(--ink)] font-light italic leading-relaxed mb-8">
-                &ldquo;{testimonials[current].content.en}&rdquo;
+                &ldquo;{(testimonials[current].content as Record<string, string | undefined>)[locale] || testimonials[current].content.en}&rdquo;
               </blockquote>
               <div>
                 <p className="font-medium text-[var(--ink)] text-[15px]">{testimonials[current].name}</p>
@@ -59,7 +62,7 @@ export function Testimonials() {
           <div className="flex justify-center items-center gap-6 mt-10">
             <button
               onClick={() => setCurrent((c) => (c - 1 + testimonials.length) % testimonials.length)}
-              aria-label="Previous testimonial"
+              aria-label={t("prev")}
               className="w-10 h-10 rounded-full border border-[var(--line)] text-[var(--ink-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors flex items-center justify-center"
             >
               <ArrowLeft size={16} weight="light" />
@@ -76,7 +79,7 @@ export function Testimonials() {
             </div>
             <button
               onClick={() => setCurrent((c) => (c + 1) % testimonials.length)}
-              aria-label="Next testimonial"
+              aria-label={t("next")}
               className="w-10 h-10 rounded-full border border-[var(--line)] text-[var(--ink-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors flex items-center justify-center"
             >
               <ArrowRight size={16} weight="light" />

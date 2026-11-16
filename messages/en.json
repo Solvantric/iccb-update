@@ -238,5 +238,333 @@
     "venuesDescription": "Explore ICCB's 6 world-class convention halls in Dhaka. Theatre capacity 400–2,500. Gulnaksha, Pushpoguchcho, Rajdarshan, and more.",
     "bookingTitle": "Check Availability & Book",
     "bookingDescription": "Check real-time availability for ICCB convention halls. Get instant budget estimates for your event. Reserve your date online."
+  },
+  "home": {
+    "hero": {
+      "aria": "ICCB hero carousel",
+      "prev": "Previous slide",
+      "next": "Next slide",
+      "goTo": "Go to slide {n}",
+      "play": "Play",
+      "pause": "Pause",
+      "slides": {
+        "grand-hall": {
+          "lines": [
+            "Where the World",
+            "Meets in"
+          ],
+          "highlight": "Dhaka.",
+          "sub": "South Asia's largest convention centre"
+        },
+        "expo": {
+          "lines": [
+            "Bangladesh's Premier",
+            "Exhibition"
+          ],
+          "highlight": "Destination.",
+          "sub": "Expo Village · 80,000 sq ft · 500+ booths · 40+ expos/year"
+        },
+        "conference": {
+          "lines": [
+            "World-Class",
+            "Conference"
+          ],
+          "highlight": "Facilities.",
+          "sub": "Multilingual conventions for 400–2,500 delegates"
+        },
+        "wedding": {
+          "lines": [
+            "Your Dream",
+            "Occasion,"
+          ],
+          "highlight": "Perfected.",
+          "sub": "Elegant banquet settings for 600–1,800 guests"
+        },
+        "concert": {
+          "lines": [
+            "Stage the"
+          ],
+          "highlight": "Extraordinary.",
+          "sub": "Professional acoustics, lighting, and staging for 2,500+"
+        }
+      }
+    },
+    "booking": {
+      "tabs": {
+        "availability": "Check Availability",
+        "enquiry": "Make an Enquiry",
+        "expo": "Expo Enquiry",
+        "ask": "Ask a Question"
+      },
+      "kindHalls": "Hall events · 6 halls",
+      "kindExpo": "Expo Village",
+      "expoType": "Expo Type",
+      "chooseType": "Choose type",
+      "startDate": "Start Date",
+      "showDays": "Show Days",
+      "checkExpo": "Check Expo Village",
+      "expoTypes": {
+        "trade": "Trade fair",
+        "exhibition": "Exhibition",
+        "launch": "Product launch",
+        "auto": "Auto & motor show",
+        "education": "Education fair",
+        "job": "Job fair",
+        "food": "Food & lifestyle fair",
+        "other": "Other"
+      },
+      "eventType": "Event Type",
+      "allTypes": "All types",
+      "date": "Date",
+      "guests": "Guests",
+      "guestsPh": "e.g. 500",
+      "eventTypes": {
+        "wedding": "Wedding",
+        "reception": "Reception",
+        "corporate": "Corporate",
+        "conference": "Conference",
+        "seminar": "Seminar",
+        "concert": "Concert",
+        "other": "Other"
+      },
+      "expoOption": "Expo / Exhibition → Expo Village",
+      "checkAvailability": "Check Availability",
+      "estimate": "Get a budget estimate →",
+      "enquiryText": "Tell us about your event and we'll get back with a tailored proposal within 24 hours.",
+      "sendEnquiry": "Send Enquiry",
+      "expoText": "Interested in exhibiting or sponsoring at ICCB Expo Village? Contact our expo team.",
+      "expoEnquiry": "Expo Enquiry",
+      "askText": "Have a quick question about ICCB? Our team is ready to help.",
+      "askBtn": "Ask a Question"
+    },
+    "services": {
+      "venue-rental": "Venue Rental",
+      "catering": "Catering",
+      "decoration": "Decoration",
+      "event-management": "Event Management",
+      "heritage-restaurant": "Heritage Restaurant",
+      "expo-support": "Expo & Trade Fair"
+    },
+    "venues": {
+      "eyebrow": "Featured Venues",
+      "title": "Featured venues at",
+      "highlight": "ICCB",
+      "convention": "CONVENTION HALL",
+      "seminar": "SEMINAR HALL",
+      "upTo": "Up to {n} guests",
+      "sqft": "{n} sq ft",
+      "banquet": "{n} banquet",
+      "explore": "Explore all venues"
+    },
+    "expo": {
+      "label": "(EXPO ZONE)",
+      "title": "WHERE INDUSTRIES EXHIBIT",
+      "text": "ICCB Expo Village is Bangladesh's largest dedicated exhibition space, hosting international trade fairs, product launches, and industry showcases attended by global organisations.",
+      "photoAlt": "ICCB Expo Village — international trade fair",
+      "largest": "Bangladesh's Largest",
+      "destination": "Exhibition Destination",
+      "annualExpos": "30+ Annual Expos",
+      "visitors": "20K+ Visitors",
+      "upcoming": "Upcoming",
+      "stats": {
+        "annual": "Annual expos",
+        "exhibitors": "Exhibitors",
+        "perShow": "Visitors/show"
+      },
+      "plan": "Plan Your Expo",
+      "enquiry": "Exhibitor Enquiry"
+    },
+    "partners": {
+      "title1": "OUR GLOBAL",
+      "title2": "PARTNERS",
+      "text": "We are proud to host leading international organisations and exhibitors across diverse sectors, bringing the world to Bangladesh.",
+      "prev": "Previous partner",
+      "next": "Next partner"
+    },
+    "ventures": {
+      "title": "One Destination,",
+      "highlight": "Endless Experiences",
+      "eyebrow": "ICCB VENTURES",
+      "explore": "Explore",
+      "prev": "Previous venture",
+      "next": "Next venture"
+    },
+    "menu": {
+      "eyebrow": "ICCB Catering",
+      "title": "Menus Crafted",
+      "highlight": "to Perfection",
+      "description": "From Mughal feasts to delicate desserts — every plate is prepared fresh in our own kitchen.",
+      "learnMore": "Learn more",
+      "custom": "Custom menus available for all event sizes — 50 to 10,000 guests.",
+      "quote": "Request a Menu Quote",
+      "viewAll": "View all menus",
+      "items": {
+        "mughal": {
+          "label": "Mughal Classic",
+          "tag": "Most Popular",
+          "desc": "Rich gravies, slow-cooked meats, aromatic biryanis."
+        },
+        "continental": {
+          "label": "Continental",
+          "tag": "International",
+          "desc": "Refined European dishes with fresh seasonal produce."
+        },
+        "multi": {
+          "label": "Multi-Cuisine Grand",
+          "tag": "Premium",
+          "desc": "Live cooking stations across 3 cuisines."
+        },
+        "dessert": {
+          "label": "Dessert Buffet",
+          "tag": "Sweet Finish",
+          "desc": "8-item dessert buffet, premium mocktail bar."
+        },
+        "breakfast": {
+          "label": "Breakfast Setup",
+          "tag": "Morning Events",
+          "desc": "Fresh-brewed coffee, pastries, and hot buffet."
+        }
+      }
+    },
+    "events": {
+      "label": "(EVENTS WE HOST)",
+      "title": "ONE VENUE,",
+      "highlight": "EVERY OCCASION",
+      "text": "Weddings, receptions, corporate programs, conferences, seminars and concerts — every kind of celebration and gathering finds its perfect stage at ICCB.",
+      "aria": "Events hosted at ICCB",
+      "prev": "Previous event type",
+      "next": "Next event type",
+      "items": {
+        "wedding": {
+          "label": "Wedding",
+          "title": "Weddings Dressed in Grandeur",
+          "highlight": "Grandeur",
+          "desc": "From the stage to the last table, we craft wedding nights for up to thousands of guests — décor, lighting, catering and a dedicated coordinator under one roof."
+        },
+        "holud": {
+          "label": "Holud",
+          "title": "Colours of Holud & Mehendi",
+          "highlight": "Holud",
+          "desc": "Marigold, music and turmeric-yellow joy — intimate halls and themed décor that bring every pre-wedding tradition to life."
+        },
+        "reception": {
+          "label": "Reception",
+          "title": "Receptions to Remember",
+          "highlight": "Remember",
+          "desc": "Elegant banquet set-ups, signature menus from our double kitchen and seamless service for receptions of every size."
+        },
+        "corporate": {
+          "label": "Corporate",
+          "title": "Corporate Programs That Impress",
+          "highlight": "Impress",
+          "desc": "Annual general meetings, dealer conferences, award nights and product launches — with stage, sound, LED walls and hospitality handled for you."
+        },
+        "conference": {
+          "label": "Conference",
+          "title": "Conferences on a National Scale",
+          "highlight": "National",
+          "desc": "Pillar-free halls, interpretation booths and video conferencing make ICCB the home of summits and international conventions."
+        },
+        "seminar": {
+          "label": "Seminar",
+          "title": "Seminars Built for Focus",
+          "highlight": "Focus",
+          "desc": "Theatre or classroom layouts, projectors and crystal-clear audio — ready for trainings, workshops and academic programmes."
+        },
+        "concert": {
+          "label": "Concert",
+          "title": "Concerts & Cultural Nights",
+          "highlight": "Cultural",
+          "desc": "Professional rigging, 10,000W sound and room for thousands — the stage is set for music, shows and cultural celebrations."
+        },
+        "expo": {
+          "label": "Expo",
+          "title": "Exhibitions & Trade Fairs",
+          "highlight": "Trade",
+          "desc": "Expo Village — the country's largest single-roof exhibition space — hosts national fairs, product showcases and international expos."
+        }
+      }
+    },
+    "why": {
+      "label": "(FACILITIES)",
+      "title": "WHY CHOOSE",
+      "highlight": "ICCB",
+      "text": "Every detail is designed to make your event flawless. World-class infrastructure, professional staff, and comprehensive services — all in one iconic location.",
+      "items": {
+        "parking": {
+          "title": "2,000+ Parking Spaces",
+          "desc": "Dedicated on-site parking for large events, with security and valet service."
+        },
+        "power": {
+          "title": "Full Power Backup",
+          "desc": "High-capacity generators ensure uninterrupted power throughout all events."
+        },
+        "ac": {
+          "title": "Central Air Conditioning",
+          "desc": "Precision-controlled climate in all halls, keeping every event comfortable."
+        },
+        "kitchen": {
+          "title": "Own Modern Kitchen",
+          "desc": "State-of-the-art kitchen with strict quality-control from farm to table."
+        },
+        "security": {
+          "title": "24/7 Security",
+          "desc": "Professional security team, CCTV coverage, and controlled access throughout."
+        },
+        "access": {
+          "title": "Fully Accessible",
+          "desc": "Wheelchair access, lifts, and accessible facilities across all venues."
+        },
+        "location": {
+          "title": "Prime Location",
+          "desc": "On the 300 ft. Purbachal Express Highway, 25 km from Dhaka airport."
+        },
+        "internet": {
+          "title": "High-Speed Internet",
+          "desc": "Dedicated fiber-optic connectivity for conferences and hybrid events."
+        }
+      }
+    },
+    "gallery": {
+      "eyebrow": "Gallery",
+      "title": "Moments at",
+      "highlight": "ICCB",
+      "description": "From international expos and high-level summits to grand weddings and live concerts — step inside the halls where Bangladesh gathers, celebrates and does business.",
+      "categories": {
+        "halls": "Halls",
+        "expo": "Expo",
+        "conferences": "Conferences",
+        "weddings": "Weddings",
+        "concerts": "Concerts",
+        "catering": "Catering",
+        "restaurant": "Restaurant",
+        "architecture": "Architecture"
+      },
+      "items": {
+        "g1": "Convention hall setup",
+        "g2": "Expo floor",
+        "g3": "Conference setup",
+        "g4": "Wedding banquet",
+        "g5": "Concert lighting",
+        "g6": "Catering plating",
+        "g7": "Heritage restaurant dining",
+        "g8": "Exhibition booths",
+        "g9": "ICCB exterior architecture"
+      },
+      "view": "View Gallery"
+    },
+    "testimonials": {
+      "label": "(TESTIMONIALS)",
+      "title": "WHAT CLIENTS SAY",
+      "prev": "Previous testimonial",
+      "next": "Next testimonial"
+    },
+    "cta": {
+      "title": "Planning an event?",
+      "highlight": "Let's hold your date.",
+      "text": "Get in touch with our team for venue availability, catering menus or a customised event package.",
+      "button": "Get in touch",
+      "show": "Show image {n}"
+    }
   }
 }

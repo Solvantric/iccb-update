@@ -50,7 +50,8 @@ export default async function HomePage({
   const { locale } = await params;
 
   return (
-    <>
+    // Home page text is translated by hand (messages/*.json) — keep Google's auto-translate off it.
+    <div translate="no" className="notranslate">
       <HomeJsonLd />
       {/* 1. Hero carousel */}
       <HeroSlider locale={locale} />
@@ -76,6 +77,6 @@ export default async function HomePage({
       <Testimonials />
       {/* 12. Final CTA */}
       <FinalCTA locale={locale} />
-    </>
+    </div>
   );
 }

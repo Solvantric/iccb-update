@@ -12,6 +12,7 @@ import { HERO_SLIDES, heroTitle, type HeroSlide } from "@/data/hero";
 import { heroSlides as HERO_CREDITS } from "@/data/images";
 import { isAllowedImage, usePublishedContent } from "@/lib/crm/cms";
 import { cn } from "@/lib/utils/cn";
+import { useTranslations } from "next-intl";
 
 const AUTOPLAY_MS = 6000;
 
@@ -19,9 +20,17 @@ const AUTOPLAY_MS = 6000;
 
 
 /** Website content (Marketing) → hero slides; the last word is the red highlight. */
-function useHeroSlides(): HeroSlide[] {
+function useHeroSlides(locale: Locale): HeroSlide[] {
   const cms = usePublishedContent("hero");
-  if (!cms?.length) return HERO_SLIDES;
+  const t = useTranslations("home.hero.slides");
+  // Non-English: show the translated default slides (website content from Marketing is entered in English).
+  if (locale !== "en" || !cms?.length) {
+    return HERO_SLIDES.map((h) => {
+      if (locale === "en" || !t.has(h.id)) return h;
+      const tr = t.raw(h.id) as { lines: string[]; highlight: string; sub: string };
+      return { ...h, lines: tr.lines, highlight: tr.highlight, sub: tr.sub };
+    });
+  }
   return cms.map((c) => {
     const known = HERO_SLIDES.find((h) => heroTitle(h) === c.title.trim());
     const words = c.title.trim().split(/\s+/);
@@ -37,7 +46,8 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 interface HeroSliderProps { locale: Locale }
 
 export function HeroSlider({ locale }: HeroSliderProps) {
-  const SLIDES = useHeroSlides();
+  const t = useTranslations("home.hero");
+  const SLIDES = useHeroSlides(locale);
   const count = SLIDES.length;
   const [indexRaw, setIndex] = useState(0);
   const index = indexRaw % count;
@@ -95,7 +105,7 @@ export function HeroSlider({ locale }: HeroSliderProps) {
       style={{ height: "clamp(560px, calc(100vh - 112px), 1080px)" }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      aria-label="ICCB hero carousel"
+      aria-label={t("aria")}
     >
       {/* Background images */}
       <AnimatePresence initial={false} custom={dir}>
@@ -202,7 +212,7 @@ export function HeroSlider({ locale }: HeroSliderProps) {
 
       {/* Controls bar */}
       <div className="absolute bottom-6 md:bottom-28 start-[clamp(1rem,4vw,3rem)] z-20 flex items-center gap-4">
-        <button onClick={prev} aria-label="Previous slide"
+        <button onClick={prev} aria-label={t("prev")}
           className="w-10 h-10 rounded-full border border-white/30 text-white flex items-center justify-center hover:border-white hover:bg-white/10 transition-colors">
           <ArrowLeft size={16} />
         </button>
@@ -211,7 +221,7 @@ export function HeroSlider({ locale }: HeroSliderProps) {
             <button
               key={i}
               onClick={() => goTo(i, i > index ? 1 : -1)}
-              aria-label={`Go to slide ${i + 1}`}
+              aria-label={t("goTo", { n: i + 1 })}
               className={cn(
                 "h-2 rounded-full transition-all duration-500",
                 i === index ? "w-8 bg-[var(--accent)]" : "w-2 bg-white/40 hover:bg-white/70"
@@ -219,13 +229,13 @@ export function HeroSlider({ locale }: HeroSliderProps) {
             />
           ))}
         </div>
-        <button onClick={next} aria-label="Next slide"
+        <button onClick={next} aria-label={t("next")}
           className="w-10 h-10 rounded-full border border-white/30 text-white flex items-center justify-center hover:border-white hover:bg-white/10 transition-colors">
           <ArrowRight size={16} />
         </button>
         <button
           onClick={() => setPaused((p) => !p)}
-          aria-label={paused ? "Play" : "Pause"}
+          aria-label={paused ? t("play") : t("pause")}
           className="w-10 h-10 rounded-full border border-white/30 text-white/70 flex items-center justify-center hover:border-white hover:text-white hover:bg-white/10 transition-colors"
         >
           {paused ? <Play size={14} weight="fill" /> : <Pause size={14} weight="fill" />}
@@ -247,14 +257,20 @@ interface BookingCardProps { locale: Locale }
 
 type TabKey = "availability" | "enquiry" | "expo" | "ask";
 
-const TABS: { key: TabKey; label: string; icon: React.ElementType }[] = [
-  { key: "availability", label: "Check Availability", icon: CalendarBlank },
-  { key: "enquiry",      label: "Make an Enquiry",    icon: Buildings },
-  { key: "expo",         label: "Expo Enquiry",       icon: UsersThree },
-  { key: "ask",          label: "Ask a Question",     icon: ArrowRight },
+const TABS: { key: TabKey; icon: React.ElementType }[] = [
+  { key: "availability", icon: CalendarBlank },
+  { key: "enquiry",      icon: Buildings },
+  { key: "expo",         icon: UsersThree },
+  { key: "ask",          icon: ArrowRight },
 ];
+const EXPO_TYPES = [
+  ["trade", "Trade fair"], ["exhibition", "Exhibition"], ["launch", "Product launch"], ["auto", "Auto & motor show"],
+  ["education", "Education fair"], ["job", "Job fair"], ["food", "Food & lifestyle fair"], ["other", "Other"],
+] as const;
+const EVENT_TYPES = ["wedding", "reception", "corporate", "conference", "seminar", "concert", "other"] as const;
 
 export function BookingCard({ locale }: BookingCardProps) {
+  const t = useTranslations("home.booking");
   const [tab, setTab] = useState<TabKey>("availability");
   const [form, setForm] = useState({ eventType: "", date: "", guests: "" });
   const [kind, setKind] = useState<"halls" | "expo">("halls");
@@ -273,7 +289,7 @@ export function BookingCard({ locale }: BookingCardProps) {
       <div className="bg-[var(--surface)] border border-[var(--line)] rounded-lg shadow-[0_8px_40px_rgba(43,42,46,.12)] overflow-hidden">
         {/* Tabs */}
         <div className="flex border-b border-[var(--line)] overflow-x-auto">
-          {TABS.map(({ key, label, icon: Icon }) => (
+          {TABS.map(({ key, icon: Icon }) => (
             <button
               key={key}
               onClick={() => setTab(key)}
@@ -285,7 +301,7 @@ export function BookingCard({ locale }: BookingCardProps) {
               )}
             >
               <Icon size={16} weight={tab === key ? "fill" : "regular"} />
-              {label}
+              {t(`tabs.${key}`)}
               {tab === key && (
                 <motion.span
                   layoutId="tab-bar"
@@ -302,7 +318,7 @@ export function BookingCard({ locale }: BookingCardProps) {
             <div>
             {/* Two kinds of booking: the 6 halls, or Expo Village */}
             <div className="mb-4 inline-flex rounded-full border border-[var(--line)] p-1">
-              {([["halls", "Hall events · 6 halls"], ["expo", "Expo Village"]] as const).map(([k, label]) => (
+              {([["halls", t("kindHalls")], ["expo", t("kindExpo")]] as const).map(([k, label]) => (
                 <button
                   key={k}
                   type="button"
@@ -320,20 +336,20 @@ export function BookingCard({ locale }: BookingCardProps) {
             {kind === "expo" ? (
               <div className="flex flex-wrap gap-3 items-end">
                 <div className="flex-1 min-w-[160px]">
-                  <label className="text-eyebrow block mb-1.5">Expo Type</label>
+                  <label className="text-eyebrow block mb-1.5">{t("expoType")}</label>
                   <select
                     value={expo.expoType}
                     onChange={(e) => setExpo((f) => ({ ...f, expoType: e.target.value }))}
                     className="w-full border border-[var(--line)] rounded-[var(--radius-input)] px-3 py-2.5 text-[14px] text-[var(--ink)] bg-[var(--bg-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
                   >
-                    <option value="">Choose type</option>
-                    {["Trade fair", "Exhibition", "Product launch", "Auto & motor show", "Education fair", "Job fair", "Food & lifestyle fair", "Other"].map((t) => (
-                      <option key={t} value={t}>{t}</option>
+                    <option value="">{t("chooseType")}</option>
+                    {EXPO_TYPES.map(([k, v]) => (
+                      <option key={k} value={v}>{t(`expoTypes.${k}`)}</option>
                     ))}
                   </select>
                 </div>
                 <div className="flex-1 min-w-[140px]">
-                  <label className="text-eyebrow block mb-1.5">Start Date</label>
+                  <label className="text-eyebrow block mb-1.5">{t("startDate")}</label>
                   <input
                     type="date"
                     value={expo.date}
@@ -343,7 +359,7 @@ export function BookingCard({ locale }: BookingCardProps) {
                   />
                 </div>
                 <div className="flex-1 min-w-[110px]">
-                  <label className="text-eyebrow block mb-1.5">Show Days</label>
+                  <label className="text-eyebrow block mb-1.5">{t("showDays")}</label>
                   <input
                     type="number"
                     min={1}
@@ -354,13 +370,13 @@ export function BookingCard({ locale }: BookingCardProps) {
                   />
                 </div>
                 <Link href={expoUrl} locale={locale} className="btn btn-primary btn-sm whitespace-nowrap">
-                  Check Expo Village <ArrowRight size={13} weight="bold" />
+                  {t("checkExpo")} <ArrowRight size={13} weight="bold" />
                 </Link>
               </div>
             ) : (
             <div className="flex flex-wrap gap-3 items-end">
               <div className="flex-1 min-w-[140px]">
-                <label className="text-eyebrow block mb-1.5">Event Type</label>
+                <label className="text-eyebrow block mb-1.5">{t("eventType")}</label>
                 <select
                   value={form.eventType}
                   onChange={(e) => {
@@ -374,15 +390,15 @@ export function BookingCard({ locale }: BookingCardProps) {
                   }}
                   className="w-full border border-[var(--line)] rounded-[var(--radius-input)] px-3 py-2.5 text-[14px] text-[var(--ink)] bg-[var(--bg-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
                 >
-                  <option value="">All types</option>
-                  {["Wedding", "Reception", "Corporate", "Conference", "Seminar", "Concert", "Other"].map((t) => (
-                    <option key={t} value={t.toLowerCase()}>{t}</option>
+                  <option value="">{t("allTypes")}</option>
+                  {EVENT_TYPES.map((k) => (
+                    <option key={k} value={k}>{t(`eventTypes.${k}`)}</option>
                   ))}
-                  <option value="expo">Expo / Exhibition → Expo Village</option>
+                  <option value="expo">{t("expoOption")}</option>
                 </select>
               </div>
               <div className="flex-1 min-w-[140px]">
-                <label className="text-eyebrow block mb-1.5">Date</label>
+                <label className="text-eyebrow block mb-1.5">{t("date")}</label>
                 <input
                   type="date"
                   value={form.date}
@@ -392,10 +408,10 @@ export function BookingCard({ locale }: BookingCardProps) {
                 />
               </div>
               <div className="flex-1 min-w-[120px]">
-                <label className="text-eyebrow block mb-1.5">Guests</label>
+                <label className="text-eyebrow block mb-1.5">{t("guests")}</label>
                 <input
                   type="number"
-                  placeholder="e.g. 500"
+                  placeholder={t("guestsPh")}
                   value={form.guests}
                   onChange={(e) => setForm((f) => ({ ...f, guests: e.target.value }))}
                   min={1}
@@ -404,11 +420,11 @@ export function BookingCard({ locale }: BookingCardProps) {
               </div>
               <div className="flex flex-col gap-2">
                 <Link href={availUrl} locale={locale} className="btn btn-primary btn-sm whitespace-nowrap">
-                  Check Availability <ArrowRight size={13} weight="bold" />
+                  {t("checkAvailability")} <ArrowRight size={13} weight="bold" />
                 </Link>
                 <Link href="/booking#estimate" locale={locale}
                   className="text-[12px] text-[var(--accent-text)] hover:text-[var(--accent)] font-semibold text-center underline-grow">
-                  Get a budget estimate →
+                  {t("estimate")}
                 </Link>
               </div>
             </div>
@@ -418,30 +434,30 @@ export function BookingCard({ locale }: BookingCardProps) {
           {tab === "enquiry" && (
             <div className="flex items-center justify-between gap-4">
               <p className="text-[var(--ink-body)] text-[14px] max-w-md">
-                Tell us about your event and we&apos;ll get back with a tailored proposal within 24 hours.
+                {t("enquiryText")}
               </p>
               <Link href="/enquiry" locale={locale} className="btn btn-primary btn-sm whitespace-nowrap">
-                Send Enquiry <ArrowRight size={13} weight="bold" />
+                {t("sendEnquiry")} <ArrowRight size={13} weight="bold" />
               </Link>
             </div>
           )}
           {tab === "expo" && (
             <div className="flex items-center justify-between gap-4">
               <p className="text-[var(--ink-body)] text-[14px] max-w-md">
-                Interested in exhibiting or sponsoring at ICCB Expo Village? Contact our expo team.
+                {t("expoText")}
               </p>
               <Link href="/booking?mode=expo#booking-form-section" locale={locale} className="btn btn-primary btn-sm whitespace-nowrap">
-                Expo Enquiry <ArrowRight size={13} weight="bold" />
+                {t("expoEnquiry")} <ArrowRight size={13} weight="bold" />
               </Link>
             </div>
           )}
           {tab === "ask" && (
             <div className="flex items-center justify-between gap-4">
               <p className="text-[var(--ink-body)] text-[14px] max-w-md">
-                Have a quick question about ICCB? Our team is ready to help.
+                {t("askText")}
               </p>
               <Link href="/ask" locale={locale} className="btn btn-primary btn-sm whitespace-nowrap">
-                Ask a Question <ArrowRight size={13} weight="bold" />
+                {t("askBtn")} <ArrowRight size={13} weight="bold" />
               </Link>
             </div>
           )}

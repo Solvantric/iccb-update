@@ -7,6 +7,7 @@ import { galleryImages as STATIC_GALLERY } from "@/data/images";
 import { isAllowedImage, usePublishedContent } from "@/lib/crm/cms";
 import { FadeUp } from "@/components/motion/primitives";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { useTranslations } from "next-intl";
 
 interface GallerySliderProps {
   locale: Locale;
@@ -16,6 +17,10 @@ interface GallerySliderProps {
 const LOOP_SECONDS = 60;
 
 export function GallerySlider({ locale }: GallerySliderProps) {
+  const t = useTranslations("home.gallery");
+  // Built-in photos get translated captions; website-content photos keep the caption Marketing typed.
+  const caption = (img: { id: string; alt: { en: string } }) => (t.has(`items.${img.id}`) ? t(`items.${img.id}`) : img.alt.en);
+  const category = (c: string) => (t.has(`categories.${c}`) ? t(`categories.${c}`) : c);
   // Website content (Marketing) overrides the static gallery once loaded.
   const cms = usePublishedContent("gallery");
   const galleryImages = cms?.length
@@ -29,10 +34,10 @@ export function GallerySlider({ locale }: GallerySliderProps) {
       <div className="container-site">
         <FadeUp>
           <SectionHeading
-            eyebrow="Gallery"
-            title="Moments at"
-            highlight="ICCB"
-            description="From international expos and high-level summits to grand weddings and live concerts — step inside the halls where Bangladesh gathers, celebrates and does business."
+            eyebrow={t("eyebrow")}
+            title={t("title")}
+            highlight={t("highlight")}
+            description={t("description")}
           />
         </FadeUp>
       </div>
@@ -52,7 +57,7 @@ export function GallerySlider({ locale }: GallerySliderProps) {
               >
                 <Image
                   src={img.src}
-                  alt={i < galleryImages.length ? img.alt.en : ""}
+                  alt={i < galleryImages.length ? caption(img) : ""}
                   fill
                   sizes="(max-width: 640px) 350px, (max-width: 1024px) 460px, 560px"
                   className="object-cover transition-transform duration-700 ease-out group-hover/photo:scale-105"
@@ -61,10 +66,10 @@ export function GallerySlider({ locale }: GallerySliderProps) {
                 <figcaption className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/75 via-black/30 to-transparent translate-y-full opacity-0 transition-all duration-500 ease-out group-hover/photo:translate-y-0 group-hover/photo:opacity-100">
                   <span className="block h-[3px] w-8 bg-[var(--accent)] mb-2" />
                   <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-white/70">
-                    {img.category}
+                    {category(img.category)}
                   </span>
                   <span className="block text-[15px] font-semibold text-white leading-snug">
-                    {img.alt.en}
+                    {caption(img)}
                   </span>
                 </figcaption>
               </figure>
@@ -75,7 +80,7 @@ export function GallerySlider({ locale }: GallerySliderProps) {
 
       <FadeUp delay={0.15} className="mt-12 flex justify-center">
         <Link href="/gallery" locale={locale} className="btn btn-secondary whitespace-nowrap">
-          View Gallery <ArrowRight size={14} weight="bold" />
+          {t("view")} <ArrowRight size={14} weight="bold" className="rtl:-scale-x-100" />
         </Link>
       </FadeUp>
     </section>

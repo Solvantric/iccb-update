@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useReducedMotion } from "framer-motion";
@@ -21,6 +22,7 @@ interface FinalCTAProps {
 }
 
 export function FinalCTA({ locale }: FinalCTAProps) {
+  const t = useTranslations("home.cta");
   const reduced = useReducedMotion();
   const [active, setActive] = useState(0);
 
@@ -51,11 +53,11 @@ export function FinalCTA({ locale }: FinalCTAProps) {
       <div className="relative container-site py-12 md:py-14 lg:py-16 flex flex-col md:flex-row md:items-center justify-between gap-8">
         <div className="max-w-3xl">
           <h2 className="font-display uppercase text-white text-[clamp(1.75rem,3.6vw,3rem)] leading-[1.05] tracking-[0.01em]">
-            Planning an event? <span className="text-[var(--accent)]">Let&apos;s hold your date.</span>
+            {t("title")} <span className="text-[var(--accent)]">{t("highlight")}</span>
           </h2>
           <span className="block w-16 h-[3px] bg-[var(--accent)] mt-5 mb-5" />
           <p className="text-white/85 text-[15px] md:text-[17px] leading-relaxed">
-            Get in touch with our team for venue availability, catering menus or a customised event package.
+            {t("text")}
           </p>
         </div>
 
@@ -64,7 +66,7 @@ export function FinalCTA({ locale }: FinalCTAProps) {
           locale={locale}
           className="group inline-flex items-center justify-center gap-4 self-start md:self-center flex-shrink-0 bg-gradient-to-b from-[var(--accent)] to-[var(--accent-deep)] text-white rounded-[var(--radius-btn)] px-9 py-5 text-[16px] md:text-[18px] font-medium shadow-[0_10px_30px_-10px_var(--accent-glow)] hover:brightness-110 transition"
         >
-          Get in touch
+          {t("button")}
           <ArrowRight size={20} className="transition-transform group-hover:translate-x-1 rtl:-scale-x-100" />
         </Link>
       </div>
@@ -75,7 +77,7 @@ export function FinalCTA({ locale }: FinalCTAProps) {
           <button
             key={s.src}
             type="button"
-            aria-label={`Show image ${i + 1}`}
+            aria-label={t("show", { n: i + 1 })}
             onClick={() => setActive(i)}
             className={`h-1 rounded-full transition-all ${i === active ? "w-6 bg-white" : "w-2 bg-white/40"}`}
           />

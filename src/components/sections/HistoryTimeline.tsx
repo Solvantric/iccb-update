@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring } 
 import { CaretUp, CaretDown } from "@phosphor-icons/react";
 import { RevealBlock } from "@/components/motion/RevealBlock";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { useTranslations } from "next-intl";
 
 const u = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=90&w=3840`;
 
@@ -64,6 +65,7 @@ export const MILESTONES = [
 /** Home page "events we host" slider — same stage design as the old year timeline; the rail lists event types. */
 const EVENT_TYPES = [
   {
+    key: "wedding",
     label: "Wedding",
     title: "Weddings Dressed in Grandeur",
     highlight: "Grandeur",
@@ -71,6 +73,7 @@ const EVENT_TYPES = [
     image: u("1743684821666-05b9c5046937"),
   },
   {
+    key: "holud",
     label: "Holud",
     title: "Colours of Holud & Mehendi",
     highlight: "Holud",
@@ -78,6 +81,7 @@ const EVENT_TYPES = [
     image: u("1741201864879-c5e7f81c98b0"),
   },
   {
+    key: "reception",
     label: "Reception",
     title: "Receptions to Remember",
     highlight: "Remember",
@@ -85,6 +89,7 @@ const EVENT_TYPES = [
     image: u("1519167758481-83f550bb49b3"),
   },
   {
+    key: "corporate",
     label: "Corporate",
     title: "Corporate Programs That Impress",
     highlight: "Impress",
@@ -92,6 +97,7 @@ const EVENT_TYPES = [
     image: u("1511578314322-379afb476865"),
   },
   {
+    key: "conference",
     label: "Conference",
     title: "Conferences on a National Scale",
     highlight: "National",
@@ -99,6 +105,7 @@ const EVENT_TYPES = [
     image: u("1540575467063-178a50c2df87"),
   },
   {
+    key: "seminar",
     label: "Seminar",
     title: "Seminars Built for Focus",
     highlight: "Focus",
@@ -106,6 +113,7 @@ const EVENT_TYPES = [
     image: u("1559223607-a43c990c692c"),
   },
   {
+    key: "concert",
     label: "Concert",
     title: "Concerts & Cultural Nights",
     highlight: "Cultural",
@@ -113,6 +121,7 @@ const EVENT_TYPES = [
     image: u("1505236858219-8359eb29e329"),
   },
   {
+    key: "expo",
     label: "Expo",
     title: "Exhibitions & Trade Fairs",
     highlight: "Trade",
@@ -122,11 +131,32 @@ const EVENT_TYPES = [
 ];
 
 const AUTOPLAY_MS = 2000;
+
+/** Title → animated chunks with the highlight in red; works for spaced (en/bn/ar) and unspaced (zh) text. */
+function titleParts(title: string, highlight: string) {
+  const words = title.split(" ");
+  if (words.includes(highlight) || !highlight || !title.includes(highlight)) return words.map((w) => ({ w, red: w === highlight }));
+  const i = title.indexOf(highlight);
+  return [
+    { w: title.slice(0, i), red: false },
+    { w: highlight, red: true },
+    { w: title.slice(i + highlight.length), red: false },
+  ].filter((p) => p.w.trim());
+}
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function HistoryTimeline() {
   const reduced = useReducedMotion();
-  const N = EVENT_TYPES.length;
+  const t = useTranslations("home.events");
+  // Translated copy for each event type (photos stay the same)
+  const items = EVENT_TYPES.map((e) => ({
+    ...e,
+    label: t(`items.${e.key}.label`),
+    title: t(`items.${e.key}.title`),
+    highlight: t(`items.${e.key}.highlight`),
+    desc: t(`items.${e.key}.desc`),
+  }));
+  const N = items.length;
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState(1);
   const [paused, setPaused] = useState(false);
@@ -146,7 +176,7 @@ export function HistoryTimeline() {
     return () => clearTimeout(id);
   }, [active, paused, reduced, go]);
 
-  const m = EVENT_TYPES[active];
+  const m = items[active];
 
   // Subtle mouse parallax on the photo
   const px = useMotionValue(0);
@@ -166,18 +196,17 @@ export function HistoryTimeline() {
         {/* Heading */}
         <div className="text-center max-w-2xl mx-auto mb-10 lg:mb-14">
           <RevealBlock>
-            <SectionLabel>(EVENTS WE HOST)</SectionLabel>
+            <SectionLabel>{t("label")}</SectionLabel>
           </RevealBlock>
           <RevealBlock delay={0.08}>
             <h2 className="display-lg text-[var(--ink)] mt-3 mb-5">
-              ONE VENUE, <span className="text-[var(--accent)]">EVERY OCCASION</span>
+              {t("title")} <span className="text-[var(--accent)]">{t("highlight")}</span>
             </h2>
           </RevealBlock>
           <RevealBlock delay={0.12}>
             <span aria-hidden className="block h-[3px] w-14 bg-[var(--accent)] mx-auto mb-5" />
             <p className="text-[var(--ink-body)] text-[16px] leading-relaxed">
-              Weddings, receptions, corporate programs, conferences, seminars and concerts — every kind of
-              celebration and gathering finds its perfect stage at ICCB.
+              {t("text")}
             </p>
           </RevealBlock>
         </div>
@@ -201,7 +230,7 @@ export function HistoryTimeline() {
             }}
             tabIndex={0}
             aria-roledescription="carousel"
-            aria-label="Events hosted at ICCB"
+            aria-label={t("aria")}
           >
             {/* Photo — reveals as an expanding circle from the year rail, with Ken Burns zoom + parallax */}
             <motion.div className="absolute -inset-4" style={{ x: sx, y: sy }}>
@@ -287,7 +316,8 @@ export function HistoryTimeline() {
                     className="font-display uppercase text-white text-[clamp(2.6rem,5vw,4.4rem)] leading-[1.1] [perspective:600px]"
                     aria-label={m.label}
                   >
-                    {m.label.split("").map((d, i) => (
+                    {/* Latin labels flip letter by letter; Bangla/Arabic/Chinese flip as one word so letters stay joined */}
+                    {(/^[\x00-\x7F]+$/.test(m.label) ? m.label.split("") : [m.label]).map((d, i) => (
                       <motion.span
                         key={i}
                         aria-hidden
@@ -309,10 +339,10 @@ export function HistoryTimeline() {
                   />
 
                   <h3 className="font-display uppercase text-white text-[clamp(1.7rem,3vw,2.6rem)] leading-[1.15] mb-4 pb-1">
-                    {m.title.split(" ").map((w, i) => (
+                    {titleParts(m.title, m.highlight).map(({ w, red }, i) => (
                       <motion.span
                         key={i}
-                        className={`inline-block me-[0.28em] last:me-0 ${w === m.highlight ? "text-[var(--accent)]" : ""}`}
+                        className={`inline-block me-[0.28em] last:me-0 ${red ? "text-[var(--accent)]" : ""}`}
                         variants={{
                           hidden: { opacity: 0, y: 26, filter: "blur(10px)" },
                           show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.75, ease: EASE } },
@@ -339,14 +369,14 @@ export function HistoryTimeline() {
               <button
                 type="button"
                 onClick={() => go(active - 1)}
-                aria-label="Previous event type"
+                aria-label={t("prev")}
                 className="grid place-items-center h-9 w-9 rounded-full border border-white/25 text-white/80 hover:bg-[var(--accent)] hover:border-[var(--accent)] hover:text-white transition-colors"
               >
                 <CaretUp size={16} weight="bold" />
               </button>
 
               <ul className="relative flex flex-col items-center gap-1 py-2">
-                {EVENT_TYPES.map((x, i) => {
+                {items.map((x, i) => {
                   const on = i === active;
                   return (
                     <li key={x.label} className="relative">
@@ -387,7 +417,7 @@ export function HistoryTimeline() {
               <button
                 type="button"
                 onClick={() => go(active + 1)}
-                aria-label="Next event type"
+                aria-label={t("next")}
                 className="grid place-items-center h-9 w-9 rounded-full border border-white/25 text-white/80 hover:bg-[var(--accent)] hover:border-[var(--accent)] hover:text-white transition-colors"
               >
                 <CaretDown size={16} weight="bold" />

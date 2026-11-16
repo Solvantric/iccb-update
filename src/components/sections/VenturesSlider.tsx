@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
@@ -154,6 +155,7 @@ function VenturePanel({
   didSwipeRef,
 }: PanelItemProps) {
   const router = useRouter();
+  const t = useTranslations("home.ventures");
   const isMobile = visibleCount === 1;
   const words = venture.name.split(" ");
 
@@ -317,7 +319,7 @@ function VenturePanel({
                 transition={{ duration: 0.38, ease: EASE }}
               >
                 <span className="inline-flex items-center gap-2 pt-2.5 text-[13px] font-semibold tracking-wide text-white/95">
-                  <span>Explore</span>
+                  <span>{t("explore")}</span>
                   <ArrowRight
                     size={14}
                     weight="bold"
@@ -347,6 +349,7 @@ function VenturePanel({
 }
 
 export function VenturesSlider({ locale }: VenturesSliderProps) {
+  const tv = useTranslations("home.ventures");
   const isRTL = RTL_LOCALES.includes(locale);
   const reduced = !!useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
@@ -608,12 +611,12 @@ export function VenturesSlider({ locale }: VenturesSliderProps) {
       <div className="container-site mb-10 text-center">
         <FadeUp>
           <h2 className="text-h2 normal-case">
-            One Destination,{" "}
-            <span className="text-[var(--accent)]">Endless Experiences</span>
+            {tv("title")}{" "}
+            <span className="text-[var(--accent)]">{tv("highlight")}</span>
           </h2>
         </FadeUp>
         <FadeUp delay={0.08}>
-          <span className="text-eyebrow block mt-3">ICCB VENTURES</span>
+          <span className="text-eyebrow block mt-3">{tv("eyebrow")}</span>
         </FadeUp>
       </div>
 
@@ -655,7 +658,7 @@ export function VenturesSlider({ locale }: VenturesSliderProps) {
         <button
           type="button"
           onClick={() => stepBy(-1)}
-          aria-label="Previous venture"
+          aria-label={tv("prev")}
           className="w-10 h-10 rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--ink-muted)] flex items-center justify-center hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors cursor-pointer"
         >
           {isRTL ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
@@ -722,7 +725,7 @@ export function VenturesSlider({ locale }: VenturesSliderProps) {
         <button
           type="button"
           onClick={() => stepBy(1)}
-          aria-label="Next venture"
+          aria-label={tv("next")}
           className="w-10 h-10 rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--ink-muted)] flex items-center justify-center hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors cursor-pointer"
         >
           {isRTL ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}

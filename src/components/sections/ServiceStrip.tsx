@@ -6,6 +6,7 @@ import {
   Buildings, ForkKnife, Sparkle, CalendarCheck, Crown, Package,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils/cn";
+import { useTranslations } from "next-intl";
 
 const SERVICES = [
   { slug: "venue-rental",      label: "Venue Rental",         icon: Buildings    },
@@ -21,11 +22,12 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 interface ServiceStripProps { locale: Locale }
 
 export function ServiceStrip({ locale }: ServiceStripProps) {
+  const t = useTranslations("home.services");
   return (
     <section className="bg-[var(--bg)] border-b border-[var(--line)]">
       <div className="container-wide">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border-s border-[var(--line)]">
-          {SERVICES.map(({ slug, label, icon: Icon }, i) => (
+          {SERVICES.map(({ slug, icon: Icon }, i) => (
             <motion.div
               key={slug}
               initial={{ opacity: 0, y: 20 }}
@@ -60,7 +62,7 @@ export function ServiceStrip({ locale }: ServiceStripProps) {
 
                 {/* Label */}
                 <span className="text-[13px] font-semibold text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors duration-200 text-center leading-tight">
-                  {label}
+                  {t(slug)}
                 </span>
               </Link>
             </motion.div>

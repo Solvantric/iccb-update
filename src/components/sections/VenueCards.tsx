@@ -9,16 +9,17 @@ import { isAllowedImage, usePublishedContent } from "@/lib/crm/cms";
 import { db } from "@/lib/crm/db";
 import { FadeUp } from "@/components/motion/primitives";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { useTranslations } from "next-intl";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-const HALL_TYPE: Record<string, string> = {
-  "gulnaksha":      "CONVENTION HALL",
-  "pushpoguchcho":  "CONVENTION HALL",
-  "rajdarshan":     "CONVENTION HALL",
-  "noboratri":      "CONVENTION HALL",
-  "pushpanjali":    "CONVENTION HALL",
-  "seminar-hall":      "SEMINAR HALL",
+const HALL_TYPE: Record<string, "convention" | "seminar"> = {
+  "gulnaksha":      "convention",
+  "pushpoguchcho":  "convention",
+  "rajdarshan":     "convention",
+  "noboratri":      "convention",
+  "pushpanjali":    "convention",
+  "seminar-hall":   "seminar",
 };
 
 interface VenueCardsProps { locale: Locale }
@@ -45,12 +46,17 @@ function useVenueCards() {
 
 export function VenueCards({ locale }: VenueCardsProps) {
   const halls = useVenueCards();
+  const t = useTranslations("home.venues");
+  const nf = (n: number) => n.toLocaleString(locale === "en" ? "en-US" : locale);
+  // Hall names: CMS title in English, the built-in translation for other languages.
+  const hallName = (h: (typeof halls)[number]) =>
+    locale === "en" ? h.name.en : (STATIC_HALLS.find((x) => x.slug === h.slug)?.name[locale] ?? h.name.en);
   return (
     <section className="section-y bg-[var(--bg)]">
       <div className="container-site">
         {/* Header */}
         <FadeUp>
-          <SectionHeading eyebrow="Featured Venues" title="Featured venues at" highlight="ICCB" />
+          <SectionHeading eyebrow={t("eyebrow")} title={t("title")} highlight={t("highlight")} />
         </FadeUp>
 
         {/* Cards grid */}
@@ -93,23 +99,23 @@ export function VenueCards({ locale }: VenueCardsProps) {
                 {/* Body */}
                 <div className="p-5 text-center">
                   <span className="text-eyebrow block mb-2">
-                    {HALL_TYPE[hall.slug] || "CONVENTION HALL"}
+                    {t(HALL_TYPE[hall.slug] ?? "convention")}
                   </span>
                   <h3
                     className="font-bold text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors mb-2 leading-tight"
                     style={{ fontSize: "clamp(1.1rem, 1.5vw, 1.3rem)" }}
                   >
-                    {hall.name.en}
+                    {hallName(hall)}
                   </h3>
                   <p className="font-semibold text-[var(--ink)] text-[14px] mb-3">
-                    Up to {hall.capacity.theatre.toLocaleString()} guests
+                    {t("upTo", { n: nf(hall.capacity.theatre) })}
                   </p>
                   <div className="flex items-center justify-center gap-4 text-[12px] text-[var(--ink-muted)]">
                     <span className="flex items-center gap-1">
-                      <Ruler size={14} weight="bold" className="text-[var(--accent)]" /> {hall.area.toLocaleString()} sq ft
+                      <Ruler size={14} weight="bold" className="text-[var(--accent)]" /> {t("sqft", { n: nf(hall.area) })}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Users size={14} weight="bold" className="text-[var(--accent)]" /> {hall.capacity.banquet.toLocaleString()} banquet
+                      <Users size={14} weight="bold" className="text-[var(--accent)]" /> {t("banquet", { n: nf(hall.capacity.banquet) })}
                     </span>
                   </div>
                 </div>
@@ -120,7 +126,7 @@ export function VenueCards({ locale }: VenueCardsProps) {
 
         <FadeUp delay={0.1} className="mt-10 flex justify-center">
           <Link href="/venues" locale={locale} className="btn btn-secondary btn-sm whitespace-nowrap">
-            Explore all venues <ArrowRight size={14} weight="bold" />
+            {t("explore")} <ArrowRight size={14} weight="bold" className="rtl:-scale-x-100" />
           </Link>
         </FadeUp>
       </div>

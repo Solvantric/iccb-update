@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { RevealBlock, RevealGroup, RevealItem } from "@/components/motion/RevealBlock";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import {
@@ -98,17 +99,18 @@ function SectionArt() {
 }
 
 const facilities = [
-  { icon: CarProfile, anim: "drive" as const, title: "2,000+ Parking Spaces", desc: "Dedicated on-site parking for large events, with security and valet service." },
-  { icon: Lightning, anim: "flicker" as const, title: "Full Power Backup", desc: "High-capacity generators ensure uninterrupted power throughout all events." },
-  { icon: Snowflake, anim: "spin" as const, title: "Central Air Conditioning", desc: "Precision-controlled climate in all halls, keeping every event comfortable." },
-  { icon: ChefHat, anim: "wobble" as const, title: "Own Modern Kitchen", desc: "State-of-the-art kitchen with strict quality-control from farm to table." },
-  { icon: ShieldCheck, anim: "shield" as const, title: "24/7 Security", desc: "Professional security team, CCTV coverage, and controlled access throughout." },
-  { icon: Wheelchair, anim: "roll" as const, title: "Fully Accessible", desc: "Wheelchair access, lifts, and accessible facilities across all venues." },
-  { icon: MapPin, anim: "bounce" as const, title: "Prime Location", desc: "On the 300 ft. Purbachal Express Highway, 25 km from Dhaka airport." },
-  { icon: WifiHigh, anim: "signal" as const, title: "High-Speed Internet", desc: "Dedicated fiber-optic connectivity for conferences and hybrid events." },
+  { icon: CarProfile, key: "parking", anim: "drive" as const, title: "2,000+ Parking Spaces", desc: "Dedicated on-site parking for large events, with security and valet service." },
+  { icon: Lightning, key: "power", anim: "flicker" as const, title: "Full Power Backup", desc: "High-capacity generators ensure uninterrupted power throughout all events." },
+  { icon: Snowflake, key: "ac", anim: "spin" as const, title: "Central Air Conditioning", desc: "Precision-controlled climate in all halls, keeping every event comfortable." },
+  { icon: ChefHat, key: "kitchen", anim: "wobble" as const, title: "Own Modern Kitchen", desc: "State-of-the-art kitchen with strict quality-control from farm to table." },
+  { icon: ShieldCheck, key: "security", anim: "shield" as const, title: "24/7 Security", desc: "Professional security team, CCTV coverage, and controlled access throughout." },
+  { icon: Wheelchair, key: "access", anim: "roll" as const, title: "Fully Accessible", desc: "Wheelchair access, lifts, and accessible facilities across all venues." },
+  { icon: MapPin, key: "location", anim: "bounce" as const, title: "Prime Location", desc: "On the 300 ft. Purbachal Express Highway, 25 km from Dhaka airport." },
+  { icon: WifiHigh, key: "internet", anim: "signal" as const, title: "High-Speed Internet", desc: "Dedicated fiber-optic connectivity for conferences and hybrid events." },
 ];
 
 export function WhyICCB() {
+  const t = useTranslations("home.why");
   return (
     <section className="relative isolate overflow-hidden bg-[var(--bg)] py-[clamp(4rem,10vw,9rem)]">
       <SectionArt />
@@ -116,17 +118,17 @@ export function WhyICCB() {
         {/* Centered heading */}
         <div className="text-center max-w-2xl mx-auto mb-12 lg:mb-14">
           <RevealBlock>
-            <SectionLabel>(FACILITIES)</SectionLabel>
+            <SectionLabel>{t("label")}</SectionLabel>
           </RevealBlock>
           <RevealBlock delay={0.15}>
             <h2 className="display-lg text-[var(--ink)] mt-3 mb-5">
-              WHY CHOOSE <span className="text-[var(--accent)]">ICCB</span>
+              {t("title")} <span className="text-[var(--accent)]">{t("highlight")}</span>
             </h2>
           </RevealBlock>
           <RevealBlock delay={0.3}>
             <span aria-hidden="true" className="block h-[3px] w-14 bg-[var(--accent)] mx-auto mb-5" />
             <p className="text-[var(--ink-body)] text-[16px] leading-relaxed">
-              Every detail is designed to make your event flawless. World-class infrastructure, professional staff, and comprehensive services — all in one iconic location.
+              {t("text")}
             </p>
           </RevealBlock>
         </div>
@@ -135,7 +137,7 @@ export function WhyICCB() {
         <RevealGroup stagger={0.22} delayChildren={0.45} className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 max-w-6xl mx-auto">
           {facilities.map((f, i) => (
             <RevealItem key={f.title}>
-              <FacilityCard icon={f.icon} anim={f.anim} title={f.title} desc={f.desc} index={i} />
+              <FacilityCard icon={f.icon} anim={f.anim} title={t(`items.${f.key}.title`)} desc={t(`items.${f.key}.desc`)} index={i} />
             </RevealItem>
           ))}
         </RevealGroup>

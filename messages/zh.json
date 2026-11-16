@@ -20,7 +20,9 @@
     "contact": "联系我们",
     "makeEnquiry": "提交询价",
     "bookNow": "立即预订",
-    "menu": "菜单"
+    "menu": "菜单",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单"
   },
   "hero": {
     "checkAvailability": "查看空闲日期",
@@ -51,7 +53,22 @@
     "sendEnquiry": "作为询价发送",
     "downloadPdf": "下载估算（PDF）",
     "shareWhatsapp": "分享到WhatsApp",
-    "disclaimer": "此为估算，非正式报价。最终价格由ICCB确认。"
+    "disclaimer": "此为估算，非正式报价。最终价格由ICCB确认。",
+    "legend": {
+      "available": "可预订",
+      "reserved": "已预留",
+      "booked": "已预订",
+      "closed": "已关闭 / 已过期"
+    },
+    "shifts": {
+      "lunch": "午宴场",
+      "dinner": "晚宴场",
+      "fullday": "全天"
+    },
+    "currency": {
+      "bdt": "孟加拉塔卡 (৳)",
+      "usd": "美元 ($)"
+    }
   },
   "forms": {
     "name": "全名",
@@ -66,7 +83,10 @@
     "sending": "发送中…",
     "success": "谢谢！我们将尽快与您联系。",
     "error": "出现错误，请重试或致电我们。",
-    "consent": "我同意ICCB存储我的信息以处理此询价。"
+    "consent": "我同意ICCB存储我的信息以处理此询价。",
+    "organizerType": "主办方类型",
+    "preferredContact": "首选联系时间",
+    "language": "首选语言"
   },
   "cta": {
     "planEvent": "计划举办活动？",
@@ -89,7 +109,23 @@
     "skipToContent": "跳到主要内容",
     "lightMode": "浅色模式",
     "darkMode": "深色模式",
-    "language": "语言"
+    "language": "语言",
+    "confirm": "确认",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "search": "搜索",
+    "filter": "筛选",
+    "sort": "排序",
+    "export": "导出",
+    "download": "下载",
+    "share": "分享",
+    "copy": "复制",
+    "copied": "已复制！",
+    "readMore": "阅读更多",
+    "seeAll": "查看全部",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单"
   },
   "footer": {
     "about": "关于ICCB",
@@ -102,7 +138,8 @@
     "privacy": "隐私政策",
     "terms": "服务条款",
     "copyright": "© 2026 ICCB。版权所有。",
-    "bashundharaGroup": "巴顺达拉集团旗下物业"
+    "bashundharaGroup": "巴顺达拉集团旗下物业",
+    "legal": "法律信息"
   },
   "seo": {
     "homeTitle": "ICCB — 国际会议城巴顺达拉，达卡",
@@ -111,5 +148,367 @@
     "venuesDescription": "探索ICCB在达卡的6个世界级会议厅。",
     "bookingTitle": "查看空闲日期并预订",
     "bookingDescription": "实时查看ICCB会议厅空闲日期，获取即时预算估算。"
+  },
+  "home": {
+    "hero": {
+      "aria": "ICCB 轮播",
+      "prev": "上一张",
+      "next": "下一张",
+      "goTo": "转到第 {n} 张",
+      "play": "播放",
+      "pause": "暂停",
+      "slides": {
+        "grand-hall": {
+          "lines": [
+            "世界在此",
+            "相聚于"
+          ],
+          "highlight": "达卡。",
+          "sub": "南亚最大的会议中心"
+        },
+        "expo": {
+          "lines": [
+            "孟加拉国首选",
+            "展览"
+          ],
+          "highlight": "目的地。",
+          "sub": "博览村 · 80,000 平方英尺 · 500+ 展位 · 每年 40+ 场展会"
+        },
+        "conference": {
+          "lines": [
+            "世界一流的",
+            "会议"
+          ],
+          "highlight": "设施。",
+          "sub": "可容纳 400–2,500 名代表的多语言会议"
+        },
+        "wedding": {
+          "lines": [
+            "您梦想中的",
+            "盛典，"
+          ],
+          "highlight": "完美呈现。",
+          "sub": "可容纳 600–1,800 位宾客的优雅宴会厅"
+        },
+        "concert": {
+          "lines": [
+            "打造"
+          ],
+          "highlight": "非凡舞台。",
+          "sub": "为 2,500+ 观众提供专业音响、灯光和舞台"
+        }
+      }
+    },
+    "booking": {
+      "tabs": {
+        "availability": "查询档期",
+        "enquiry": "提交咨询",
+        "expo": "展会咨询",
+        "ask": "提问"
+      },
+      "kindHalls": "宴会厅活动 · 6 个大厅",
+      "kindExpo": "博览村",
+      "expoType": "展会类型",
+      "chooseType": "选择类型",
+      "startDate": "开始日期",
+      "showDays": "展出天数",
+      "checkExpo": "查询博览村",
+      "expoTypes": {
+        "trade": "贸易展",
+        "exhibition": "展览",
+        "launch": "产品发布",
+        "auto": "汽车展",
+        "education": "教育展",
+        "job": "招聘会",
+        "food": "美食与生活方式展",
+        "other": "其他"
+      },
+      "eventType": "活动类型",
+      "allTypes": "全部类型",
+      "date": "日期",
+      "guests": "宾客人数",
+      "guestsPh": "例如 500",
+      "eventTypes": {
+        "wedding": "婚礼",
+        "reception": "婚宴",
+        "corporate": "企业活动",
+        "conference": "会议",
+        "seminar": "研讨会",
+        "concert": "音乐会",
+        "other": "其他"
+      },
+      "expoOption": "展会 / 展览 → 博览村",
+      "checkAvailability": "查询档期",
+      "estimate": "获取预算估算 →",
+      "enquiryText": "告诉我们您的活动需求，我们将在 24 小时内为您提供定制方案。",
+      "sendEnquiry": "发送咨询",
+      "expoText": "有意在 ICCB 博览村参展或赞助？请联系我们的展会团队。",
+      "expoEnquiry": "展会咨询",
+      "askText": "对 ICCB 有疑问？我们的团队随时为您解答。",
+      "askBtn": "提问"
+    },
+    "services": {
+      "venue-rental": "场地租赁",
+      "catering": "餐饮服务",
+      "decoration": "装饰布置",
+      "event-management": "活动管理",
+      "heritage-restaurant": "Heritage 餐厅",
+      "expo-support": "展会与贸易展"
+    },
+    "venues": {
+      "eyebrow": "精选场地",
+      "title": "精选场地 ·",
+      "highlight": "ICCB",
+      "convention": "会议大厅",
+      "seminar": "研讨厅",
+      "upTo": "最多 {n} 位宾客",
+      "sqft": "{n} 平方英尺",
+      "banquet": "宴会 {n} 人",
+      "explore": "查看全部场地"
+    },
+    "expo": {
+      "label": "（博览区）",
+      "title": "行业展示之地",
+      "text": "ICCB 博览村是孟加拉国最大的专业展览空间，举办国际贸易展、产品发布会和行业展示，吸引全球机构参与。",
+      "photoAlt": "ICCB 博览村 — 国际贸易展",
+      "largest": "孟加拉国最大",
+      "destination": "展览目的地",
+      "annualExpos": "每年 30+ 场展会",
+      "visitors": "2 万+ 访客",
+      "upcoming": "即将举行",
+      "stats": {
+        "annual": "年度展会",
+        "exhibitors": "参展商",
+        "perShow": "每展访客"
+      },
+      "plan": "规划您的展会",
+      "enquiry": "参展咨询"
+    },
+    "partners": {
+      "title1": "我们的全球",
+      "title2": "合作伙伴",
+      "text": "我们很荣幸接待来自各行业的知名国际机构和参展商，把世界带到孟加拉国。",
+      "prev": "上一位合作伙伴",
+      "next": "下一位合作伙伴"
+    },
+    "ventures": {
+      "title": "一个目的地，",
+      "highlight": "无限体验",
+      "eyebrow": "ICCB 旗下品牌",
+      "explore": "了解更多",
+      "prev": "上一个",
+      "next": "下一个"
+    },
+    "menu": {
+      "eyebrow": "ICCB 餐饮",
+      "title": "精心打造的",
+      "highlight": "菜单",
+      "description": "从莫卧儿盛宴到精致甜点 — 每道菜都在我们自己的厨房新鲜制作。",
+      "learnMore": "了解更多",
+      "custom": "可为各种规模的活动定制菜单 — 50 至 10,000 位宾客。",
+      "quote": "索取菜单报价",
+      "viewAll": "查看全部菜单",
+      "items": {
+        "mughal": {
+          "label": "莫卧儿经典",
+          "tag": "最受欢迎",
+          "desc": "浓郁酱汁、慢炖肉类、香气四溢的印度香饭。"
+        },
+        "continental": {
+          "label": "欧陆风味",
+          "tag": "国际",
+          "desc": "选用新鲜时令食材的精致欧式菜肴。"
+        },
+        "multi": {
+          "label": "多国料理盛宴",
+          "tag": "高端",
+          "desc": "三种菜系的现场烹饪台。"
+        },
+        "dessert": {
+          "label": "甜品自助",
+          "tag": "甜蜜收尾",
+          "desc": "8 款甜品自助与高端无酒精饮品吧。"
+        },
+        "breakfast": {
+          "label": "早餐布置",
+          "tag": "早间活动",
+          "desc": "现煮咖啡、糕点与热食自助。"
+        }
+      }
+    },
+    "events": {
+      "label": "（我们承办的活动）",
+      "title": "一个场地，",
+      "highlight": "适合每个场合",
+      "text": "婚礼、婚宴、企业活动、会议、研讨会和音乐会 — 每一种庆典与聚会都能在 ICCB 找到完美舞台。",
+      "aria": "ICCB 承办的活动",
+      "prev": "上一类活动",
+      "next": "下一类活动",
+      "items": {
+        "wedding": {
+          "label": "婚礼",
+          "title": "盛大隆重的婚礼",
+          "highlight": "隆重",
+          "desc": "从舞台到每一张餐桌，我们为数千位宾客打造婚礼之夜 — 装饰、灯光、餐饮和专属协调员一站式服务。"
+        },
+        "holud": {
+          "label": "姜黄礼",
+          "title": "姜黄礼与手绘的色彩",
+          "highlight": "姜黄礼",
+          "desc": "万寿菊、音乐与姜黄色的喜悦 — 温馨的大厅和主题装饰，让每一项婚前传统焕发生机。"
+        },
+        "reception": {
+          "label": "婚宴",
+          "title": "难忘的婚宴",
+          "highlight": "难忘",
+          "desc": "优雅的宴会布置、双厨房的招牌菜单，以及适合各种规模婚宴的周到服务。"
+        },
+        "corporate": {
+          "label": "企业",
+          "title": "令人印象深刻的企业活动",
+          "highlight": "印象深刻",
+          "desc": "年度股东大会、经销商会议、颁奖晚会和产品发布 — 舞台、音响、LED 屏和接待全部由我们负责。"
+        },
+        "conference": {
+          "label": "会议",
+          "title": "国家级规模的会议",
+          "highlight": "国家级",
+          "desc": "无柱大厅、同声传译间和视频会议系统，使 ICCB 成为峰会和国际会议的首选。"
+        },
+        "seminar": {
+          "label": "研讨会",
+          "title": "专注高效的研讨会",
+          "highlight": "专注",
+          "desc": "剧院式或课堂式布局、投影仪和清晰音响 — 适合培训、工作坊和学术活动。"
+        },
+        "concert": {
+          "label": "音乐会",
+          "title": "音乐会与文化之夜",
+          "highlight": "文化",
+          "desc": "专业吊挂、10,000 瓦音响和可容纳数千人的空间 — 为音乐、演出和文化庆典做好准备。"
+        },
+        "expo": {
+          "label": "展会",
+          "title": "展览与贸易展",
+          "highlight": "贸易展",
+          "desc": "博览村 — 全国最大的单一屋顶展览空间 — 举办全国性展会、产品展示和国际博览会。"
+        }
+      }
+    },
+    "why": {
+      "label": "（设施）",
+      "title": "为什么选择",
+      "highlight": "ICCB",
+      "text": "每个细节都为让您的活动完美无瑕而设计 — 世界一流的基础设施、专业的团队和全面的服务，尽在这一标志性场所。",
+      "items": {
+        "parking": {
+          "title": "2,000+ 个停车位",
+          "desc": "为大型活动提供专属停车位，配备安保和代客泊车服务。"
+        },
+        "power": {
+          "title": "完备的备用电源",
+          "desc": "大功率发电机确保活动全程不间断供电。"
+        },
+        "ac": {
+          "title": "中央空调",
+          "desc": "所有大厅精准控温，让每场活动都舒适宜人。"
+        },
+        "kitchen": {
+          "title": "自有现代化厨房",
+          "desc": "先进厨房，从农场到餐桌严格把控品质。"
+        },
+        "security": {
+          "title": "24/7 安保",
+          "desc": "专业安保团队、全方位监控和出入管控。"
+        },
+        "access": {
+          "title": "无障碍设施",
+          "desc": "所有场地均配备轮椅通道、电梯和无障碍设施。"
+        },
+        "location": {
+          "title": "优越位置",
+          "desc": "位于 300 英尺宽的 Purbachal 高速公路旁，距达卡机场 25 公里。"
+        },
+        "internet": {
+          "title": "高速网络",
+          "desc": "为会议和混合活动提供专用光纤连接。"
+        }
+      }
+    },
+    "gallery": {
+      "eyebrow": "图库",
+      "title": "精彩瞬间 ·",
+      "highlight": "ICCB",
+      "description": "从国际展会和高层峰会到盛大婚礼和现场音乐会 — 走进孟加拉国相聚、庆祝和洽谈业务的大厅。",
+      "categories": {
+        "halls": "大厅",
+        "expo": "展会",
+        "conferences": "会议",
+        "weddings": "婚礼",
+        "concerts": "音乐会",
+        "catering": "餐饮",
+        "restaurant": "餐厅",
+        "architecture": "建筑"
+      },
+      "items": {
+        "g1": "会议大厅布置",
+        "g2": "展会现场",
+        "g3": "会议布置",
+        "g4": "婚礼宴会",
+        "g5": "音乐会灯光",
+        "g6": "餐饮摆盘",
+        "g7": "Heritage 餐厅用餐",
+        "g8": "展览展位",
+        "g9": "ICCB 外观建筑"
+      },
+      "view": "查看图库"
+    },
+    "testimonials": {
+      "label": "（客户评价）",
+      "title": "客户怎么说",
+      "prev": "上一条评价",
+      "next": "下一条评价"
+    },
+    "cta": {
+      "title": "正在筹备活动？",
+      "highlight": "让我们为您预留日期。",
+      "text": "联系我们的团队，了解场地档期、餐饮菜单或定制活动套餐。",
+      "button": "联系我们",
+      "show": "显示第 {n} 张图片"
+    }
+  },
+  "chatbot": {
+    "title": "ICCB 助手",
+    "online": "在线",
+    "placeholder": "输入消息…",
+    "quickReplies": {
+      "availability": "查询档期",
+      "expoEnquiry": "展会咨询",
+      "cateringMenu": "餐饮菜单",
+      "talkHuman": "人工客服"
+    },
+    "handoff": "正在通过 WhatsApp 为您连接我们的团队…",
+    "disclaimer": "价格和档期须由 ICCB 销售经理确认。"
+  },
+  "contact": {
+    "booking": "预订办公室",
+    "catering": "餐饮咨询",
+    "address": "达卡 1229，Kuril Bishwa Road，毗邻 300 英尺 Purbachal 高速公路",
+    "getDirections": "获取路线",
+    "openMaps": "在地图中打开",
+    "hours": "办公时间",
+    "hoursValue": "周日至周四：上午 9:00 – 下午 6:00",
+    "phone": "电话",
+    "email": "电子邮件"
+  },
+  "eventTypes": {
+    "conference": "会议",
+    "exhibition": "展览 / 贸易展",
+    "wedding": "婚礼 / 社交活动",
+    "concert": "音乐会 / 演出",
+    "corporate": "企业活动",
+    "seminar": "研讨会 / 培训",
+    "expo": "展会",
+    "other": "其他"
   }
 }

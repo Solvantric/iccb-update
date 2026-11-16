@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import { clientLogos } from "@/data/expo";
 import { RevealBlock } from "@/components/motion/RevealBlock";
+import { useTranslations } from "next-intl";
 
 const STEP_MS = 2200; // pause between moves
 const MOVE_S = 0.7; // slide duration
@@ -23,6 +24,7 @@ function cellsFor(width: number) {
  * round arrow buttons at both ends. Moves one logo at a time, pausing between steps.
  */
 export function PartnersCarousel() {
+  const t = useTranslations("home.partners");
   const reduced = useReducedMotion();
   const logos = clientLogos.filter((l) => l.logo);
   const L = logos.length;
@@ -61,15 +63,14 @@ export function PartnersCarousel() {
       <div className="text-center max-w-2xl mx-auto mb-12 lg:mb-14">
         <RevealBlock>
           <h2 className="display-lg text-[var(--ink)]">
-            OUR GLOBAL
+            {t("title1")}
             <br />
-            <span className="text-[var(--accent)]">PARTNERS</span>
+            <span className="text-[var(--accent)]">{t("title2")}</span>
           </h2>
         </RevealBlock>
         <RevealBlock delay={0.08}>
           <p className="text-[var(--ink-body)] text-[16px] leading-relaxed mt-6">
-            We are proud to host leading international organisations and exhibitors across diverse sectors,
-            bringing the world to Bangladesh.
+            {t("text")}
           </p>
         </RevealBlock>
       </div>
@@ -84,7 +85,7 @@ export function PartnersCarousel() {
           <button
             type="button"
             onClick={() => step(-1)}
-            aria-label="Previous partner"
+            aria-label={t("prev")}
             className="flex-shrink-0 grid place-items-center h-10 w-10 md:h-11 md:w-11 rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
           >
             <CaretLeft size={16} weight="bold" className="rtl:-scale-x-100" />
@@ -132,7 +133,7 @@ export function PartnersCarousel() {
           <button
             type="button"
             onClick={() => step(1)}
-            aria-label="Next partner"
+            aria-label={t("next")}
             className="flex-shrink-0 grid place-items-center h-10 w-10 md:h-11 md:w-11 rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
           >
             <CaretRight size={16} weight="bold" className="rtl:-scale-x-100" />

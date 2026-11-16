@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "@phosphor-icons/react";
 import { FadeUp } from "@/components/motion/primitives";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { useTranslations } from "next-intl";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -50,12 +51,13 @@ const BENTO_ITEMS = [
 interface MenuBentoProps { locale: Locale }
 
 export function MenuBento({ locale }: MenuBentoProps) {
+  const t = useTranslations("home.menu");
   return (
     <section className="section-y bg-[var(--bg-soft)]">
       <div className="container-site">
         {/* Header */}
         <FadeUp className="mb-12">
-          <SectionHeading eyebrow="ICCB Catering" title="Menus Crafted" highlight="to Perfection" description="From Mughal feasts to delicate desserts — every plate is prepared fresh in our own kitchen." />
+          <SectionHeading eyebrow={t("eyebrow")} title={t("title")} highlight={t("highlight")} description={t("description")} />
         </FadeUp>
 
         {/* Editorial grid — large feature card + 2×2 cards */}
@@ -85,14 +87,14 @@ export function MenuBento({ locale }: MenuBentoProps) {
                     }`}
                   >
                     <span className="block text-[11px] font-semibold uppercase tracking-[0.32em] text-[var(--ink-muted)] rtl:tracking-normal">
-                      {item.tag}
+                      {t(`items.${item.id}.tag`)}
                     </span>
                     <h3
                       className={`font-display text-[var(--ink)] leading-tight mt-2.5 ${
                         featured ? "text-[clamp(2rem,3.4vw,3.1rem)]" : "text-[clamp(1.25rem,1.5vw,1.55rem)]"
                       }`}
                     >
-                      {item.label}
+                      {t(`items.${item.id}.label`)}
                     </h3>
                     <span
                       aria-hidden="true"
@@ -101,7 +103,7 @@ export function MenuBento({ locale }: MenuBentoProps) {
                       }`}
                     />
                     <span className="inline-block mt-2.5 text-[13px] text-[var(--ink-muted)] group-hover:text-[var(--accent)] transition-colors">
-                      {featured ? item.desc : "Learn more"}
+                      {featured ? t(`items.${item.id}.desc`) : t("learnMore")}
                     </span>
                   </div>
 
@@ -109,7 +111,7 @@ export function MenuBento({ locale }: MenuBentoProps) {
                   <div className="relative flex-1 min-h-[180px] mt-5 overflow-hidden">
                     <Image
                       src={item.image}
-                      alt={item.label}
+                      alt={t(`items.${item.id}.label`)}
                       fill
                       sizes={featured ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"}
                       className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
@@ -124,14 +126,14 @@ export function MenuBento({ locale }: MenuBentoProps) {
         {/* Bottom CTA */}
         <FadeUp delay={0.3} className="mt-10 text-center">
           <p className="text-[var(--ink-muted)] text-[14px] mb-4">
-            Custom menus available for all event sizes — 50 to 10,000 guests.
+            {t("custom")}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link href="/contact" locale={locale} className="btn btn-primary">
-              Request a Menu Quote <ArrowRight size={14} weight="bold" />
+              {t("quote")} <ArrowRight size={14} weight="bold" className="rtl:-scale-x-100" />
             </Link>
             <Link href="/menu" locale={locale} className="btn btn-secondary whitespace-nowrap">
-              View all menus <ArrowRight size={14} weight="bold" />
+              {t("viewAll")} <ArrowRight size={14} weight="bold" className="rtl:-scale-x-100" />
             </Link>
           </div>
         </FadeUp>
