@@ -16,6 +16,11 @@ import { useTranslations } from "next-intl";
 
 const AUTOPLAY_MS = 6000;
 
+/** Old default slide photos → their replacements */
+const REPLACED: Record<string, string> = {
+  "/images/hero/bashundhara-phc-banner.jpg": "/images/hero/iccb-hero-1.jpg",
+};
+
 
 
 
@@ -37,7 +42,9 @@ function useHeroSlides(locale: Locale): HeroSlide[] {
     const highlight = known?.highlight ?? words.pop() ?? "";
     const rest = known ? known.lines : words.length > 3 ? [words.slice(0, Math.ceil(words.length / 2)).join(" "), words.slice(Math.ceil(words.length / 2)).join(" ")] : [words.join(" ")].filter(Boolean);
     const fallback = known ?? HERO_SLIDES[0];
-    return { id: c.id, lines: rest, highlight, sub: c.subtitle ?? "", src: isAllowedImage(c.image) ? c.image : fallback.src, alt: c.title };
+    // Content saved before a default photo changed still points at the old file — show the new one.
+    const src = isAllowedImage(c.image) && !(c.image in REPLACED) ? c.image : (REPLACED[c.image ?? ""] ?? fallback.src);
+    return { id: c.id, lines: rest, highlight, sub: c.subtitle ?? "", src, alt: c.title };
   });
 }
 
