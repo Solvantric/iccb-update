@@ -11,11 +11,11 @@ export interface ImageMeta {
 export const heroSlides: Array<ImageMeta & { id: string }> = [
   {
     id: "grand-hall",
-    src: "/images/hero/bashundhara-phc-banner.jpg",
-    alt: { en: "Aerial view of golden fields and wind turbines at sunrise", bn: "সূর্যোদয়ে সোনালি মাঠ ও বায়ুকল" },
-    source: "Bashundhara PHC Pile",
-    width: 1721,
-    height: 649,
+    src: "/images/hero/iccb-hero-1.jpg",
+    alt: { en: "International Convention City Bashundhara", bn: "ইন্টারন্যাশনাল কনভেনশন সিটি বসুন্ধরা" },
+    source: "ICCB",
+    width: 1672,
+    height: 941,
   },
   {
     id: "expo",
