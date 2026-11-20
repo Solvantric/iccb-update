@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import { AnimatePresence } from "framer-motion";
 import { Binoculars, CalendarCheck, ChatsCircle, Check, ClipboardText, Globe, Handshake, Sparkle, UserPlus, type Icon } from "@phosphor-icons/react";
 import type { Lead, LeadSource, LeadStage, User } from "@/types/crm";
@@ -114,7 +115,22 @@ export function lakh(n: number) {
 const TONES = ["bg-crm-tint text-crm-brand-text", "bg-crm-reserved-bg text-crm-reserved-ink", "bg-crm-success-bg text-crm-success", "bg-crm-surface-2 text-crm-ink-2"];
 const tone = (id: string) => TONES[[...id].reduce((t, c) => t + c.charCodeAt(0), 0) % TONES.length];
 
+/** Sample profile photos for the demo sales team (free Unsplash photos, cropped to the face). */
+const unsplashFace = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=facearea&facepad=2.2&w=160&h=160&q=80`;
+export const TEAM_PHOTOS: Record<string, string> = {
+  "u-sales": unsplashFace("1706943262459-3ef6ce03305c"), // Nusrat Jahan
+  "u-sales2": unsplashFace("1683105653852-25028a53a3e4"), // Rafiq Hasan
+  "u-sales3": unsplashFace("1536766768598-e09213fdcf22"), // Tania Akter
+};
+
 export function Face({ user, size = 24, className, style }: { user: Pick<User, "id" | "name">; size?: number; className?: string; style?: React.CSSProperties }) {
+  const photo = TEAM_PHOTOS[user.id];
+  if (photo)
+    return (
+      <span title={user.name} className={cn("relative block shrink-0 overflow-hidden rounded-full bg-crm-surface-2 ring-2 ring-crm-surface", className)} style={{ width: size, height: size, ...style }}>
+        <Image src={photo} alt={user.name} width={size * 2} height={size * 2} className="h-full w-full object-cover" />
+      </span>
+    );
   return (
     <span title={user.name} className={cn("relative grid shrink-0 place-items-center rounded-full font-semibold ring-2 ring-crm-surface", tone(user.id), className)} style={{ width: size, height: size, fontSize: size * 0.38, ...style }}>
       {initials(user.name)}
