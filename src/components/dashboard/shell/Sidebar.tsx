@@ -7,7 +7,7 @@ import { AnimatePresence } from "framer-motion";
 import { House, SidebarSimple } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils/cn";
 import { useCurrentUser, useSession } from "@/lib/crm/db";
-import { useBookings, useMeetings } from "@/lib/crm/hooks";
+import { useLeads, useMeetings } from "@/lib/crm/hooks";
 import { todayYmd } from "@/lib/crm/format";
 import { canSeePath } from "@/lib/crm/permissions";
 import { m } from "../ui/motion";
@@ -19,7 +19,8 @@ function SidebarBody({ collapsed, onNavigate }: { collapsed: boolean; onNavigate
   const pathname = usePathname();
   const user = useCurrentUser();
   const setCollapsed = useSession((s) => s.setCollapsed);
-  const leads = useBookings().filter((b) => b.status === "reserved").length;
+  // New leads nobody has picked up yet.
+  const leads = useLeads().filter((l) => l.stage === "discover" && !l.lost && !l.ownerIds.length).length;
   const today = todayYmd();
   const ppm = useMeetings().filter((m) => m.status === "scheduled" && m.date === today).length;
   const active = activeItem(pathname);

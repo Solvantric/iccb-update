@@ -384,3 +384,89 @@ export function validateContact(name: string, mobile: string): string | null {
 
 /** Digits-only mobile for matching clients (01711-234567 → 01711234567). */
 export const normMobile = (m: string) => m.replace(/\D/g, "").replace(/^88/, "");
+
+/* ─── Leads (sales funnel) ───────────────────────────────────────────────── */
+
+export const LEAD_STAGES = ["discover", "interested", "appraisal", "confirmed", "customer"] as const;
+export type LeadStage = (typeof LEAD_STAGES)[number];
+export const LEAD_STAGE_LABELS: Record<LeadStage, string> = { discover: "Discover", interested: "Interested", appraisal: "Appraisal", confirmed: "Confirmed", customer: "Customer" };
+export const LEAD_STAGE_HINTS: Record<LeadStage, string> = {
+  discover: "New, not yet qualified",
+  interested: "Replied, wants details",
+  appraisal: "Site visit or quotation",
+  confirmed: "Date held, advance due",
+  customer: "Advance paid, converted",
+};
+
+export type LeadSource = "ai" | "website" | "manual";
+export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = { ai: "AI search", website: "Website", manual: "Manual" };
+
+export const AI_PLATFORMS = ["LinkedIn", "Facebook event", "News article", "Google search", "Tender portal"] as const;
+export const MANUAL_CHANNELS = ["Phone call", "Walk-in", "Referral", "Expo / event", "Social media"] as const;
+export type ManualChannel = (typeof MANUAL_CHANNELS)[number];
+
+/** Where a lead came from — enough detail to trace it back. */
+export interface LeadTrace {
+  /** AI search */
+  platform?: string;
+  query?: string;
+  url?: string;
+  signal?: string;
+  /** 0–100 match score from the AI. */
+  score?: number;
+  /** Website */
+  landingPage?: string;
+  formPage?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  referrer?: string;
+  device?: Device;
+  bookingId?: string;
+  bookingRef?: string;
+  /** Manual */
+  channel?: ManualChannel;
+  referredBy?: string;
+  addedBy?: string;
+}
+
+export interface LeadActivity {
+  at: string;
+  by: string;
+  kind: "created" | "stage" | "assign" | "note" | "call" | "lost" | "reopen";
+  text: string;
+}
+
+export interface Lead extends BaseRecord {
+  code: string;
+  name: string;
+  organization?: string;
+  mobile: string;
+  email?: string;
+  eventName: string;
+  eventType: EventType;
+  guests: number;
+  hallId?: string;
+  /** yyyy-MM-dd, approximate. */
+  eventDate?: string;
+  /** Estimated deal value in BDT. */
+  value: number;
+  source: LeadSource;
+  trace: LeadTrace;
+  stage: LeadStage;
+  /** When the lead entered each stage it reached. */
+  stageAt: Partial<Record<LeadStage, string>>;
+  /** Employees working this lead (one or more). Empty = unassigned. */
+  ownerIds: string[];
+  /** Booking made for this lead. The lead becomes a Customer only when this booking is marked Booked. */
+  bookingId?: string;
+  bookingRef?: string;
+  lost?: boolean;
+  lostReason?: string;
+  /** Next follow-up, yyyy-MM-dd. */
+  nextAt?: string;
+  nextAction?: string;
+  activity: LeadActivity[];
+}
+
+export const LOST_REASONS = ["Price too high", "Date not available", "Chose another venue", "Event cancelled", "No response"] as const;

@@ -7,6 +7,7 @@ import { calcBill } from "@/lib/crm/bill";
 import { HERO_SLIDES, heroTitle } from "@/data/hero";
 import { galleryImages } from "@/data/images";
 import { halls as STATIC_HALLS } from "@/data/halls";
+import { leadTeamSeed } from "./leadsSeed";
 import type { ReviewRequest } from "@/types/crm";
 import type { AnalyticsEvent, AnalyticsType, Booking, Client, ContentItem, Device, Enquiry, Hall, Meeting, MenuPackage, Payment, RadarItem, ServiceItem, Settings, SpecialPrice, TrafficSource, User } from "@/types/crm";
 
@@ -201,6 +202,7 @@ export const usersSeed = (): User[] => [
   { ...S, id: "u-sales", name: "Nusrat Jahan", email: "nusrat@iccb.example", phone: "01700-000002", role: "sales", active: true, createdAt: iso(200) },
   { ...S, id: "u-ops", name: "Sabbir Ahmed", email: "sabbir@iccb.example", phone: "01700-000003", role: "operations", active: true, createdAt: iso(200) },
   { ...S, id: "u-mkt", name: "Imran Chowdhury", email: "imran@iccb.example", phone: "01700-000004", role: "marketing", active: true, createdAt: iso(200) },
+  ...leadTeamSeed(),
 ];
 
 export const specialPricesSeed = (): SpecialPrice[] => [];

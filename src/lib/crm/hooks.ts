@@ -15,6 +15,7 @@ export const useClients = () => db.clients.store((s) => s.items);
 export const useMenus = () => db.menus.store((s) => s.items);
 export const useServices = () => db.services.store((s) => s.items);
 export const useUsers = () => db.users.store((s) => s.items);
+export const useLeads = () => db.leads.store((s) => s.items);
 export const useSettingsValue = () => useSettings((s) => s.settings);
 
 export function useHallMap(): Map<string, Hall> {

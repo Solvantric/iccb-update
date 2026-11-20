@@ -6,7 +6,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { ReviewRequest } from "@/types/crm";
-import type { AnalyticsEvent, Booking, Client, ContentItem, Enquiry, Hall, Meeting, MenuPackage, Payment, RadarItem, ServiceItem, Settings, SpecialPrice, User } from "@/types/crm";
+import type { AnalyticsEvent, Booking, Client, ContentItem, Enquiry, Hall, Lead, Meeting, MenuPackage, Payment, RadarItem, ServiceItem, Settings, SpecialPrice, User } from "@/types/crm";
 import { createRepository, STORAGE_PREFIX } from "./repository";
 import {
   analyticsSeed,
@@ -25,6 +25,7 @@ import {
   specialPricesSeed,
   usersSeed,
 } from "@/data/crm/seed";
+import { leadTeamSeed, leadsSeed } from "@/data/crm/leadsSeed";
 
 export const db = {
   bookings: createRepository<Booking>("bookings", bookingsSeed),
@@ -41,6 +42,7 @@ export const db = {
   content: createRepository<ContentItem>("content", contentSeed),
   users: createRepository<User>("users", usersSeed),
   analytics: createRepository<AnalyticsEvent>("analytics", analyticsSeed),
+  leads: createRepository<Lead>("leads", leadsSeed),
 };
 export type DbName = keyof typeof db;
 export const DB_NAMES = Object.keys(db) as DbName[];
@@ -130,6 +132,18 @@ function clearOldVersions() {
 /** Fill in fields that older or partial stored records may miss, so pages never crash on them. */
 function normalize() {
   const fix = <T,>(items: T[], fn: (x: T) => T) => items.map(fn);
+  // Sales reps used by the Leads funnel, for data stored before they existed.
+  const users = db.users.all();
+  const missing = leadTeamSeed().filter((u) => !users.some((x) => x.id === u.id));
+  if (missing.length) db.users.replaceAll([...users, ...missing]);
+  // Leads stored before multi-assign had a single `ownerId`.
+  db.leads.replaceAll(
+    fix(db.leads.all(), (l) => {
+      if (Array.isArray(l.ownerIds)) return l;
+      const old = (l as unknown as { ownerId?: string }).ownerId;
+      return { ...l, ownerIds: old ? [old] : [] };
+    })
+  );
   db.meetings.replaceAll(fix(db.meetings.all(), (m) => ({ ...m, type: m.type ?? "Site visit", rep: m.rep ?? "Unassigned", status: m.status ?? "scheduled", time: m.time ?? "11:00" })));
   db.payments.replaceAll(fix(db.payments.all(), (p) => ({ ...p, kind: p.kind ?? "Installment" })));
   db.enquiries.replaceAll(fix(db.enquiries.all(), (e) => ({ ...e, source: e.source ?? (e.type === "booking" ? "Booking form" : "Contact form") })));

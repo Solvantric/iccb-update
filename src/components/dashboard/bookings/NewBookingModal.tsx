@@ -38,7 +38,7 @@ export function NewBookingProvider({ children }: { children: React.ReactNode }) 
             }
             onSubmit={(input) => {
               try {
-                const b = createBooking(input, "staff");
+                const b = createBooking({ ...input, leadId: prefill.leadId }, "staff");
                 close();
                 toast.success(`${b.ref} reserved`, { action: { label: "Open", onClick: () => router.push(`/dashboard/bookings/${b.id}`) } });
               } catch (e) {

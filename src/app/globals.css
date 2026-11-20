@@ -544,6 +544,12 @@ html.lenis { height: auto; }
   --crm-success: #12B76A;
   --crm-success-bg: #ECFDF3;
   --crm-danger: #B42318;
+  /* Lead funnel steps: red → orange → yellow → lime → green */
+  --lead-s1: #EF4444; --lead-s1-ink: #C81E1E;
+  --lead-s2: #F97316; --lead-s2-ink: #C2410C;
+  --lead-s3: #EAB308; --lead-s3-ink: #A16207;
+  --lead-s4: #84CC16; --lead-s4-ink: #4D7C0F;
+  --lead-s5: #12B76A; --lead-s5-ink: #067647;
   --crm-radius: 12px;
   --crm-shadow-hover: 0 6px 18px -10px color-mix(in srgb, var(--ink-body) 30%, transparent);
   --crm-shadow-lg: var(--shadow-card);
@@ -562,6 +568,7 @@ html.lenis { height: auto; }
   --crm-closed-bg: color-mix(in srgb, #98A2B3 16%, transparent);
   --crm-success-bg: color-mix(in srgb, #12B76A 16%, transparent);
   --crm-danger: #F97066;
+  --lead-s1-ink: #F87171; --lead-s2-ink: #FB923C; --lead-s3-ink: #FACC15; --lead-s4-ink: #A3E635; --lead-s5-ink: #4ADE80;
 }
 [lang="bn"] .crm, .crm[lang="bn"] { font-family: var(--font-noto-bengali), var(--font-inter), sans-serif; }
 .crm .tabular, .crm .num { font-variant-numeric: tabular-nums; }

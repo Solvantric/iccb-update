@@ -5,8 +5,8 @@
  */
 import { addDays, format } from "date-fns";
 import { nanoid } from "nanoid";
-import type { AddOns, Booking, BookingStatus, Client, ContentItem, DamageItem, Enquiry, EnquirySource, EventType, Feedback, Layout, Meeting, Payment, PaymentKind, PaymentMethod, RadarItem, RunStep, Slot } from "@/types/crm";
-import { normMobile, validateContact } from "@/types/crm";
+import type { AddOns, Booking, BookingStatus, Client, ContentItem, DamageItem, Device, Enquiry, EnquirySource, EventType, Feedback, Layout, Lead, LeadActivity, LeadStage, LeadTrace, ManualChannel, Meeting, Payment, PaymentKind, PaymentMethod, RadarItem, RunStep, Slot } from "@/types/crm";
+import { LEAD_STAGE_LABELS, LEAD_STAGES, normMobile, validateContact } from "@/types/crm";
 import { db, currentUser, getSettings } from "@/lib/crm/db";
 import { radarExtra } from "@/data/crm/seed";
 import { trackCrm } from "@/lib/crm/track";
@@ -52,6 +52,8 @@ export interface BookingInput {
   note?: string;
   /** "I'd like to meet ICCB at the venue" */
   meeting?: { date: string; time: string } | null;
+  /** Lead this booking was made for (staff "Create booking" from a lead). */
+  leadId?: string;
 }
 
 export function validateBooking(i: BookingInput): string | null {
@@ -107,10 +109,24 @@ export function createBooking(input: BookingInput, source: "website" | "staff"):
       seen: false,
     });
   }
+  if (input.leadId) {
+    try {
+      linkLeadBooking(input.leadId, booking);
+    } catch {
+      // lead may have been deleted
+    }
+  }
   if (input.meeting?.date) {
     createMeeting({ bookingId: booking.id, clientName: booking.name, mobile: booking.mobile, date: input.meeting.date, time: input.meeting.time || "11:00", type: "Site visit", rep: "Unassigned", location: "ICCB reception", note: "Requested on the booking form" });
   }
-  if (source === "website") trackCrm("form_submit", "/booking");
+  if (source === "website") {
+    trackCrm("form_submit", "/booking");
+    try {
+      createWebsiteLead(booking);
+    } catch {
+      // the booking must never fail because of lead tracking
+    }
+  }
   return booking;
 }
 
@@ -133,9 +149,17 @@ function setStatus(id: string, status: BookingStatus, text: string) {
   return db.bookings.update(id, (b) => ({ status, history: log(b, text) }));
 }
 
-export const confirmBooking = (id: string) => setStatus(id, "booked", "Booking confirmed");
+export function confirmBooking(id: string) {
+  const b = setStatus(id, "booked", "Booking confirmed");
+  syncLeadWithBooking(b);
+  return b;
+}
 export const closeEvent = (id: string) => setStatus(id, "closed", "Event closed");
-export const cancelBooking = (id: string) => setStatus(id, "cancelled", "Cancelled — date released");
+export function cancelBooking(id: string) {
+  const b = setStatus(id, "cancelled", "Cancelled — date released");
+  syncLeadWithBooking(b);
+  return b;
+}
 
 export function toggleContacted(id: string) {
   return db.bookings.update(id, (b) => ({ contacted: !b.contacted, history: log(b, b.contacted ? "Contacted tag removed" : "Marked as contacted") }));
@@ -351,3 +375,175 @@ export function reorderContent(section: ContentItem["section"], orderedIds: stri
 /* ─── Small helpers ──────────────────────────────────────────────────────── */
 
 export const dateAfter = (date: string, days: number) => format(addDays(new Date(`${date}T00:00:00`), days), "yyyy-MM-dd");
+
+/* ─── Leads funnel ───────────────────────────────────────────────────────── */
+
+const leadAct = (l: Lead, kind: LeadActivity["kind"], text: string): LeadActivity[] => [{ at: nowIso(), by: staffName(), kind, text }, ...l.activity];
+const nextLeadCode = () => `LD-${pad(db.leads.all().reduce((m, l) => Math.max(m, Number(l.code.replace(/\D/g, "")) || 0), 0) + 1)}`;
+const userName = (id?: string) => (id ? (db.users.get(id)?.name ?? "Unknown") : "Unassigned");
+
+/** Stage change with timestamps; stages it skipped get the same time, later stages are cleared. */
+function moveLead(id: string, stage: LeadStage, text: string, by = staffName()) {
+  return db.leads.update(id, (l) => {
+    const now = nowIso();
+    const stageAt = { ...l.stageAt };
+    const to = LEAD_STAGES.indexOf(stage);
+    LEAD_STAGES.forEach((s, i) => {
+      if (i <= to) stageAt[s] = stageAt[s] ?? now;
+      else delete stageAt[s];
+    });
+    const won = stage === "customer";
+    return { stage, stageAt, nextAt: won ? undefined : l.nextAt, nextAction: won ? undefined : l.nextAction, activity: [{ at: now, by, kind: "stage" as const, text }, ...l.activity] };
+  });
+}
+
+/** Staff can move a lead up to Confirmed. Customer comes only from a Booked booking. */
+export function setLeadStage(id: string, stage: LeadStage) {
+  if (stage === "customer") throw new Error("A lead becomes a Customer when its booking is marked Booked.");
+  return moveLead(id, stage, `Moved to ${LEAD_STAGE_LABELS[stage]}`);
+}
+
+const leadsForBooking = (bookingId: string) => db.leads.all().filter((l) => (l.bookingId ?? l.trace.bookingId) === bookingId);
+
+/** A booking made from a lead holds the date, so the lead is at least Confirmed. */
+function linkLeadBooking(leadId: string, b: Booking) {
+  const l = db.leads.update(leadId, (x) => ({ bookingId: b.id, bookingRef: b.ref, activity: [{ at: nowIso(), by: staffName(), kind: "note" as const, text: `Booking ${b.ref} reserved` }, ...x.activity] }));
+  if (LEAD_STAGES.indexOf(l.stage) < LEAD_STAGES.indexOf("confirmed")) moveLead(leadId, "confirmed", `Moved to Confirmed (booking ${b.ref} reserved)`);
+}
+
+/** Booked → lead becomes Customer. Cancelled → lead is lost (or drops back from Customer). */
+function syncLeadWithBooking(b: Booking) {
+  for (const l of leadsForBooking(b.id)) {
+    if (b.status === "booked" && l.stage !== "customer") {
+      if (l.lost) reopenLead(l.id);
+      moveLead(l.id, "customer", `Became a customer: booking ${b.ref} marked Booked`);
+    } else if (b.status === "cancelled" && !l.lost) {
+      if (l.stage === "customer") moveLead(l.id, "confirmed", `Booking ${b.ref} cancelled`);
+      markLeadLost(l.id, "Booking cancelled");
+    }
+  }
+}
+
+export function assignLead(id: string, ownerIds: string[]) {
+  return db.leads.update(id, (l) => ({ ownerIds, activity: leadAct(l, "assign", ownerIds.length ? `Assigned to ${ownerIds.map(userName).join(", ")}` : "Unassigned") }));
+}
+
+export function addLeadNote(id: string, text: string, kind: "note" | "call" = "note") {
+  if (!text.trim()) return;
+  return db.leads.update(id, (l) => ({ activity: leadAct(l, kind, text.trim().slice(0, 500)) }));
+}
+
+export function setLeadFollowUp(id: string, nextAt: string | undefined, nextAction?: string) {
+  return db.leads.update(id, { nextAt: nextAt || undefined, nextAction: nextAction?.trim() || undefined });
+}
+
+export function markLeadLost(id: string, reason: string) {
+  return db.leads.update(id, (l) => ({ lost: true, lostReason: reason, nextAt: undefined, activity: leadAct(l, "lost", `Marked lost: ${reason}`) }));
+}
+
+export function reopenLead(id: string) {
+  return db.leads.update(id, (l) => ({ lost: undefined, lostReason: undefined, activity: leadAct(l, "reopen", "Reopened") }));
+}
+
+export const deleteLead = (id: string) => db.leads.remove(id);
+
+export interface ManualLeadInput {
+  name: string;
+  mobile: string;
+  email?: string;
+  organization?: string;
+  eventName: string;
+  eventType: EventType;
+  guests: number;
+  hallId?: string;
+  eventDate?: string;
+  value?: number;
+  channel: ManualChannel;
+  referredBy?: string;
+  ownerIds?: string[];
+  note?: string;
+}
+
+export function createManualLead(i: ManualLeadInput): Lead {
+  const err = validateContact(i.name, i.mobile);
+  if (err) throw new Error(err);
+  if (!i.eventName.trim()) throw new Error("Please enter an event name.");
+  const now = nowIso();
+  const by = staffName();
+  const activity: LeadActivity[] = [{ at: now, by, kind: "created", text: `Added manually (${i.channel})` }];
+  if (i.ownerIds?.length) activity.unshift({ at: now, by, kind: "assign", text: `Assigned to ${i.ownerIds.map(userName).join(", ")}` });
+  if (i.note?.trim()) activity.unshift({ at: now, by, kind: "note", text: i.note.trim().slice(0, 500) });
+  return db.leads.create({
+    code: nextLeadCode(),
+    name: i.name.trim(),
+    mobile: i.mobile.trim(),
+    email: i.email?.trim() || undefined,
+    organization: i.organization?.trim() || undefined,
+    eventName: i.eventName.trim(),
+    eventType: i.eventType,
+    guests: Number(i.guests) || 0,
+    hallId: i.hallId || undefined,
+    eventDate: i.eventDate || undefined,
+    value: Number(i.value) || 0,
+    source: "manual",
+    trace: { channel: i.channel, referredBy: i.referredBy?.trim() || undefined, addedBy: by },
+    stage: "discover",
+    stageAt: { discover: now },
+    ownerIds: i.ownerIds ?? [],
+    activity,
+  });
+}
+
+/** Rough deal value: hall rent + dinner for the guests. */
+function estimateValue(b: Booking) {
+  const hall = db.halls.get(b.hallId);
+  const st = getSettings();
+  return (hall?.weekendRate ?? 400_000) + b.guests * (st.addOnRates.dinner + st.addOnRates.serviceChargeMain);
+}
+
+function visitTrace(): Partial<LeadTrace> {
+  if (typeof window === "undefined") return {};
+  const q = new URLSearchParams(window.location.search);
+  const ua = navigator.userAgent;
+  const device: Device = /iPad|Tablet/i.test(ua) ? "Tablet" : /Mobi|Android|iPhone/i.test(ua) ? "Mobile" : "Desktop";
+  let referrer = "Direct visit";
+  try {
+    if (document.referrer && new URL(document.referrer).host !== window.location.host) referrer = new URL(document.referrer).host;
+  } catch {
+    // ignore bad referrer
+  }
+  return {
+    formPage: window.location.pathname.replace(/^\/(en|bn|ar|zh)(?=\/|$)/, "") || "/",
+    utmSource: q.get("utm_source") ?? undefined,
+    utmMedium: q.get("utm_medium") ?? undefined,
+    utmCampaign: q.get("utm_campaign") ?? undefined,
+    referrer,
+    device,
+  };
+}
+
+/** Website booking form → a traceable Website lead at Discover. */
+export function createWebsiteLead(b: Booking): Lead {
+  const now = nowIso();
+  return db.leads.create({
+    code: nextLeadCode(),
+    name: b.name,
+    mobile: b.mobile,
+    email: b.email,
+    organization: b.organization,
+    eventName: b.eventName,
+    eventType: b.eventType,
+    guests: b.guests,
+    hallId: b.hallId,
+    eventDate: b.date,
+    value: estimateValue(b),
+    source: "website",
+    trace: { ...visitTrace(), bookingId: b.id, bookingRef: b.ref },
+    bookingId: b.id,
+    bookingRef: b.ref,
+    ownerIds: [],
+    stage: "discover",
+    stageAt: { discover: now },
+    activity: [{ at: now, by: "Website", kind: "created", text: "Booking form submitted on the website" }],
+  });
+}
