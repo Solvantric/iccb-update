@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Buildings, ChatCircleText, CurrencyCircleDollar, Lock, MapPin, Plus, Trash, UsersThree } from "@phosphor-icons/react";
 import type { Lead, LeadStage, LeadStepLog, LeadStepMode, LeadStepOutcome } from "@/types/crm";
@@ -35,17 +35,30 @@ export function OutcomePill({ outcome }: { outcome: LeadStepOutcome }) {
  * The lead's 5-step journey: for each step, what the team did, where, with whom
  * and how it went. Employees add updates here; admins see every update.
  */
-export function LeadJourney({ lead }: { lead: Lead }) {
+export function LeadJourney({ lead, openAdd = 0, onSaved, prefillAction }: { lead: Lead; /** Bump to open "Add update" on the current step (e.g. from the follow-up box). */ openAdd?: number; /** Called after an update is saved from an `openAdd` request. */ onSaved?: () => void; prefillAction?: string }) {
   const at = LEAD_STAGES.indexOf(lead.stage);
   const [step, setStep] = useState<LeadStage>(lead.stage);
   const [adding, setAdding] = useState(false);
+  const [fromFollowUp, setFromFollowUp] = useState(false);
+  const box = useRef<HTMLElement>(null);
+  // A new request from the follow-up box opens the form on the current step.
+  const [seen, setSeen] = useState(openAdd);
+  if (openAdd !== seen) {
+    setSeen(openAdd);
+    setStep(lead.stage);
+    setAdding(true);
+    setFromFollowUp(true);
+  }
+  useEffect(() => {
+    if (openAdd) box.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [openAdd]);
   const journey = lead.journey ?? [];
   const i = LEAD_STAGES.indexOf(step);
   const list = journey.filter((j) => j.stage === step);
   const reachedStep = i <= at;
 
   return (
-    <section>
+    <section ref={box} className="scroll-mt-4">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h3 className="text-[13px] font-medium text-crm-muted">Journey · what the team did at each step</h3>
         <span className="text-[12px] text-crm-muted">{journey.length} update{journey.length === 1 ? "" : "s"}</span>
@@ -95,7 +108,19 @@ export function LeadJourney({ lead }: { lead: Lead }) {
           )}
         </div>
 
-        {adding && <StepForm lead={lead} stage={step} onDone={() => setAdding(false)} />}
+        {adding && (
+          <StepForm
+            key={fromFollowUp ? `fu-${openAdd}` : step}
+            lead={lead}
+            stage={step}
+            initialAction={fromFollowUp ? prefillAction : undefined}
+            onDone={(saved) => {
+              setAdding(false);
+              if (saved && fromFollowUp) onSaved?.();
+              setFromFollowUp(false);
+            }}
+          />
+        )}
 
         {!reachedStep ? (
           <p className="text-[13px] text-crm-muted">Updates open when the lead reaches this step.</p>
@@ -190,15 +215,17 @@ const nowLocal = () => {
   return d.toISOString().slice(0, 16);
 };
 
-function StepForm({ lead, stage, onDone }: { lead: Lead; stage: LeadStage; onDone: () => void }) {
+function StepForm({ lead, stage, onDone, initialAction }: { lead: Lead; stage: LeadStage; onDone: (saved: boolean) => void; initialAction?: string }) {
   const halls = useHalls();
   const cfg = STEP_FORM[stage];
-  const actions = LEAD_STEP_ACTIONS[stage];
+  // A follow-up task (e.g. "Send ICCB brochure") is offered as the first choice.
+  const base = LEAD_STEP_ACTIONS[stage];
+  const actions = initialAction && !base.includes(initialAction) ? [initialAction, ...base] : base;
   const at = LEAD_STAGES.indexOf(lead.stage);
   const next = LEAD_STAGES[at + 1];
   const canMove = stage === lead.stage && !lead.lost && next && next !== "customer";
 
-  const [action, setAction] = useState<string>(actions[0]);
+  const [action, setAction] = useState<string>(initialAction || actions[0]);
   const [mode, setMode] = useState<LeadStepMode>(stage === "appraisal" ? "Met at ICCB" : "Phone call");
   const [when, setWhen] = useState(nowLocal);
   const [place, setPlace] = useState(stage === "appraisal" ? "ICCB, Kuril" : "");
@@ -217,7 +244,7 @@ function StepForm({ lead, stage, onDone }: { lead: Lead; stage: LeadStage; onDon
     try {
       addLeadStep(lead.id, { stage, action, mode, at: new Date(when).toISOString(), place: inPerson ? place : undefined, metWith, hallIds: cfg.halls ? hallIds : undefined, amount: cfg.amount ? amount : undefined, outcome, note, clientSaid }, move && canMove ? next : undefined);
       toast.success(move && canMove ? `Update saved · moved to ${LEAD_STAGE_LABELS[next]}` : "Update saved");
-      onDone();
+      onDone(true);
     } catch (err) {
       setError((err as Error).message);
     }
@@ -296,7 +323,7 @@ function StepForm({ lead, stage, onDone }: { lead: Lead; stage: LeadStage; onDon
       )}
       {error && <p className="text-[13px] text-crm-danger sm:col-span-2">{error}</p>}
       <div className="flex justify-end gap-2 sm:col-span-2">
-        <Button type="button" size="sm" variant="ghost" onClick={onDone}>
+        <Button type="button" size="sm" variant="ghost" onClick={() => onDone(false)}>
           Cancel
         </Button>
         <Button type="submit" size="sm" variant="primary">

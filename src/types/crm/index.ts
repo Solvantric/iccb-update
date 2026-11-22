@@ -512,6 +512,8 @@ export interface Lead extends BaseRecord {
   /** Next follow-up, yyyy-MM-dd. */
   nextAt?: string;
   nextAction?: string;
+  /** Who set the follow-up (admins set it, the assigned employee does it). */
+  nextBy?: string;
   activity: LeadActivity[];
   /** Detailed work log per funnel step (newest first). */
   journey?: LeadStepLog[];

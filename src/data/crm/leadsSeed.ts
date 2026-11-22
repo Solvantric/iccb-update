@@ -228,6 +228,7 @@ export const leadsSeed = (): Lead[] =>
       lost: lost || undefined,
       lostReason,
       nextAt: open ? day(nextOffset) : undefined,
+      nextBy: open ? "Admin" : undefined,
       nextAction: open ? NEXT_ACTIONS[stage][i % NEXT_ACTIONS[stage].length] : undefined,
       activity: activity.reverse(),
       journey,

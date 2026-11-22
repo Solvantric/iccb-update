@@ -2,12 +2,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { ArrowRight, ArrowSquareOut, ArrowUUpLeft, CalendarPlus, Check, Lock, Phone, Prohibit, Ticket, WhatsappLogo } from "@phosphor-icons/react";
+import { ArrowRight, ArrowSquareOut, ArrowUUpLeft, CalendarBlank, CalendarPlus, Check, Lock, Phone, Prohibit, Ticket, WhatsappLogo } from "@phosphor-icons/react";
 import type { Lead } from "@/types/crm";
 import { LEAD_STAGE_LABELS, LEAD_STAGES, LOST_REASONS } from "@/types/crm";
 import { useBookings, useHallMap, useUsers } from "@/lib/crm/hooks";
-import { fmtDate, money, num, telHref, timeAgo, waHref } from "@/lib/crm/format";
-import { addLeadNote, assignLead, markLeadLost, reopenLead, setLeadFollowUp, setLeadStage } from "@/services/crm";
+import { differenceInCalendarDays } from "date-fns";
+import { fmtDate, money, num, telHref, timeAgo, todayYmd, waHref } from "@/lib/crm/format";
+import { addLeadNote, assignLead, completeLeadFollowUp, markLeadLost, reopenLead, setLeadFollowUp, setLeadStage } from "@/services/crm";
+import { useCurrentUser } from "@/lib/crm/db";
 import { cn } from "@/lib/utils/cn";
 import { Button, Input, KeyValue, LinkButton, Segmented, Textarea } from "../ui/core";
 import { Drawer } from "../ui/overlay";
@@ -32,6 +34,7 @@ function Body({ lead }: { lead: Lead }) {
   const [note, setNote] = useState("");
   const [kind, setKind] = useState<"note" | "call">("call");
   const [lostOpen, setLostOpen] = useState(false);
+  const [logFollowUp, setLogFollowUp] = useState(0);
 
   const move = (i: number) => {
     if (lead.lost || i === at || i === 4) return;
@@ -96,20 +99,18 @@ function Body({ lead }: { lead: Lead }) {
           <span className="text-[13px] font-medium text-crm-ink-2">Assigned to</span>
           <AssignPicker variant="field" value={lead.ownerIds} users={users} onChange={(ids) => assignLead(lead.id, ids)} />
         </div>
-        {lead.stage !== "customer" && !lead.lost && (
-          <div className="grid gap-1.5">
-            <span className="text-[13px] font-medium text-crm-ink-2">
-              Next follow-up {isOverdue(lead) && <span className="ms-1 text-[12px] font-medium text-crm-danger">· overdue</span>}
-            </span>
-            <div className="flex gap-2">
-              <Input type="date" aria-label="Follow-up date" value={lead.nextAt ?? ""} onChange={(e) => setLeadFollowUp(lead.id, e.target.value, lead.nextAction)} className="w-[150px] shrink-0" />
-              <Input aria-label="Follow-up action" placeholder="What to do" defaultValue={lead.nextAction ?? ""} onBlur={(e) => e.target.value !== (lead.nextAction ?? "") && setLeadFollowUp(lead.id, lead.nextAt, e.target.value)} />
-            </div>
-          </div>
-        )}
+        {lead.stage !== "customer" && !lead.lost && <FollowUpBox lead={lead} onDone={() => setLogFollowUp((n) => n + 1)} />}
       </section>
 
-      <LeadJourney lead={lead} />
+      <LeadJourney
+        lead={lead}
+        openAdd={logFollowUp}
+        prefillAction={lead.nextAction}
+        onSaved={() => {
+          completeLeadFollowUp(lead.id);
+          toast.success("Follow-up done");
+        }}
+      />
 
       {/* Event */}
       <section>
@@ -201,6 +202,86 @@ function Body({ lead }: { lead: Lead }) {
           </p>
         )}
       </section>
+    </div>
+  );
+}
+
+/**
+ * Next follow-up. Admins set the date and the task (with a Save button);
+ * the assigned employee sees it and marks it done by logging what they did.
+ */
+function FollowUpBox({ lead, onDone }: { lead: Lead; onDone: () => void }) {
+  const me = useCurrentUser();
+  const admin = me.role === "admin";
+  const [date, setDate] = useState(lead.nextAt ?? "");
+  const [task, setTask] = useState(lead.nextAction ?? "");
+  const changed = date !== (lead.nextAt ?? "") || task.trim() !== (lead.nextAction ?? "");
+  const overdue = isOverdue(lead);
+  const days = lead.nextAt ? differenceInCalendarDays(new Date(`${lead.nextAt}T00:00:00`), new Date(`${todayYmd()}T00:00:00`)) : 0;
+  const when = !lead.nextAt ? "" : days < 0 ? `${-days} day${days === -1 ? "" : "s"} late` : days === 0 ? "Today" : days === 1 ? "Tomorrow" : `In ${days} days`;
+
+  return (
+    <div className="grid gap-2 border-t border-crm-line pt-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[13px] font-medium text-crm-ink-2">Next follow-up</span>
+        {lead.nextBy && <span className="text-[12px] text-crm-muted">Set by {lead.nextBy}</span>}
+      </div>
+
+      {/* What the employee sees */}
+      {lead.nextAt ? (
+        <div className={cn("flex items-start gap-3 rounded-[10px] px-3 py-2.5", overdue ? "bg-crm-danger-bg" : days === 0 ? "bg-crm-reserved-bg" : "bg-crm-info-bg")}>
+          <CalendarBlank size={18} className={cn("mt-0.5 shrink-0", overdue ? "text-crm-danger" : days === 0 ? "text-crm-reserved-ink" : "text-crm-info-ink")} />
+          <div className="min-w-0 flex-1">
+            <p className="text-[13.5px] font-medium text-crm-ink">
+              {fmtDate(lead.nextAt, "EEE, d MMM yyyy")}
+              <span className={cn("ms-2 text-[12px] font-medium", overdue ? "text-crm-danger" : days === 0 ? "text-crm-reserved-ink" : "text-crm-info-ink")}>{when}</span>
+            </p>
+            <p className="mt-0.5 text-[13px] text-crm-ink-2">{lead.nextAction || "No task written"}</p>
+          </div>
+          <Button size="sm" variant={overdue ? "primary" : "outline"} icon={Check} onClick={onDone} className="shrink-0">
+            Done
+          </Button>
+        </div>
+      ) : (
+        <p className="text-[13px] text-crm-muted">{admin ? "No follow-up set. Pick a date and what to do." : "No follow-up set yet. Admin will set the next date."}</p>
+      )}
+
+      {/* Admin sets it */}
+      {admin && (
+        <form
+          className="grid gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setLeadFollowUp(lead.id, date, task);
+            toast.success(date ? `Follow-up set for ${fmtDate(date, "d MMM")}` : "Follow-up removed");
+          }}
+        >
+          <div className="flex gap-2">
+            <Input type="date" aria-label="Follow-up date" value={date} onChange={(e) => setDate(e.target.value)} className="w-[150px] shrink-0" />
+            <Input aria-label="What to do" placeholder="What to do, e.g. Send quotation" value={task} onChange={(e) => setTask(e.target.value)} />
+          </div>
+          <div className="flex justify-end gap-2">
+            {lead.nextAt && (
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setDate("");
+                  setTask("");
+                  setLeadFollowUp(lead.id, undefined);
+                  toast("Follow-up removed");
+                }}
+              >
+                Remove
+              </Button>
+            )}
+            <Button type="submit" size="sm" variant="primary" disabled={!changed || !date}>
+              {lead.nextAt ? "Update follow-up" : "Set follow-up"}
+            </Button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

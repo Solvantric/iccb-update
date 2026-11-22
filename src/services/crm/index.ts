@@ -440,8 +440,19 @@ export function addLeadNote(id: string, text: string, kind: "note" | "call" = "n
   return db.leads.update(id, (l) => ({ activity: leadAct(l, kind, text.trim().slice(0, 500)) }));
 }
 
+/** Admin sets the next follow-up (date + task) for the assigned employee. */
 export function setLeadFollowUp(id: string, nextAt: string | undefined, nextAction?: string) {
-  return db.leads.update(id, { nextAt: nextAt || undefined, nextAction: nextAction?.trim() || undefined });
+  const task = nextAction?.trim().slice(0, 120) || undefined;
+  if (!nextAt) {
+    return db.leads.update(id, (l) => ({ nextAt: undefined, nextAction: undefined, nextBy: undefined, activity: l.nextAt ? leadAct(l, "note", "Follow-up removed") : l.activity }));
+  }
+  const when = format(new Date(`${nextAt}T00:00:00`), "d MMM yyyy");
+  return db.leads.update(id, (l) => ({ nextAt, nextAction: task, nextBy: staffName(), activity: leadAct(l, "note", `Follow-up set for ${when}${task ? `: ${task}` : ""}`) }));
+}
+
+/** The employee did the follow-up: clear it and note it in the history. */
+export function completeLeadFollowUp(id: string) {
+  return db.leads.update(id, (l) => ({ nextAt: undefined, nextAction: undefined, nextBy: undefined, activity: l.nextAt ? leadAct(l, "note", `Follow-up done${l.nextAction ? `: ${l.nextAction}` : ""}`) : l.activity }));
 }
 
 export function markLeadLost(id: string, reason: string) {
