@@ -12,7 +12,7 @@ import { Button, Field, Input, Skeleton, Textarea } from "../ui/core";
 import { m } from "../ui/motion";
 import { LOGO } from "../shell/Sidebar";
 
-const TONE = ["border-crm-brand bg-crm-booked-bg text-crm-brand-text", "border-crm-reserved bg-crm-reserved-bg text-crm-reserved-ink", "border-crm-ink-2 bg-crm-surface-2 text-crm-ink", "border-crm-success bg-crm-success-bg text-crm-success"];
+const TONE = ["border-crm-danger bg-crm-danger-bg text-crm-danger", "border-crm-reserved bg-crm-reserved-bg text-crm-reserved-ink", "border-crm-ink-2 bg-crm-surface-2 text-crm-ink", "border-crm-success bg-crm-success-bg text-crm-success"];
 
 /** Public review form opened from a shared link (no sign-in). */
 export function ReviewFormPage() {
@@ -87,7 +87,7 @@ export function ReviewFormPage() {
           {review.eventName ? `${review.eventName} · ` : ""}10 quick questions — tap one answer for each.
         </p>
         <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-crm-surface-2">
-          <m.div className="h-full origin-left rounded-full bg-crm-brand" animate={{ scaleX: done / REVIEW_QUESTIONS.length }} transition={{ duration: 0.3 }} />
+          <m.div className="h-full origin-left rounded-full bg-crm-success" animate={{ scaleX: done / REVIEW_QUESTIONS.length }} transition={{ duration: 0.3 }} />
         </div>
         <p className="mt-1.5 text-[12px] text-crm-muted tabular">
           {done} / {REVIEW_QUESTIONS.length} answered

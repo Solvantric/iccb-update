@@ -91,7 +91,7 @@ export function QualityPage() {
       },
     },
     { key: "comment", header: "Comment", cell: (b) => <span className="line-clamp-1 max-w-[260px] text-[13px] text-crm-muted">{b.feedback?.comment ?? "—"}</span> },
-    { key: "dmg", header: "Damages", align: "end", cell: (b) => (damageTotal(b) ? <span className="text-crm-brand-text">{money(damageTotal(b))}</span> : <span className="text-crm-muted">—</span>) },
+    { key: "dmg", header: "Damages", align: "end", cell: (b) => (damageTotal(b) ? <span className="text-crm-danger">{money(damageTotal(b))}</span> : <span className="text-crm-muted">—</span>) },
     {
       key: "a",
       header: <span className="sr-only">Actions</span>,
@@ -121,16 +121,16 @@ export function QualityPage() {
       />
       <Stagger className="mb-6 grid grid-cols-2 gap-5 xl:grid-cols-4">
         <Item>
-          <Kpi label="Average rating" value={kpi.avg} icon={Star} format={(n) => `${n.toFixed(1)} / 5`} />
+          <Kpi label="Average rating" value={kpi.avg} icon={Star} format={(n) => `${n.toFixed(1)} / 5`} tone={kpi.avg >= 4 ? "good" : kpi.avg >= 3 ? "warn" : "bad"} />
         </Item>
         <Item>
-          <Kpi label="Feedback collected" value={kpi.collected} icon={ChatCircleText} hint={`of ${rows.length} past events`} />
+          <Kpi label="Feedback collected" value={kpi.collected} icon={ChatCircleText} hint={`of ${rows.length} past events`} tone="info" />
         </Item>
         <Item>
-          <Kpi label="Happy clients (4★+)" value={kpi.happy} icon={Smiley} format={(n) => `${Math.round(n)}%`} />
+          <Kpi label="Happy clients (4★+)" value={kpi.happy} icon={Smiley} format={(n) => `${Math.round(n)}%`} tone="good" />
         </Item>
         <Item>
-          <Kpi label="Damages claimed" value={kpi.damage} icon={ShieldWarning} format={money} />
+          <Kpi label="Damages claimed" value={kpi.damage} icon={ShieldWarning} format={money} tone="bad" />
         </Item>
       </Stagger>
 

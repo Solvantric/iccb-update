@@ -15,6 +15,8 @@ import { AnimatedNumber, m } from "../ui/motion";
 import { LeadDrawer } from "../leads/LeadDrawer";
 import { AddLeadModal } from "../leads/AddLeadModal";
 import { TeamPerformance } from "../leads/TeamPerformance";
+import { WorkLog } from "../leads/WorkLog";
+import { useCurrentUser } from "@/lib/crm/db";
 import { STAT_META, StatDetails, type StatKind } from "../leads/StatDetails";
 import { AssignPicker, assignees, AvatarStack, isOpen, isOverdue, isWon, lakh, pct, reached, SOURCE_STYLE, SourceIcon, STAGE_ICON, stageColor, StageDots, sum } from "../leads/shared";
 
@@ -23,11 +25,12 @@ const SOURCES: LeadSource[] = ["ai", "website", "manual"];
 export function LeadsPage() {
   const leads = useLeads();
   const users = useUsers();
-  const [tab, setTab] = useState<"leads" | "team">("leads");
+  const me = useCurrentUser();
+  const [tab, setTab] = useState<"leads" | "team" | "work">("leads");
   const [openId, setOpenId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [stat, setStat] = useState<StatKind | null>(null);
-  const { f, set, reset, active } = useFilters({ q: "", stage: "", source: "", owner: "", status: "", sort: "newest" });
+  const { f, set, reset, active } = useFilters(useMemo(() => ({ q: "", stage: "", source: "", owner: me.role === "sales" ? me.id : "", status: "", sort: "newest" }), [me.id, me.role]));
 
   // The funnel follows the source and person filters, so it can show one channel's or one person's funnel.
   const byOwner = useMemo(() => leads.filter((l) => !f.owner || (f.owner === "none" ? !l.ownerIds.length : l.ownerIds.includes(f.owner))), [leads, f.owner]);
@@ -107,6 +110,7 @@ export function LeadsPage() {
         tabs={[
           { value: "leads", label: "Leads" },
           { value: "team", label: "Team performance" },
+          { value: "work", label: me.role === "admin" ? "Team work log" : "My work log" },
         ]}
       />
 
@@ -152,6 +156,8 @@ export function LeadsPage() {
             )}
           />
         </>
+      ) : tab === "work" ? (
+        <WorkLog leads={leads.filter((l) => !f.source || l.source === f.source)} users={users} onOpenLead={setOpenId} />
       ) : (
         <TeamPerformance
           leads={leads.filter((l) => !f.source || l.source === f.source)}
@@ -268,7 +274,7 @@ function Stat({ kind, value, hint, progress, onClick }: { kind: StatKind; value:
       <span className="min-w-0 flex-1">
         <span className="flex items-center justify-between gap-2 text-[13px] text-crm-muted">
           {m.label}
-          <span className="inline-flex items-center gap-0.5 text-[12px] font-medium text-crm-brand-text opacity-0 transition-opacity group-hover:opacity-100">
+          <span className="inline-flex items-center gap-0.5 text-[12px] font-medium text-crm-info-ink opacity-0 transition-opacity group-hover:opacity-100">
             Details <CaretRight size={11} weight="bold" className="rtl:rotate-180" />
           </span>
         </span>

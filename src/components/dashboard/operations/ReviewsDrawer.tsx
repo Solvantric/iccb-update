@@ -22,7 +22,7 @@ const TONE: Record<string, string> = {
   Excellent: "bg-crm-success-bg text-crm-success",
   Good: "bg-crm-surface-2 text-crm-ink-2 ring-1 ring-crm-line",
   Normal: "bg-crm-reserved-bg text-crm-reserved-ink",
-  Bad: "bg-crm-booked-bg text-crm-brand-text",
+  Bad: "bg-crm-danger-bg text-crm-danger",
 };
 export function RatingChip({ label }: { label: string }) {
   return <span className={cn("inline-flex h-6 items-center rounded-full px-2.5 text-[12px] font-medium", TONE[label])}>{label}</span>;

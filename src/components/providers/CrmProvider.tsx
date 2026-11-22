@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { hydrateAll, listenCrossTab } from "@/lib/crm/db";
+import { ensureLeadsForReservedBookings } from "@/services/crm";
 
 export { useCrmReady } from "@/lib/crm/cms";
 
@@ -13,7 +14,13 @@ export { useCrmReady } from "@/lib/crm/cms";
 export function CrmProvider({ children }: { children: React.ReactNode }) {
   const [qc] = useState(() => new QueryClient({ defaultOptions: { queries: { staleTime: 60_000, retry: 0, refetchOnWindowFocus: false } } }));
   useEffect(() => {
-    void hydrateAll();
+    void hydrateAll().then(() => {
+      try {
+        ensureLeadsForReservedBookings();
+      } catch {
+        // never block the dashboard on a data fix-up
+      }
+    });
     return listenCrossTab();
   }, []);
   return (

@@ -74,7 +74,7 @@ export function EnquiriesPage() {
             return (
               <m.li key={e.id} layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0, transition: { delay: Math.min(i, 8) * 0.03 } }}>
                 <button type="button" onClick={() => show(e)} className="flex w-full items-center gap-4 px-5 py-4 text-start transition-colors hover:bg-crm-surface-2/60">
-                  <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-full", e.type === "booking" ? "bg-crm-tint text-crm-brand-text" : "bg-crm-surface-2 text-crm-muted")}>
+                  <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-full", e.type === "booking" ? "bg-crm-info-bg text-crm-info-ink" : "bg-crm-surface-2 text-crm-muted")}>
                     <I size={18} />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -88,7 +88,7 @@ export function EnquiriesPage() {
                   </span>
                   <span className="flex shrink-0 items-center gap-2 text-[12.5px] text-crm-muted">
                     {timeAgo(e.createdAt)}
-                    <span className={cn("h-2 w-2 rounded-full transition-opacity duration-300", e.seen ? "opacity-0" : "bg-crm-brand")} aria-label={e.seen ? undefined : "New"} />
+                    <span className={cn("h-2 w-2 rounded-full transition-opacity duration-300", e.seen ? "opacity-0" : "bg-crm-info")} aria-label={e.seen ? undefined : "New"} />
                   </span>
                 </button>
               </m.li>

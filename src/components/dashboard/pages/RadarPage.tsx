@@ -21,7 +21,7 @@ function ScoreRing({ score }: { score: number }) {
     <span className="relative grid h-12 w-12 shrink-0 place-items-center" aria-label={`Score ${score} of 100`}>
       <svg viewBox="0 0 48 48" className="absolute inset-0 -rotate-90">
         <circle cx="24" cy="24" r={r} fill="none" stroke="var(--crm-line)" strokeWidth="4" />
-        <m.circle cx="24" cy="24" r={r} fill="none" stroke={score >= 75 ? "var(--accent)" : "var(--crm-reserved)"} strokeWidth="4" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: score / 100 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} />
+        <m.circle cx="24" cy="24" r={r} fill="none" stroke={score >= 75 ? "var(--crm-success)" : "var(--crm-reserved)"} strokeWidth="4" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: score / 100 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} />
       </svg>
       <span className="text-[13px] font-semibold text-crm-ink tabular">{score}</span>
     </span>
@@ -102,16 +102,16 @@ export function RadarPage() {
       />
       <Stagger className="mb-6 grid grid-cols-2 gap-5 xl:grid-cols-4">
         <Item>
-          <Kpi label="Open opportunities" value={stats.total} icon={Target} hint={`${stats.leads} added as leads · ${stats.dismissed} dismissed`} />
+          <Kpi label="Open opportunities" value={stats.total} icon={Target} tone="purple" hint={`${stats.leads} added as leads · ${stats.dismissed} dismissed`} />
         </Item>
         <Item>
-          <Kpi label="National" value={stats.national} icon={MapPin} hint={`Avg score ${stats.natAvg}`} />
+          <Kpi label="National" value={stats.national} icon={MapPin} tone="info" hint={`Avg score ${stats.natAvg}`} />
         </Item>
         <Item>
-          <Kpi label="International" value={stats.international} icon={GlobeHemisphereEast} hint={`Avg score ${stats.intAvg}`} />
+          <Kpi label="International" value={stats.international} icon={GlobeHemisphereEast} tone="info" hint={`Avg score ${stats.intAvg}`} />
         </Item>
         <Item>
-          <Kpi label="Hot leads (80+)" value={stats.hot} icon={Fire} hint={`${stats.guests.toLocaleString("en-IN")} potential guests`} />
+          <Kpi label="Hot leads (80+)" value={stats.hot} icon={Fire} tone="good" hint={`${stats.guests.toLocaleString("en-IN")} potential guests`} />
         </Item>
       </Stagger>
       <Tabs

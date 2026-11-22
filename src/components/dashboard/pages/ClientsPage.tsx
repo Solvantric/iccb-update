@@ -9,6 +9,7 @@ import { CLIENT_TYPES, isBillPayment } from "@/types/crm";
 import { useBills, useBookings, useClients, useHallMap, usePayments } from "@/lib/crm/hooks";
 import { fmtDate, money, telHref, todayYmd, waHref } from "@/lib/crm/format";
 import { deleteClient, saveClient } from "@/services/crm";
+import { cn } from "@/lib/utils/cn";
 import { pdfClientStatement } from "@/lib/pdf/actions";
 import { Avatar, Button, EmptyState, Field, FilterRow, Input, KeyValue, LinkButton, PageHeader, SearchInput, Select, Textarea } from "../ui/core";
 import { DataTable, Kpi, RowActions, type Column } from "../ui/data";
@@ -17,6 +18,7 @@ import { Drawer, Modal, useConfirm } from "../ui/overlay";
 import { Item, Stagger } from "../ui/motion";
 import { StatusPill } from "../ui/status";
 import { useNewBooking } from "../bookings/NewBookingModal";
+import { UnpaidDrawer } from "../bookings/UnpaidDrawer";
 
 interface Stats {
   bookings: number;
@@ -41,6 +43,7 @@ export function ClientsPage() {
   const [openId, setOpenId] = useState<string | null>(params.get("c"));
   const [editing, setEditing] = useState<Partial<Client> | null>(null);
   const { f, set, reset, active } = useFilters({ q: "", type: "", activity: "", due: "", sort: "recent" });
+  const [unpaidOpen, setUnpaidOpen] = useState(false);
   const today = todayYmd();
 
   const stats = useMemo(() => {
@@ -52,7 +55,8 @@ export function ClientsPage() {
       s.bookings++;
       s.billed += bill?.total ?? 0;
       s.paid += bill?.paid ?? 0;
-      s.due += bill?.due ?? 0;
+      // Only confirmed bookings owe money; a reserved request is still a lead.
+      if (b.status === "booked" || b.status === "closed") s.due += bill?.due ?? 0;
       if (b.date < today && (!s.last || b.date > s.last)) s.last = b.date;
       if (b.date >= today && (!s.next || b.date < s.next)) s.next = b.date;
       m.set(b.clientId, s);
@@ -162,24 +166,24 @@ export function ClientsPage() {
       />
       <Stagger className="mb-6 grid grid-cols-2 gap-5 xl:grid-cols-4">
         <Item>
-          <Kpi label="Clients" value={kpi.total} icon={AddressBook} />
+          <Kpi label="Clients" value={kpi.total} icon={AddressBook} tone="info" />
         </Item>
         <Item>
-          <Kpi label="Organisations" value={kpi.corporate} icon={Buildings} hint="Corporate, government, NGO" />
+          <Kpi label="Organisations" value={kpi.corporate} icon={Buildings} hint="Company, govt or NGO" tone="purple" />
         </Item>
         <Item>
-          <Kpi label="Repeat clients" value={kpi.repeat} icon={Repeat} hint="2+ bookings" />
+          <Kpi label="Repeat clients" value={kpi.repeat} icon={Repeat} hint="2+ bookings" tone="good" />
         </Item>
         <Item>
-          <Kpi label="Outstanding due" value={kpi.due} icon={Money} format={money} />
+          <Kpi label="Unpaid amount" value={kpi.due} icon={Money} format={money} hint="Total bill − money received" tone="bad" onClick={() => setUnpaidOpen(true)} />
         </Item>
       </Stagger>
       <FilterRow>
         <SearchInput value={f.q} onChange={(v) => set("q", v)} placeholder="Name, org, mobile, tag…" />
         <FilterSelect label="Types" value={f.type} onChange={(v) => set("type", v)} options={CLIENT_TYPES} />
         <FilterSelect label="Activity" all="Any activity" value={f.activity} onChange={(v) => set("activity", v)} options={[{ value: "booked", label: "Has bookings" }, { value: "upcoming", label: "Upcoming event" }, { value: "repeat", label: "Repeat (2+)" }, { value: "none", label: "No bookings yet" }]} />
-        <FilterSelect label="Payment" all="Any payment" value={f.due} onChange={(v) => set("due", v)} options={[{ value: "due", label: "Has due" }, { value: "clear", label: "Fully paid" }]} />
-        <SortSelect value={f.sort} onChange={(v) => set("sort", v)} options={[{ value: "recent", label: "Newest" }, { value: "name", label: "Name A–Z" }, { value: "bookings", label: "Most bookings" }, { value: "billed", label: "Highest billed" }, { value: "due", label: "Highest due" }]} className="sm:ms-auto" />
+        <FilterSelect label="Payment" all="Any payment" value={f.due} onChange={(v) => set("due", v)} options={[{ value: "due", label: "Has unpaid amount" }, { value: "clear", label: "Fully paid" }]} />
+        <SortSelect value={f.sort} onChange={(v) => set("sort", v)} options={[{ value: "recent", label: "Newest" }, { value: "name", label: "Name A–Z" }, { value: "bookings", label: "Most bookings" }, { value: "billed", label: "Highest billed" }, { value: "due", label: "Highest unpaid" }]} className="sm:ms-auto" />
       </FilterRow>
       <FilterSummary active={active} onClear={reset} count={rows.length} noun="client" />
       <DataTable
@@ -202,7 +206,7 @@ export function ClientsPage() {
             <p className="mt-3 flex justify-between border-t border-crm-line pt-3 text-[13px]">
               <span className="text-crm-muted">{st(c.id).bookings} booking(s)</span>
               <span className="tabular">
-                {money(st(c.id).billed)} <span className="text-crm-muted">· due {money(st(c.id).due)}</span>
+                {money(st(c.id).billed)} <span className={st(c.id).due > 0 ? "text-crm-danger" : "text-crm-muted"}>· unpaid {money(st(c.id).due)}</span>
               </span>
             </p>
           </div>
@@ -242,12 +246,12 @@ export function ClientsPage() {
                 [
                   ["Billed", st(open.id).billed],
                   ["Paid", st(open.id).paid],
-                  ["Due", st(open.id).due],
+                  ["Unpaid amount", st(open.id).due],
                 ] as const
               ).map(([k, v]) => (
                 <div key={k} className="bg-crm-surface px-2 py-2.5">
                   <p className="text-[12px] text-crm-muted">{k}</p>
-                  <p className="text-[14px] font-semibold text-crm-ink tabular">{money(v)}</p>
+                  <p className={cn("text-[14px] font-semibold tabular", k === "Paid" && v > 0 ? "text-crm-success" : k === "Unpaid amount" && v > 0 ? "text-crm-danger" : "text-crm-ink")}>{money(v)}</p>
                 </div>
               ))}
             </div>
@@ -352,6 +356,7 @@ export function ClientsPage() {
           </div>
         )}
       </Modal>
+      <UnpaidDrawer open={unpaidOpen} onOpenChange={setUnpaidOpen} />
     </>
   );
 }

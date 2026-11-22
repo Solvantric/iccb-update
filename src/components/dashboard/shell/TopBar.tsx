@@ -108,7 +108,7 @@ export function TopBar({ onMenu }: { onMenu: () => void }) {
           label="Account"
           trigger={
             <button type="button" className="flex items-center gap-2 rounded-full p-0.5 transition-opacity hover:opacity-80" aria-label="Account menu">
-              <Avatar name={user.name} size={32} />
+              <Avatar name={user.name} id={user.id} size={32} />
             </button>
           }
           items={[

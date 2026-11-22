@@ -117,7 +117,7 @@ function BillStrip({ booking }: { booking: Booking }) {
   const items: [string, number][] = [
     ["Total", bill.total],
     ["Paid", bill.paid],
-    ["Due", bill.due],
+    ["Unpaid", bill.due],
     ["Security", bill.security],
   ];
   return (
@@ -125,7 +125,7 @@ function BillStrip({ booking }: { booking: Booking }) {
       {items.map(([k, v]) => (
         <div key={k} className="bg-crm-surface px-4 py-3">
           <p className="text-[12px] text-crm-muted">{k}</p>
-          <p className={`text-[16px] font-semibold tabular ${k === "Due" && v > 0 ? "text-crm-brand-text" : "text-crm-ink"}`}>{money(v)}</p>
+          <p className={`text-[16px] font-semibold tabular ${k === "Unpaid" && v > 0 ? "text-crm-danger" : k === "Paid" && v > 0 ? "text-crm-success" : "text-crm-ink"}`}>{money(v)}</p>
         </div>
       ))}
     </div>

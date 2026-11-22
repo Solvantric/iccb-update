@@ -5,7 +5,7 @@
  */
 import { addDays, format } from "date-fns";
 import { nanoid } from "nanoid";
-import type { AddOns, Booking, BookingStatus, Client, ContentItem, DamageItem, Device, Enquiry, EnquirySource, EventType, Feedback, Layout, Lead, LeadActivity, LeadStage, LeadTrace, ManualChannel, Meeting, Payment, PaymentKind, PaymentMethod, RadarItem, RunStep, Slot } from "@/types/crm";
+import type { AddOns, Booking, BookingStatus, Client, ContentItem, DamageItem, Device, Enquiry, EnquirySource, EventType, Feedback, Layout, Lead, LeadActivity, LeadStage, LeadStepLog, LeadTrace, ManualChannel, Meeting, Payment, PaymentKind, PaymentMethod, RadarItem, RunStep, Slot } from "@/types/crm";
 import { LEAD_STAGE_LABELS, LEAD_STAGES, normMobile, validateContact } from "@/types/crm";
 import { db, currentUser, getSettings } from "@/lib/crm/db";
 import { radarExtra } from "@/data/crm/seed";
@@ -125,6 +125,13 @@ export function createBooking(input: BookingInput, source: "website" | "staff"):
       createWebsiteLead(booking);
     } catch {
       // the booking must never fail because of lead tracking
+    }
+  } else if (!input.leadId) {
+    // Reserved requests are worked in Leads until they are marked Booked.
+    try {
+      createStaffLead(booking);
+    } catch {
+      // never block the booking
     }
   }
   return booking;
@@ -447,6 +454,48 @@ export function reopenLead(id: string) {
 
 export const deleteLead = (id: string) => db.leads.remove(id);
 
+export type LeadStepInput = Omit<LeadStepLog, "id" | "by" | "byId" | "at"> & { at?: string };
+
+/**
+ * Log what an employee did at one funnel step (call, site visit, quotation…).
+ * Only steps the lead has reached can be logged. Optionally moves the lead on.
+ */
+export function addLeadStep(id: string, i: LeadStepInput, moveTo?: LeadStage) {
+  const lead = db.leads.get(id);
+  if (!lead) throw new Error("Lead not found");
+  if (LEAD_STAGES.indexOf(i.stage) > LEAD_STAGES.indexOf(lead.stage)) throw new Error(`This lead has not reached ${LEAD_STAGE_LABELS[i.stage]} yet.`);
+  if (!i.action.trim()) throw new Error("Please choose what you did.");
+  if (i.note.trim().length < 3) throw new Error("Please write a few words about what happened.");
+  const me = currentUser();
+  const entry: LeadStepLog = {
+    id: nanoid(8),
+    stage: i.stage,
+    at: i.at && i.at <= nowIso() ? i.at : nowIso(),
+    byId: me?.id,
+    by: me?.name ?? "Staff",
+    action: i.action.trim().slice(0, 80),
+    mode: i.mode,
+    place: i.place?.trim().slice(0, 160) || undefined,
+    hallIds: i.hallIds?.length ? i.hallIds : undefined,
+    metWith: i.metWith?.trim().slice(0, 120) || undefined,
+    amount: i.amount && i.amount > 0 ? Math.round(i.amount) : undefined,
+    outcome: i.outcome,
+    note: i.note.trim().slice(0, 600),
+    clientSaid: i.clientSaid?.trim().slice(0, 400) || undefined,
+  };
+  const where = entry.place ? ` at ${entry.place}` : "";
+  db.leads.update(id, (l) => ({
+    journey: [entry, ...(l.journey ?? [])].sort((a, b) => b.at.localeCompare(a.at)),
+    activity: leadAct(l, "step", `${LEAD_STAGE_LABELS[entry.stage]}: ${entry.action}${where}`),
+  }));
+  if (moveTo && moveTo !== "customer" && LEAD_STAGES.indexOf(moveTo) > LEAD_STAGES.indexOf(lead.stage) && !lead.lost) setLeadStage(id, moveTo);
+  return entry;
+}
+
+export function deleteLeadStep(id: string, stepId: string) {
+  return db.leads.update(id, (l) => ({ journey: (l.journey ?? []).filter((s) => s.id !== stepId) }));
+}
+
 export interface ManualLeadInput {
   name: string;
   mobile: string;
@@ -522,9 +571,53 @@ function visitTrace(): Partial<LeadTrace> {
   };
 }
 
+const leadForBooking = (bookingId: string) => db.leads.all().find((l) => (l.bookingId ?? l.trace.bookingId) === bookingId);
+
+/** Staff "New booking" without a lead → a Manual lead at Confirmed (the date is held). */
+function createStaffLead(b: Booking, at = nowIso()): Lead {
+  const by = b.history[0]?.by ?? staffName();
+  const stageAt: Lead["stageAt"] = {};
+  for (const s of LEAD_STAGES.slice(0, 4)) stageAt[s] = at;
+  return db.leads.create({
+    code: nextLeadCode(),
+    createdAt: at,
+    name: b.name,
+    mobile: b.mobile,
+    email: b.email,
+    organization: b.organization,
+    eventName: b.eventName,
+    eventType: b.eventType,
+    guests: b.guests,
+    hallId: b.hallId,
+    eventDate: b.date,
+    value: estimateValue(b),
+    source: "manual",
+    trace: { channel: "Phone call", addedBy: by },
+    bookingId: b.id,
+    bookingRef: b.ref,
+    ownerIds: [],
+    stage: "confirmed",
+    stageAt,
+    activity: [{ at, by, kind: "created", text: `Booking ${b.ref} reserved by staff` }],
+    journey: [],
+  });
+}
+
+/**
+ * Every reserved booking request must have a lead, because Bookings lists only
+ * booked events. Fills in leads for requests stored before this rule.
+ */
+export function ensureLeadsForReservedBookings() {
+  for (const b of db.bookings.all()) {
+    if (b.status !== "reserved" || leadForBooking(b.id)) continue;
+    if (b.source === "website") createWebsiteLead(b, b.createdAt);
+    else createStaffLead(b, b.createdAt);
+  }
+}
+
 /** Website booking form → a traceable Website lead at Discover. */
-export function createWebsiteLead(b: Booking): Lead {
-  const now = nowIso();
+export function createWebsiteLead(b: Booking, backfillAt?: string): Lead {
+  const now = backfillAt ?? nowIso();
   return db.leads.create({
     code: nextLeadCode(),
     name: b.name,
@@ -538,12 +631,14 @@ export function createWebsiteLead(b: Booking): Lead {
     eventDate: b.date,
     value: estimateValue(b),
     source: "website",
-    trace: { ...visitTrace(), bookingId: b.id, bookingRef: b.ref },
+    createdAt: now,
+    trace: { ...(backfillAt ? { formPage: "/booking" } : visitTrace()), bookingId: b.id, bookingRef: b.ref },
     bookingId: b.id,
     bookingRef: b.ref,
     ownerIds: [],
     stage: "discover",
     stageAt: { discover: now },
     activity: [{ at: now, by: "Website", kind: "created", text: "Booking form submitted on the website" }],
+    journey: [],
   });
 }

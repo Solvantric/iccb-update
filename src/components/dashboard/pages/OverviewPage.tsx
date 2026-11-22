@@ -14,6 +14,7 @@ import { Kpi, SimpleBars } from "../ui/data";
 import { Item, Stagger } from "../ui/motion";
 import { MeetingPill } from "../ui/status";
 import { useNewBooking } from "../bookings/NewBookingModal";
+import { UnpaidDrawer } from "../bookings/UnpaidDrawer";
 
 export function OverviewPage() {
   const user = useCurrentUser();
@@ -28,6 +29,7 @@ export function OverviewPage() {
   const sales = canSeePath(user.role, "/dashboard/bookings");
   const [period, setPeriod] = useState<"this" | "last" | "year">("this");
   const [hall, setHall] = useState("");
+  const [unpaidOpen, setUnpaidOpen] = useState(false);
   const inHall = useCallback((hallId?: string) => !hall || hallId === hall, [hall]);
 
   /** Selected period as a yyyy-MM-dd range. */
@@ -56,7 +58,7 @@ export function OverviewPage() {
   const dues = useMemo(
     () =>
       bookings
-        .filter((b) => b.status === "booked" && inHall(b.hallId) && (dueBills.get(b.id)?.due ?? 0) > 0)
+        .filter((b) => (b.status === "booked" || b.status === "closed") && inHall(b.hallId) && (dueBills.get(b.id)?.due ?? 0) > 0)
         .sort((a, b) => a.date.localeCompare(b.date))
         .slice(0, 5),
     [bookings, dueBills, inHall]
@@ -102,16 +104,16 @@ export function OverviewPage() {
       </FilterRow>
       <Stagger className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <Item>
-          <Kpi label="New leads" value={stats.leads} icon={Tray} hint="Reserved, waiting for confirmation" />
+          <Kpi label="New leads" value={stats.leads} icon={Tray} hint="Reserved, waiting in Leads" tone="warn" />
         </Item>
         <Item>
-          <Kpi label={period === "year" ? "Booked this year" : period === "last" ? "Booked last month" : "Booked this month"} value={stats.booked} icon={CalendarCheck} hint={`Events in ${range.label}`} />
+          <Kpi label={period === "year" ? "Booked this year" : period === "last" ? "Booked last month" : "Booked this month"} value={stats.booked} icon={CalendarCheck} hint={`Events in ${range.label}`} tone="good" />
         </Item>
         <Item>
-          <Kpi label={`Collected · ${range.label}`} value={stats.collected} icon={Money} format={money} hint="Bill payments only" />
+          <Kpi label={`Collected · ${range.label}`} value={stats.collected} icon={Money} format={money} hint="Bill payments only" tone="good" />
         </Item>
         <Item>
-          <Kpi label="Meetings today" value={stats.meetingsToday} icon={Handshake} />
+          <Kpi label="Meetings today" value={stats.meetingsToday} icon={Handshake} tone="info" />
         </Item>
       </Stagger>
 
@@ -192,11 +194,11 @@ export function OverviewPage() {
           <Item>
             <Card className="h-full">
               <CardTitle
-                title="Outstanding dues"
+                title="Unpaid amount"
                 action={
-                  <Link href="/dashboard/bookings" className="inline-flex items-center gap-1 text-[13px] text-crm-muted hover:text-crm-ink">
-                    Bookings <ArrowRight size={13} className="rtl:rotate-180" />
-                  </Link>
+                  <button type="button" onClick={() => setUnpaidOpen(true)} className="inline-flex items-center gap-1 text-[13px] font-medium text-crm-info-ink hover:underline">
+                    See who owes <ArrowRight size={13} className="rtl:rotate-180" />
+                  </button>
                 }
               />
               {dues.length === 0 ? (
@@ -212,7 +214,7 @@ export function OverviewPage() {
                             {b.name} · {fmtDate(b.date)}
                           </span>
                         </span>
-                        <span className="shrink-0 text-[14px] font-medium text-crm-brand-text tabular">{money(dueBills.get(b.id)?.due ?? 0)}</span>
+                        <span className="shrink-0 text-[14px] font-medium text-crm-danger tabular">{money(dueBills.get(b.id)?.due ?? 0)}</span>
                       </Link>
                     </li>
                   ))}
@@ -233,7 +235,7 @@ export function OverviewPage() {
               <ul className="px-2 pb-3">
                 {latestEnquiries.map((e) => (
                   <li key={e.id} className="flex items-center gap-3 rounded-[10px] px-3 py-2.5">
-                    <span className={`h-2 w-2 shrink-0 rounded-full ${e.seen ? "bg-crm-line" : "bg-crm-brand"}`} />
+                    <span className={`h-2 w-2 shrink-0 rounded-full ${e.seen ? "bg-crm-line" : "bg-crm-info"}`} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[14px] text-crm-ink">{e.name}</span>
                       <span className="block truncate text-[12.5px] text-crm-muted">
@@ -255,6 +257,7 @@ export function OverviewPage() {
           <SimpleBars data={chart} />
         </div>
       </Card>
+      <UnpaidDrawer open={unpaidOpen} onOpenChange={setUnpaidOpen} />
     </>
   );
 }

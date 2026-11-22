@@ -36,7 +36,7 @@ export function PaymentsTab({ booking: b }: { booking: Booking }) {
             </p>
           </div>
           <div className="text-end">
-            <p className="text-[13px] text-crm-muted">Due</p>
+            <p className="text-[13px] text-crm-muted">Unpaid</p>
             <p className="mt-1 text-[16px] font-semibold text-crm-ink tabular">{money(bill.due)}</p>
           </div>
         </div>
@@ -56,7 +56,7 @@ export function PaymentsTab({ booking: b }: { booking: Booking }) {
           </div>
           <div>
             <p className="text-crm-muted">Damages to deduct</p>
-            <p className={damages ? "text-crm-brand-text tabular" : "text-crm-ink tabular"}>{money(damages)}</p>
+            <p className={damages ? "text-crm-danger tabular" : "text-crm-ink tabular"}>{money(damages)}</p>
           </div>
         </div>
       </Card>

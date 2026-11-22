@@ -83,7 +83,7 @@ export function DatePicker({ value, onChange, disabled, placeholder = "Pick a da
                       !isSameMonth(d, month) && "opacity-40",
                       sel ? "crm-btn-primary font-semibold" : off ? "cursor-not-allowed text-crm-muted/50" : "text-crm-ink hover:bg-crm-surface-2",
                       taken && !sel && "line-through decoration-crm-reserved",
-                      key === today && !sel && "font-semibold text-crm-brand-text"
+                      key === today && !sel && "font-semibold text-crm-info-ink"
                     )}
                   >
                     {format(d, "d")}

@@ -80,16 +80,16 @@ export function MeetingsPage() {
       />
       <Stagger className="mb-6 grid grid-cols-2 gap-5 xl:grid-cols-4">
         <Item>
-          <Kpi label="Today" value={kpi.today} icon={CalendarBlank} hint="Scheduled" />
+          <Kpi label="Today" value={kpi.today} icon={CalendarBlank} hint="Scheduled" tone="info" />
         </Item>
         <Item>
-          <Kpi label="Next 7 days" value={kpi.week} icon={Clock} />
+          <Kpi label="Next 7 days" value={kpi.week} icon={Clock} tone="warn" />
         </Item>
         <Item>
-          <Kpi label="PPMs" value={kpi.ppm} icon={Handshake} hint="Program preparation" />
+          <Kpi label="PPMs" value={kpi.ppm} icon={Handshake} hint="Program preparation" tone="purple" />
         </Item>
         <Item>
-          <Kpi label="Done" value={kpi.done} icon={CheckCircle} />
+          <Kpi label="Done" value={kpi.done} icon={CheckCircle} tone="good" />
         </Item>
       </Stagger>
       <FilterRow>

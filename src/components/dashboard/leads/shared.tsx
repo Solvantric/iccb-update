@@ -7,6 +7,7 @@ import { Binoculars, CalendarCheck, ChatsCircle, Check, ClipboardText, Globe, Ha
 import type { Lead, LeadSource, LeadStage, User } from "@/types/crm";
 import { LEAD_SOURCE_LABELS, LEAD_STAGE_LABELS, LEAD_STAGES } from "@/types/crm";
 import { initials, todayYmd } from "@/lib/crm/format";
+import { TEAM_PHOTOS } from "@/lib/crm/photos";
 import { cn } from "@/lib/utils/cn";
 import { m } from "../ui/motion";
 
@@ -21,8 +22,8 @@ export const REVENUE = {
 /* ─── Source ─────────────────────────────────────────────────────────────── */
 
 export const SOURCE_STYLE: Record<LeadSource, { pill: string; icon: Icon; hint: string }> = {
-  ai: { pill: "bg-crm-tint text-crm-brand-text", icon: Sparkle, hint: "Found by AI on the web" },
-  website: { pill: "bg-crm-reserved-bg text-crm-reserved-ink", icon: Globe, hint: "Booking form on the website" },
+  ai: { pill: "bg-crm-purple-bg text-crm-purple-ink", icon: Sparkle, hint: "Found by AI on the web" },
+  website: { pill: "bg-crm-info-bg text-crm-info-ink", icon: Globe, hint: "Booking form on the website" },
   manual: { pill: "bg-crm-surface-2 text-crm-ink-2", icon: UserPlus, hint: "Added by staff" },
 };
 
@@ -112,16 +113,10 @@ export function lakh(n: number) {
 
 /* ─── People ─────────────────────────────────────────────────────────────── */
 
-const TONES = ["bg-crm-tint text-crm-brand-text", "bg-crm-reserved-bg text-crm-reserved-ink", "bg-crm-success-bg text-crm-success", "bg-crm-surface-2 text-crm-ink-2"];
+const TONES = ["bg-crm-info-bg text-crm-info-ink", "bg-crm-purple-bg text-crm-purple-ink", "bg-crm-reserved-bg text-crm-reserved-ink", "bg-crm-success-bg text-crm-success", "bg-crm-surface-2 text-crm-ink-2"];
 const tone = (id: string) => TONES[[...id].reduce((t, c) => t + c.charCodeAt(0), 0) % TONES.length];
 
-/** Sample profile photos for the demo sales team (free Unsplash photos, cropped to the face). */
-const unsplashFace = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=facearea&facepad=2.2&w=160&h=160&q=80`;
-export const TEAM_PHOTOS: Record<string, string> = {
-  "u-sales": unsplashFace("1706943262459-3ef6ce03305c"), // Nusrat Jahan
-  "u-sales2": unsplashFace("1683105653852-25028a53a3e4"), // Rafiq Hasan
-  "u-sales3": unsplashFace("1536766768598-e09213fdcf22"), // Tania Akter
-};
+export { TEAM_PHOTOS };
 
 export function Face({ user, size = 24, className, style }: { user: Pick<User, "id" | "name">; size?: number; className?: string; style?: React.CSSProperties }) {
   const photo = TEAM_PHOTOS[user.id];
@@ -163,6 +158,8 @@ export function AvatarStack({ ids, users, size = 24, max = 3 }: { ids: string[];
 export function AssignPicker({ value, onChange, users, variant = "compact" }: { value: string[]; onChange: (ids: string[]) => void; users: User[]; variant?: "compact" | "field" }) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  // Inside a modal or drawer the list must live in the dialog, or the dialog blocks clicks on it.
+  const [host, setHost] = useState<HTMLElement | null>(null);
   const btn = useRef<HTMLButtonElement>(null);
   const list = useRef<HTMLDivElement>(null);
   const team = assignees(users);
@@ -173,6 +170,7 @@ export function AssignPicker({ value, onChange, users, variant = "compact" }: { 
     const r = btn.current.getBoundingClientRect();
     const width = 240;
     setPos({ top: r.bottom + 6, left: Math.min(Math.max(8, r.left), window.innerWidth - width - 8) });
+    setHost(btn.current.closest<HTMLElement>('[role="dialog"]') ?? document.body);
   }, [open]);
 
   useEffect(() => {
@@ -223,7 +221,7 @@ export function AssignPicker({ value, onChange, users, variant = "compact" }: { 
           </>
         )}
       </button>
-      {typeof document !== "undefined" &&
+      {host &&
         createPortal(
           <AnimatePresence>
             {open && pos && (
@@ -258,7 +256,7 @@ export function AssignPicker({ value, onChange, users, variant = "compact" }: { 
               </m.div>
             )}
           </AnimatePresence>,
-          document.body
+          host
         )}
     </>
   );

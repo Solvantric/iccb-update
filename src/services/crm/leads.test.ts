@@ -10,7 +10,7 @@ vi.hoisted(() => {
 import { addDays, format } from "date-fns";
 import { db } from "@/lib/crm/db";
 import { LEAD_STAGES } from "@/types/crm";
-import { assignLead, cancelBooking, confirmBooking, createBooking, createManualLead, setLeadStage } from "./index";
+import { addLeadStep, assignLead, cancelBooking, ensureLeadsForReservedBookings, confirmBooking, createBooking, createManualLead, setLeadStage } from "./index";
 
 const date = format(addDays(new Date(), 90), "yyyy-MM-dd");
 
@@ -49,5 +49,29 @@ describe("leads funnel", () => {
     const lead = db.leads.all().find((l) => l.bookingId === b.id)!;
     expect(lead).toMatchObject({ source: "website", stage: "discover" });
     expect(lead.trace.bookingRef).toBe(b.ref);
+  });
+
+  it("logs step work and refuses steps the lead has not reached", () => {
+    const lead = createManualLead({ name: "Lead Four", mobile: "01711-555555", eventName: "Seminar", eventType: "Conference", guests: 200, channel: "Phone call" });
+    expect(() => addLeadStep(lead.id, { stage: "appraisal", action: "Site visit at ICCB", mode: "Met at ICCB", outcome: "positive", note: "Showed the hall" })).toThrow();
+    addLeadStep(lead.id, { stage: "discover", action: "First call", mode: "Phone call", outcome: "positive", note: "Wants a weekend date" }, "interested");
+    const l = db.leads.get(lead.id)!;
+    expect(l.stage).toBe("interested");
+    expect(l.journey?.[0]).toMatchObject({ stage: "discover", action: "First call", by: "Admin" });
+  });
+
+  it("sample leads come with a work journey for every step they reached", () => {
+    const l = db.leads.all().filter((x) => x.isSample);
+    for (const x of l) for (const s of LEAD_STAGES.slice(0, LEAD_STAGES.indexOf(x.stage) + 1)) expect(x.journey?.some((j) => j.stage === s)).toBe(true);
+  });
+
+  it("every reserved request lives in Leads; staff bookings get a Confirmed lead", () => {
+    const b = createBooking({ name: "Walk In", mobile: "01711-666666", eventName: "Seminar", eventType: "Conference", hallId: "gulnaksha", date, guests: 300 }, "staff");
+    const lead = db.leads.all().find((l) => l.bookingId === b.id)!;
+    expect(lead).toMatchObject({ source: "manual", stage: "confirmed" });
+    ensureLeadsForReservedBookings();
+    for (const r of db.bookings.all().filter((x) => x.status === "reserved")) expect(db.leads.all().some((l) => (l.bookingId ?? l.trace.bookingId) === r.id)).toBe(true);
+    confirmBooking(b.id);
+    expect(db.leads.get(lead.id)!.stage).toBe("customer");
   });
 });

@@ -2,7 +2,9 @@
 import { forwardRef } from "react";
 import { CircleNotch, MagnifyingGlass, type Icon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils/cn";
+import Image from "next/image";
 import { initials } from "@/lib/crm/format";
+import { TEAM_PHOTOS } from "@/lib/crm/photos";
 import { m } from "./motion";
 
 /* ─── Button ─────────────────────────────────────────────────────────────── */
@@ -206,9 +208,16 @@ export function Segmented<T extends string>({ value, onChange, options, classNam
   );
 }
 
-export function Avatar({ name, size = 32, className }: { name: string; size?: number; className?: string }) {
+export function Avatar({ name, id, size = 32, className }: { name: string; /** User id: shows the profile photo when there is one. */ id?: string; size?: number; className?: string }) {
+  const photo = id ? TEAM_PHOTOS[id] : undefined;
+  if (photo)
+    return (
+      <span className={cn("relative block shrink-0 overflow-hidden rounded-full bg-crm-surface-2", className)} style={{ width: size, height: size }}>
+        <Image src={photo} alt={name} width={size * 2} height={size * 2} className="h-full w-full object-cover" />
+      </span>
+    );
   return (
-    <span className={cn("grid shrink-0 place-items-center rounded-full bg-crm-tint font-semibold text-crm-brand-text", className)} style={{ width: size, height: size, fontSize: size * 0.38 }}>
+    <span className={cn("grid shrink-0 place-items-center rounded-full bg-crm-info-bg font-semibold text-crm-info-ink", className)} style={{ width: size, height: size, fontSize: size * 0.38 }}>
       {initials(name)}
     </span>
   );

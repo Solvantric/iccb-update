@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { Icon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils/cn";
 import { AnimatedNumber, m } from "./motion";
@@ -27,24 +27,58 @@ export function Tabs<T extends string>({ tabs, value, onChange, id, className }:
 
 /* ─── KPI card (max 4 per page) ──────────────────────────────────────────── */
 
-export function Kpi({ label, value, icon: I, format, hint }: { label: string; value: number; icon: Icon; format?: (n: number) => string; hint?: string }) {
-  return (
-    <div className="crm-card flex items-start justify-between gap-3 p-5">
+/* ─── Performance colours: low = red, high = green ───────────────────────── */
+
+const PERF_FILL = ["var(--lead-s1, #EF4444)", "var(--lead-s2, #F97316)", "var(--lead-s3, #EAB308)", "var(--lead-s4, #84CC16)", "var(--lead-s5, #12B76A)"];
+const PERF_INK = ["var(--lead-s1-ink, #C81E1E)", "var(--lead-s2-ink, #C2410C)", "var(--lead-s3-ink, #A16207)", "var(--lead-s4-ink, #4D7C0F)", "var(--lead-s5-ink, #067647)"];
+const perfStep = (value: number, max: number) => {
+  const r = max > 0 ? value / max : 0;
+  return r >= 0.8 ? 4 : r >= 0.6 ? 3 : r >= 0.4 ? 2 : r >= 0.2 ? 1 : 0;
+};
+/** Bar colour by how well a value does against the best (max): the best is green, the weakest red. */
+export const perfFill = (value: number, max: number) => PERF_FILL[perfStep(value, max)];
+/** Text colour on the same scale. */
+export const perfInk = (value: number, max: number) => PERF_INK[perfStep(value, max)];
+
+/** What a colour means: good = green, bad = red, warn = amber, info = blue, purple = AI/marketing. */
+export type Tone = "good" | "bad" | "warn" | "info" | "purple" | "neutral";
+export const TONE_STYLE: Record<Tone, string> = {
+  good: "bg-crm-success-bg text-crm-success",
+  bad: "bg-crm-danger-bg text-crm-danger",
+  warn: "bg-crm-reserved-bg text-crm-reserved-ink",
+  info: "bg-crm-info-bg text-crm-info-ink",
+  purple: "bg-crm-purple-bg text-crm-purple-ink",
+  neutral: "bg-crm-surface-2 text-crm-ink-2",
+};
+
+export function Kpi({ label, value, icon: I, format, hint, tone = "info", onClick }: { label: string; value: number; icon: Icon; format?: (n: number) => string; hint?: string; tone?: Tone; /** Makes the card a button, e.g. to open details. */ onClick?: () => void }) {
+  const body = (
+    <>
       <div className="min-w-0">
         <p className="text-[13px] text-crm-muted">{label}</p>
-        <AnimatedNumber value={value} format={format} className="mt-2 block text-[26px] font-semibold leading-none text-crm-ink" />
-        {hint && <p className="mt-2 text-[12px] text-crm-muted">{hint}</p>}
+        <AnimatedNumber value={value} format={format} className={cn("mt-2 block text-[26px] font-semibold leading-none", tone === "bad" && value > 0 ? "text-crm-danger" : "text-crm-ink")} />
+        {/* Same height in every card, so a row of cards lines up. */}
+        <p className="mt-2 min-h-[18px] truncate text-[12px] text-crm-muted" title={hint}>{hint}</p>
+        {onClick && <p className="mt-2 text-[12px] font-medium text-crm-info-ink group-hover:underline">See details →</p>}
       </div>
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-crm-tint text-crm-brand-text">
+      <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-[10px]", TONE_STYLE[tone])}>
         <I size={20} />
       </span>
-    </div>
+    </>
+  );
+  return onClick ? (
+    <button type="button" onClick={onClick} className="crm-card crm-card-hover group flex h-full w-full items-start justify-between gap-3 p-5 text-start">
+      {body}
+    </button>
+  ) : (
+    <div className="crm-card flex h-full items-start justify-between gap-3 p-5">{body}</div>
   );
 }
 
 /* ─── Bar chart (bars grow once) ─────────────────────────────────────────── */
 
-export function SimpleBars({ data, height = 220, format }: { data: { label: string; value: number }[]; height?: number; format?: (n: number) => string }) {
+export function SimpleBars({ data, height = 220, format, colorByValue }: { data: { label: string; value: number }[]; height?: number; format?: (n: number) => string; /** Colour each bar by its value: highest green, lowest red. */ colorByValue?: boolean }) {
+  const max = Math.max(0, ...data.map((d) => d.value));
   return (
     <div style={{ height }} className="w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -59,7 +93,9 @@ export function SimpleBars({ data, height = 220, format }: { data: { label: stri
             contentStyle={{ background: "var(--crm-surface)", border: "1px solid var(--crm-line)", borderRadius: 10, fontSize: 13, color: "var(--crm-ink)" }}
             labelStyle={{ color: "var(--crm-muted)" }}
           />
-          <Bar dataKey="value" fill="var(--accent)" radius={[6, 6, 0, 0]} maxBarSize={36} animationDuration={700} animationEasing="ease-out" />
+          <Bar dataKey="value" fill="var(--crm-info)" radius={[6, 6, 0, 0]} maxBarSize={36} animationDuration={700} animationEasing="ease-out">
+            {colorByValue && data.map((d) => <Cell key={d.label} fill={perfFill(d.value, max)} />)}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>

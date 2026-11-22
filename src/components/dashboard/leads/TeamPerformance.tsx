@@ -184,7 +184,7 @@ function PersonCard({ p, top, onClick, delay }: { p: Person; top: boolean; onCli
         </span>
         <span>{p.avgDays != null ? `~${p.avgDays} days to win` : "No wins yet"}</span>
         {p.shared > 0 && <span>{p.shared} shared</span>}
-        <span className="ms-auto inline-flex items-center gap-1 font-medium text-crm-brand-text opacity-0 transition-opacity group-hover:opacity-100">
+        <span className="ms-auto inline-flex items-center gap-1 font-medium text-crm-info-ink opacity-0 transition-opacity group-hover:opacity-100">
           View leads <ArrowRight size={13} className="rtl:rotate-180" />
         </span>
       </div>

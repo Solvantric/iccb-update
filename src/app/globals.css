@@ -517,6 +517,14 @@ html.lenis { height: auto; }
   --color-crm-success:   var(--crm-success);
   --color-crm-success-bg: var(--crm-success-bg);
   --color-crm-danger:    var(--crm-danger);
+  --color-crm-danger-bg: var(--crm-danger-bg);
+  --color-crm-booked-ink: var(--crm-booked-ink);
+  --color-crm-info:      var(--crm-info);
+  --color-crm-info-ink:  var(--crm-info-ink);
+  --color-crm-info-bg:   var(--crm-info-bg);
+  --color-crm-purple:    var(--crm-purple);
+  --color-crm-purple-ink: var(--crm-purple-ink);
+  --color-crm-purple-bg: var(--crm-purple-bg);
   --color-crm-whatsapp:  #25D366;
   --radius-crm:          var(--crm-radius);
 }
@@ -537,13 +545,24 @@ html.lenis { height: auto; }
   --crm-reserved: #F59E0B;
   --crm-reserved-ink: #B54708;
   --crm-reserved-bg: #FEF3C7;
-  --crm-booked: var(--accent);
-  --crm-booked-bg: var(--bg-tint);
+  /* Colour meanings: red = unpaid / problem, green = booked / paid / good,
+     amber = pending, blue = general info, purple = AI & marketing.
+     Brand red is kept for main buttons and the active menu item. */
+  --crm-booked: #12B76A;
+  --crm-booked-ink: #067647;
+  --crm-booked-bg: #ECFDF3;
   --crm-closed: #98A2B3;
   --crm-closed-bg: #F2F4F7;
   --crm-success: #12B76A;
   --crm-success-bg: #ECFDF3;
   --crm-danger: #B42318;
+  --crm-danger-bg: #FEF3F2;
+  --crm-info: #2E90FA;
+  --crm-info-ink: #175CD3;
+  --crm-info-bg: #EFF8FF;
+  --crm-purple: #7A5AF8;
+  --crm-purple-ink: #5925DC;
+  --crm-purple-bg: #F4F3FF;
   /* Lead funnel steps: red → orange → yellow → lime → green */
   --lead-s1: #EF4444; --lead-s1-ink: #C81E1E;
   --lead-s2: #F97316; --lead-s2-ink: #C2410C;
@@ -568,6 +587,13 @@ html.lenis { height: auto; }
   --crm-closed-bg: color-mix(in srgb, #98A2B3 16%, transparent);
   --crm-success-bg: color-mix(in srgb, #12B76A 16%, transparent);
   --crm-danger: #F97066;
+  --crm-danger-bg: color-mix(in srgb, #F04438 16%, transparent);
+  --crm-booked-ink: #4ADE80;
+  --crm-booked-bg: color-mix(in srgb, #12B76A 16%, transparent);
+  --crm-info-ink: #84CAFF;
+  --crm-info-bg: color-mix(in srgb, #2E90FA 16%, transparent);
+  --crm-purple-ink: #BDB4FE;
+  --crm-purple-bg: color-mix(in srgb, #7A5AF8 18%, transparent);
   --lead-s1-ink: #F87171; --lead-s2-ink: #FB923C; --lead-s3-ink: #FACC15; --lead-s4-ink: #A3E635; --lead-s5-ink: #4ADE80;
 }
 [lang="bn"] .crm, .crm[lang="bn"] { font-family: var(--font-noto-bengali), var(--font-inter), sans-serif; }

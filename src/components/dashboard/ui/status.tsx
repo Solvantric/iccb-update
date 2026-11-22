@@ -7,7 +7,7 @@ import { m } from "./motion";
 
 export const STATUS_STYLE: Record<BookingStatus, { pill: string; dot: string; chip: string }> = {
   reserved: { pill: "bg-crm-reserved-bg text-crm-reserved-ink", dot: "bg-crm-reserved", chip: "bg-crm-reserved-bg text-crm-reserved-ink border-s-crm-reserved" },
-  booked: { pill: "bg-crm-booked-bg text-crm-brand-text", dot: "bg-crm-booked", chip: "bg-crm-booked-bg text-crm-brand-text border-s-crm-booked" },
+  booked: { pill: "bg-crm-booked-bg text-crm-booked-ink", dot: "bg-crm-booked", chip: "bg-crm-booked-bg text-crm-booked-ink border-s-crm-booked" },
   closed: { pill: "bg-crm-closed-bg text-crm-muted", dot: "bg-crm-closed", chip: "bg-crm-closed-bg text-crm-muted border-s-crm-closed" },
   cancelled: { pill: "bg-transparent text-crm-muted line-through ring-1 ring-inset ring-crm-line", dot: "bg-crm-line", chip: "" },
 };

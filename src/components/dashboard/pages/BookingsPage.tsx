@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckSquareOffset, FilePdf, Plus, Ticket, Trash } from "@phosphor-icons/react";
 import type { Booking, BookingStatus } from "@/types/crm";
@@ -14,12 +15,17 @@ import { StatusPill } from "../ui/status";
 import { useNewBooking } from "../bookings/NewBookingModal";
 import { useBookingActions } from "../bookings/useBookingActions";
 
-type StatusFilter = "all" | BookingStatus;
+type StatusFilter = "all" | "booked" | "closed";
+/** Bookings lists confirmed events only. Reserved requests are worked in Leads; cancelled ones are dropped. */
+const SHOWN = ["booked", "closed"] as const;
+const shown = (s: BookingStatus): s is (typeof SHOWN)[number] => (SHOWN as readonly string[]).includes(s);
 
 export function BookingsPage() {
   const router = useRouter();
   const params = useSearchParams();
-  const bookings = useBookings();
+  const allBookings = useBookings();
+  const bookings = useMemo(() => allBookings.filter((b) => shown(b.status)), [allBookings]);
+  const waiting = allBookings.filter((b) => b.status === "reserved").length;
   const halls = useHalls();
   const hallMap = useHallMap();
   const newBooking = useNewBooking();
@@ -48,7 +54,7 @@ export function BookingsPage() {
     );
   }, [bookings, status, f, allBills]);
   const bills = allBills;
-  const counts = useMemo(() => Object.fromEntries((["reserved", "booked", "closed", "cancelled"] as BookingStatus[]).map((s) => [s, bookings.filter((b) => b.status === s).length])), [bookings]);
+  const counts = useMemo(() => Object.fromEntries(SHOWN.map((s) => [s, bookings.filter((b) => b.status === s).length])), [bookings]);
 
   const filterText =
     [status !== "all" && STATUS_LABELS[status], f.hall && hallMap.get(f.hall)?.name, f.q && `“${f.q}”`].filter(Boolean).join(" · ") || "All bookings";
@@ -70,7 +76,7 @@ export function BookingsPage() {
     { key: "hall", header: "Hall", cell: (b) => hallMap.get(b.hallId)?.name ?? "—" },
     { key: "status", header: "Status", cell: (b) => <StatusPill status={b.status} /> },
     { key: "total", header: "Total", align: "end", cell: (b) => <span className={b.status === "cancelled" ? "text-crm-muted" : "text-crm-ink"}>{money(bills.get(b.id)?.total ?? 0)}</span> },
-    { key: "due", header: "Due", align: "end", cell: (b) => (dueOf(b) > 0 ? <span className="font-medium text-crm-brand-text">{money(dueOf(b))}</span> : <span className="text-crm-muted">—</span>) },
+    { key: "due", header: "Unpaid", align: "end", cell: (b) => (dueOf(b) > 0 ? <span className="font-medium text-crm-danger">{money(dueOf(b))}</span> : <span className="text-crm-muted">—</span>) },
     {
       key: "actions",
       header: <span className="sr-only">Actions</span>,
@@ -96,7 +102,7 @@ export function BookingsPage() {
     <>
       <PageHeader
         title="Bookings"
-        description="Every booking, from reserved to closed."
+        description="Confirmed bookings only. New and reserved requests are in Leads, and come here once marked Booked."
         action={
           <>
             <Button icon={FilePdf} onClick={() => pdfBookingList(rows, filterText)} disabled={!rows.length}>
@@ -109,12 +115,20 @@ export function BookingsPage() {
         }
       />
       <FilterRow>
-        <Segmented id="bk-status" value={status} onChange={setStatus} options={[{ value: "all", label: `All ${bookings.length}` }, ...(["reserved", "booked", "closed", "cancelled"] as BookingStatus[]).map((x) => ({ value: x, label: `${STATUS_LABELS[x]} ${counts[x]}` }))]} />
+        <Segmented id="bk-status" value={status} onChange={setStatus} options={[{ value: "all", label: `All ${bookings.length}` }, ...SHOWN.map((x) => ({ value: x, label: `${STATUS_LABELS[x]} ${counts[x]}` }))]} />
         <SearchInput value={f.q} onChange={(v) => set("q", v)} placeholder="Name, mobile, ref…" />
         <FilterSelect label="Halls" value={f.hall} onChange={(v) => set("hall", v)} options={halls.map((h) => ({ value: h.id, label: h.name }))} />
         <FilterSelect label="Payment" all="Any payment" value={f.payment} onChange={(v) => set("payment", v)} options={[{ value: "unpaid", label: "Nothing paid" }, { value: "partial", label: "Partly paid" }, { value: "paid", label: "Fully paid" }]} />
-        <SortSelect value={f.sort} onChange={(v) => set("sort", v)} options={[{ value: "date-desc", label: "Event date (latest)" }, { value: "date-asc", label: "Event date (soonest)" }, { value: "created", label: "Newest created" }, { value: "total", label: "Highest total" }, { value: "due", label: "Highest due" }]} />
+        <SortSelect value={f.sort} onChange={(v) => set("sort", v)} options={[{ value: "date-desc", label: "Event date (latest)" }, { value: "date-asc", label: "Event date (soonest)" }, { value: "created", label: "Newest created" }, { value: "total", label: "Highest total" }, { value: "due", label: "Highest unpaid" }]} />
       </FilterRow>
+      {waiting > 0 && (
+        <Link href="/dashboard/leads" className="mb-4 flex items-center justify-between gap-3 rounded-[10px] bg-crm-reserved-bg px-4 py-2.5 text-[13px] text-crm-reserved-ink hover:underline">
+          <span>
+            {waiting} reserved request{waiting === 1 ? " is" : "s are"} waiting in Leads. Mark {waiting === 1 ? "it" : "them"} Booked there to add {waiting === 1 ? "it" : "them"} here.
+          </span>
+          <span className="shrink-0 font-medium">Open Leads →</span>
+        </Link>
+      )}
       <FilterSummary active={active + (status !== "all" ? 1 : 0)} onClear={() => { reset(); setStatus("all"); }} count={rows.length} noun="booking" />
       <DataTable
         rows={rows}

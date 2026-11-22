@@ -4,7 +4,7 @@
  * Dates are relative to "today", like the rest of the CRM seed.
  */
 import { addDays, format, subDays, subHours } from "date-fns";
-import type { Device, EventType, Lead, LeadActivity, LeadSource, LeadStage, LeadTrace, ManualChannel, User } from "@/types/crm";
+import type { Device, EventType, Lead, LeadActivity, LeadSource, LeadStage, LeadStepLog, LeadTrace, ManualChannel, User } from "@/types/crm";
 import { LEAD_STAGES, LEAD_STAGE_LABELS } from "@/types/crm";
 
 const iso = (daysAgo: number, hoursAgo = 0) => subHours(subDays(new Date(), daysAgo), hoursAgo).toISOString();
@@ -111,6 +111,55 @@ const NEXT_ACTIONS: Record<LeadStage, string[]> = {
   customer: ["Hand over to operations"],
 };
 
+const AREAS = ["Gulshan", "Banani", "Motijheel", "Tejgaon", "Uttara", "Dhanmondi", "Baridhara"];
+const HALL_IDS = ["noboratri", "rajdarshan", "gulnaksha", "pushpoguchcho", "pushpanjali"];
+type Ctx = { name: string; org?: string; guests: number; hallId: string; value: number; i: number };
+type Tpl = Omit<LeadStepLog, "id" | "stage" | "at" | "by" | "byId">;
+
+/** Sample work for each step, so the journey reads like real sales work. */
+const STEP_WORK: Record<LeadStage, ((c: Ctx) => Tpl)[]> = {
+  discover: [
+    (c) => ({ action: "First call", mode: "Phone call", metWith: c.name, outcome: "positive", note: `Introduced ICCB and checked the event plan. Confirmed about ${c.guests.toLocaleString("en-IN")} guests.`, clientSaid: "Still comparing venues, asked us to send details." }),
+    (c) => ({ action: "WhatsApp message", mode: "WhatsApp", metWith: c.name, outcome: "neutral", note: "Sent the ICCB brochure and hall photos on WhatsApp." }),
+  ],
+  interested: [
+    (c) => ({ action: c.org ? "Office visit" : "Client meeting", mode: "Visited client", place: c.org ? `${c.org} office, ${AREAS[c.i % AREAS.length]}` : `Client's home, ${AREAS[c.i % AREAS.length]}`, metWith: c.org ? `${c.name} and the events team` : `${c.name} and family`, outcome: "positive", note: "Walked through hall options, packages and catering menus with printed brochure.", clientSaid: "Wants a weekend evening. Asked about parking, stage size and decoration." }),
+    () => ({ action: "Shared hall options & rates", mode: "Email", outcome: "neutral", note: "Emailed two hall options with weekend and weekday rates." }),
+  ],
+  appraisal: [
+    (c) => ({ action: "Site visit at ICCB", mode: "Met at ICCB", place: "ICCB, Kuril", hallIds: [c.hallId, HALL_IDS[(HALL_IDS.indexOf(c.hallId) + 1) % HALL_IDS.length]], metWith: c.name, outcome: "positive", note: "Showed the halls, stage, green room, kitchen and parking. Checked the guest flow from the entrance.", clientSaid: "Liked the first hall. Wants to see decoration samples." }),
+    (c) => ({ action: "Sent quotation", mode: "Email", amount: c.value, outcome: "neutral", note: "Quotation for hall rent, dinner and service charge sent by email." }),
+  ],
+  confirmed: [
+    (c) => ({ action: "Advance requested", mode: "Phone call", metWith: c.name, amount: Math.round(c.value * 0.3), outcome: "positive", note: "Date is held. Asked for 30% advance to lock the booking." }),
+    () => ({ action: "Contract sent", mode: "Email", outcome: "neutral", note: "Sent the booking contract and payment details." }),
+  ],
+  customer: [
+    () => ({ action: "Handed over to operations", mode: "Met at ICCB", place: "ICCB, Kuril · Operations office", outcome: "positive", note: "Advance received. Arranged the PPM meeting with the operations team." }),
+  ],
+};
+
+function sampleJourney(c: Ctx, stageAt: Lead["stageAt"], reachedUpTo: number, ownerIds: string[], lost: string | undefined): LeadStepLog[] {
+  const out: LeadStepLog[] = [];
+  const now = Date.now();
+  LEAD_STAGES.slice(0, reachedUpTo + 1).forEach((s, k) => {
+    const start = new Date(stageAt[s] ?? new Date()).getTime();
+    const tpls = STEP_WORK[s];
+    // Earlier steps get the full set; the current step one or two updates.
+    const n = k < reachedUpTo ? tpls.length : 1 + ((c.i + k) % tpls.length);
+    tpls.slice(0, n).forEach((t, j) => {
+      const who = ownerIds.length ? ownerIds[(j + k) % ownerIds.length] : "u-admin";
+      out.push({ id: `js-${c.i}-${k}-${j}`, stage: s, at: new Date(Math.min(now - 3600_000, start + (j + 1) * 5 * 3600_000)).toISOString(), byId: who, by: OWNER_NAMES[who] ?? "Admin", ...t(c) });
+    });
+  });
+  if (lost) {
+    const s = LEAD_STAGES[reachedUpTo];
+    const who = ownerIds[0] ?? "u-admin";
+    out.push({ id: `js-${c.i}-lost`, stage: s, at: new Date(now - 2 * 86400_000).toISOString(), byId: who, by: OWNER_NAMES[who] ?? "Admin", action: "Follow-up call", mode: "Phone call", metWith: c.name, outcome: "negative", note: `Client is not going ahead: ${lost.toLowerCase()}.` });
+  }
+  return out.sort((a, b) => b.at.localeCompare(a.at));
+}
+
 function sourceFor(i: number): LeadSource {
   return i % 5 < 2 ? "ai" : i % 5 < 4 ? "website" : "manual";
 }
@@ -150,6 +199,8 @@ export const leadsSeed = (): Lead[] =>
     if (idx >= 1) activity.push({ at: iso(Math.max(0, d - 1), 3), by: ownerIds.length ? OWNER_NAMES[ownerIds[0]] : "Admin", kind: "call", text: "Called the client — interested in a weekend date." });
     if (lost) activity.push({ at: iso(Math.max(0, d - 1)), by: ownerIds.length ? OWNER_NAMES[ownerIds[0]] : "Admin", kind: "lost", text: "Marked lost: " + ["Price too high", "Chose another venue", "No response", "Date not available"][i % 4] });
 
+    const lostReason = lost ? ["Price too high", "Chose another venue", "No response", "Date not available"][i % 4] : undefined;
+    const journey = sampleJourney({ name, org, guests, hallId, value: Math.round(valueLakh * 100_000), i }, stageAt, idx, ownerIds, lostReason);
     const open = !lost && stage !== "customer";
     const nextOffset = ((i * 5) % 9) - 3; // some overdue, some upcoming
     return {
@@ -175,9 +226,10 @@ export const leadsSeed = (): Lead[] =>
       // Confirmed leads hold a reserved booking; customers' bookings are Booked.
       bookingRef: idx >= 3 ? (trace.bookingRef ?? `ICCB-${String(300 + i).padStart(4, "0")}`) : undefined,
       lost: lost || undefined,
-      lostReason: lost ? ["Price too high", "Chose another venue", "No response", "Date not available"][i % 4] : undefined,
+      lostReason,
       nextAt: open ? day(nextOffset) : undefined,
       nextAction: open ? NEXT_ACTIONS[stage][i % NEXT_ACTIONS[stage].length] : undefined,
       activity: activity.reverse(),
+      journey,
     };
   });

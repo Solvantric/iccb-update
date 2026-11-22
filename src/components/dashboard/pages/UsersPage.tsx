@@ -58,7 +58,7 @@ export function UsersPage() {
       header: "Name",
       cell: (u) => (
         <span className="flex items-center gap-3">
-          <Avatar name={u.name} size={30} />
+          <Avatar name={u.name} id={u.id} size={30} />
           <span>
             <span className="block font-medium text-crm-ink">
               {u.name}
@@ -121,7 +121,7 @@ export function UsersPage() {
         empty={<EmptyState icon={UsersThree} text="No users match." action={<Button onClick={reset}>Clear filters</Button>} />}
         mobileCard={(u) => (
           <div className="flex items-center gap-3">
-            <Avatar name={u.name} size={36} />
+            <Avatar name={u.name} id={u.id} size={36} />
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium text-crm-ink">{u.name}</p>
               <p className="truncate text-[12.5px] text-crm-muted">

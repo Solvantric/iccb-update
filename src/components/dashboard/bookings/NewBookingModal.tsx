@@ -24,7 +24,7 @@ export function NewBookingProvider({ children }: { children: React.ReactNode }) 
   return (
     <Ctx.Provider value={open}>
       {children}
-      <Modal open={!!prefill} onOpenChange={(v) => !v && close()} size="lg" title="New booking" description="The date is reserved as soon as you save.">
+      <Modal open={!!prefill} onOpenChange={(v) => !v && close()} size="lg" title="New booking" description="The date is reserved as soon as you save. The request stays in Leads until it is marked Booked.">
         {prefill && (
           <BookingForm
             key={key}
@@ -40,7 +40,7 @@ export function NewBookingProvider({ children }: { children: React.ReactNode }) 
               try {
                 const b = createBooking({ ...input, leadId: prefill.leadId }, "staff");
                 close();
-                toast.success(`${b.ref} reserved`, { action: { label: "Open", onClick: () => router.push(`/dashboard/bookings/${b.id}`) } });
+                toast.success(`${b.ref} reserved`, { description: "It stays in Leads until you mark it Booked.", action: { label: "Open lead", onClick: () => router.push("/dashboard/leads") } });
               } catch (e) {
                 toast.error(e instanceof Error ? e.message : "Couldn't save");
               }

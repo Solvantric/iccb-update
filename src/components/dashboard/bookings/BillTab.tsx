@@ -281,7 +281,7 @@ export function BillTab({ booking: b }: { booking: Booking }) {
               {bill.vat > 0 && <Row label={`VAT ${settings.foodVatPercent}% on food`} value={bill.vat} />}
               <Row label="Total" value={bill.total} strong />
               <Row label="Paid" value={bill.paid} />
-              <Row label="Due" value={bill.due} strong accent={bill.due > 0} />
+              <Row label="Unpaid" value={bill.due} strong accent={bill.due > 0} />
             </dl>
             <div className="mt-4 space-y-1.5 rounded-[10px] bg-crm-surface-2 px-4 py-3 text-[13px]">
               <div className="flex justify-between">
@@ -309,7 +309,7 @@ function Row({ label, value, strong, accent }: { label: string; value: number; s
     <div className="flex items-center justify-between">
       <dt className={strong ? "font-medium text-crm-ink" : "text-crm-muted"}>{label}</dt>
       <dd>
-        <AnimatedNumber value={value} format={(n) => (n < 0 ? `− ${money(-n)}` : money(n))} className={cn(strong ? "text-[16px] font-semibold text-crm-ink" : "text-crm-ink-2", accent && "text-crm-brand-text")} />
+        <AnimatedNumber value={value} format={(n) => (n < 0 ? `− ${money(-n)}` : money(n))} className={cn(strong ? "text-[16px] font-semibold text-crm-ink" : "text-crm-ink-2", accent && "text-crm-danger")} />
       </dd>
     </div>
   );

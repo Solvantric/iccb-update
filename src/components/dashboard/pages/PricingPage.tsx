@@ -389,7 +389,7 @@ function SpecialsTab({ adding, setAdding }: { adding: boolean; setAdding: (v: bo
                   </span>
                 </span>
                 <span className="flex items-center gap-2">
-                  <span className={cn("rounded-full px-2.5 py-0.5 text-[12.5px] font-medium tabular", s.percent > 0 ? "bg-crm-booked-bg text-crm-brand-text" : "bg-crm-success-bg text-crm-success")}>
+                  <span className={cn("rounded-full px-2.5 py-0.5 text-[12.5px] font-medium tabular", s.percent > 0 ? "bg-crm-success-bg text-crm-success" : "bg-crm-reserved-bg text-crm-reserved-ink")}>
                     {s.percent > 0 ? "+" : ""}
                     {s.percent}%
                   </span>

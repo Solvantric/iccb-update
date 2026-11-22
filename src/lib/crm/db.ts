@@ -6,6 +6,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { ReviewRequest } from "@/types/crm";
+import { LEAD_STAGES } from "@/types/crm";
 import type { AnalyticsEvent, Booking, Client, ContentItem, Enquiry, Hall, Lead, Meeting, MenuPackage, Payment, RadarItem, ServiceItem, Settings, SpecialPrice, User } from "@/types/crm";
 import { createRepository, STORAGE_PREFIX } from "./repository";
 import {
@@ -136,12 +137,18 @@ function normalize() {
   const users = db.users.all();
   const missing = leadTeamSeed().filter((u) => !users.some((x) => x.id === u.id));
   if (missing.length) db.users.replaceAll([...users, ...missing]);
-  // Leads stored before multi-assign had a single `ownerId`.
+  // Leads stored before multi-assign had a single `ownerId`; leads stored before
+  // the step journey existed get the sample journey (sample leads) or an empty one.
+  const sampleJourney = new Map(leadsSeed().map((l) => [l.id, l.journey ?? []]));
   db.leads.replaceAll(
     fix(db.leads.all(), (l) => {
-      if (Array.isArray(l.ownerIds)) return l;
-      const old = (l as unknown as { ownerId?: string }).ownerId;
-      return { ...l, ownerIds: old ? [old] : [] };
+      let x = l;
+      if (!Array.isArray(x.ownerIds)) {
+        const old = (x as unknown as { ownerId?: string }).ownerId;
+        x = { ...x, ownerIds: old ? [old] : [] };
+      }
+      if (!Array.isArray(x.journey)) x = { ...x, journey: x.isSample ? (sampleJourney.get(x.id) ?? []).filter((j) => LEAD_STAGES.indexOf(j.stage) <= LEAD_STAGES.indexOf(x.stage)) : [] };
+      return x;
     })
   );
   db.meetings.replaceAll(fix(db.meetings.all(), (m) => ({ ...m, type: m.type ?? "Site visit", rep: m.rep ?? "Unassigned", status: m.status ?? "scheduled", time: m.time ?? "11:00" })));

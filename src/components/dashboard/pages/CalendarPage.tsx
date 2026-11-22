@@ -108,7 +108,7 @@ export function CalendarPage() {
             <ul className="divide-y divide-crm-line">
               {agenda.map(([date, list]) => (
                 <li key={date} className="px-4 py-3">
-                  <p className={cn("mb-2 text-[13px] font-medium", date === today ? "text-crm-brand-text" : "text-crm-muted")}>{fmtDate(date, "EEEE, d MMM")}</p>
+                  <p className={cn("mb-2 text-[13px] font-medium", date === today ? "text-crm-info-ink" : "text-crm-muted")}>{fmtDate(date, "EEEE, d MMM")}</p>
                   <div className="space-y-2">
                     {list.map((b) => (
                       <Link key={b.id} href={`/dashboard/bookings/${b.id}`} className="flex items-center justify-between gap-3 rounded-[10px] border border-crm-line px-3 py-2.5">

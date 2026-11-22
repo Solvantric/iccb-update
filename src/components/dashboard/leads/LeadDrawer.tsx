@@ -13,7 +13,9 @@ import { Button, Input, KeyValue, LinkButton, Segmented, Textarea } from "../ui/
 import { Drawer } from "../ui/overlay";
 import { StatusPill } from "../ui/status";
 import { useNewBooking } from "../bookings/NewBookingModal";
+import { useBookingActions } from "../bookings/useBookingActions";
 import { AssignPicker, isOverdue, SourcePill, stageColor } from "./shared";
+import { LeadJourney } from "./LeadJourney";
 
 export function LeadDrawer({ lead, onClose }: { lead: Lead | undefined; onClose: () => void }) {
   return (
@@ -107,6 +109,8 @@ function Body({ lead }: { lead: Lead }) {
         )}
       </section>
 
+      <LeadJourney lead={lead} />
+
       {/* Event */}
       <section>
         <h3 className="mb-3 text-[13px] font-medium text-crm-muted">Event</h3>
@@ -128,7 +132,7 @@ function Body({ lead }: { lead: Lead }) {
 
       {/* Activity */}
       <section>
-        <h3 className="mb-3 text-[13px] font-medium text-crm-muted">Activity</h3>
+        <h3 className="mb-3 text-[13px] font-medium text-crm-muted">Notes & history</h3>
         <form
           className="mb-4 grid gap-2"
           onSubmit={(e) => {
@@ -147,7 +151,7 @@ function Body({ lead }: { lead: Lead }) {
         <ol className="relative space-y-4 border-s border-crm-line ps-4">
           {lead.activity.map((a, i) => (
             <li key={i} className="relative">
-              <span className={cn("absolute -start-[21px] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-crm-surface", a.kind === "stage" ? "bg-crm-success" : a.kind === "lost" ? "bg-crm-muted" : a.kind === "created" ? "bg-crm-reserved" : "bg-crm-line")} />
+              <span className={cn("absolute -start-[21px] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-crm-surface", a.kind === "stage" ? "bg-crm-success" : a.kind === "step" ? "bg-crm-info" : a.kind === "lost" ? "bg-crm-muted" : a.kind === "created" ? "bg-crm-reserved" : "bg-crm-line")} />
               <p className="text-[13.5px] text-crm-ink">{a.text}</p>
               <p className="mt-0.5 text-[12px] text-crm-muted">
                 {a.by} · {timeAgo(a.at)}
@@ -242,12 +246,12 @@ function SourceTrail({ lead }: { lead: Lead }) {
           ))}
       </dl>
       {lead.source === "ai" && t.url && (
-        <a href={t.url} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-crm-brand-text hover:underline">
+        <a href={t.url} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-crm-info-ink hover:underline">
           Open original post <ArrowSquareOut size={13} />
         </a>
       )}
       {lead.source === "website" && t.bookingId && (
-        <Link href={`/dashboard/bookings/${t.bookingId}`} className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-crm-brand-text hover:underline">
+        <Link href={`/dashboard/bookings/${t.bookingId}`} className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-crm-info-ink hover:underline">
           Open booking {t.bookingRef} <ArrowRight size={13} className="rtl:rotate-180" />
         </Link>
       )}
@@ -272,13 +276,14 @@ function ScoreBar({ score }: { score: number }) {
 function BookingBox({ lead }: { lead: Lead }) {
   const bookings = useBookings();
   const newBooking = useNewBooking();
+  const actions = useBookingActions();
   const id = lead.bookingId ?? lead.trace.bookingId;
   const b = id ? bookings.find((x) => x.id === id) : undefined;
   const ref = b?.ref ?? lead.bookingRef ?? lead.trace.bookingRef;
 
   return (
     <section className="flex items-start gap-3 rounded-[10px] border border-crm-line p-4">
-      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-crm-tint text-crm-brand-text">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-crm-info-bg text-crm-info-ink">
         <Ticket size={18} />
       </span>
       <div className="min-w-0 flex-1">
@@ -288,10 +293,20 @@ function BookingBox({ lead }: { lead: Lead }) {
               Booking {b.ref} <StatusPill status={b.status} />
             </p>
             <p className="mt-1 text-[12.5px] text-crm-muted">
-              {b.status === "reserved" ? "Mark it Booked on the booking page once the advance is paid. The lead then becomes a Customer." : b.status === "booked" || b.status === "closed" ? "Booking is confirmed, so this lead is a Customer." : "This booking was cancelled."}
+              {b.status === "reserved" ? "Date is held. Once the advance is paid, mark it Booked: it moves to Bookings and this lead becomes a Customer." : b.status === "booked" || b.status === "closed" ? "Booking is confirmed, so this lead is a Customer. It is listed on the Bookings page." : "This request was cancelled and the date released."}
             </p>
-            <Link href={`/dashboard/bookings/${b.id}`} className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-medium text-crm-brand-text hover:underline">
-              Open booking <ArrowRight size={13} className="rtl:rotate-180" />
+            {b.status === "reserved" && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button size="sm" variant="primary" icon={Check} onClick={() => actions.confirm(b)}>
+                  Mark as Booked
+                </Button>
+                <Button size="sm" variant="ghost" icon={Prohibit} onClick={() => actions.cancel(b)}>
+                  Cancel request
+                </Button>
+              </div>
+            )}
+            <Link href={`/dashboard/bookings/${b.id}`} className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-medium text-crm-info-ink hover:underline">
+              {b.status === "reserved" ? "Bill, payments & details" : "Open booking"} <ArrowRight size={13} className="rtl:rotate-180" />
             </Link>
           </>
         ) : lead.stage === "customer" ? (

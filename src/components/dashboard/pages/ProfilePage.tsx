@@ -31,7 +31,7 @@ function ProfileForm() {
       />
       <Card className="max-w-2xl p-6">
         <div className="mb-6 flex items-center gap-4">
-          <Avatar name={user.name} size={56} />
+          <Avatar name={user.name} id={user.id} size={56} />
           <div>
             <p className="text-[16px] font-semibold text-crm-ink">{user.name}</p>
             <p className="text-[13px] text-crm-muted">{ROLE_LABELS[user.role]}</p>

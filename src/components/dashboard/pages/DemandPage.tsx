@@ -86,7 +86,7 @@ export function DemandPage() {
     return out.filter((s) => !dismissed.has(s.id) && !applied.has(`${s.from}|${s.to}`)).slice(0, 3);
   }, [demand, halls.length, weekendDays, specials, dismissed, today, horizon]);
 
-  const shade = (n: number) => (n >= 3 ? "bg-crm-brand text-white" : n === 2 ? "bg-crm-brand/45 text-crm-ink" : n === 1 ? "bg-crm-brand/15 text-crm-ink" : "bg-crm-surface text-crm-ink-2");
+  const shade = (n: number) => (n >= 3 ? "bg-crm-success text-white" : n === 2 ? "bg-crm-success/45 text-crm-ink" : n === 1 ? "bg-crm-success/15 text-crm-ink" : "bg-crm-surface text-crm-ink-2");
 
   return (
     <>
@@ -114,7 +114,7 @@ export function DemandPage() {
                 const I = s.kind === "high" ? TrendUp : TrendDown;
                 return (
                   <m.div key={s.id} layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97 }} className="crm-card flex flex-col p-5">
-                    <span className={cn("mb-3 inline-flex h-6 w-fit items-center gap-1.5 rounded-full px-2.5 text-[12px] font-medium", s.kind === "high" ? "bg-crm-booked-bg text-crm-brand-text" : "bg-crm-success-bg text-crm-success")}>
+                    <span className={cn("mb-3 inline-flex h-6 w-fit items-center gap-1.5 rounded-full px-2.5 text-[12px] font-medium", s.kind === "high" ? "bg-crm-success-bg text-crm-success" : "bg-crm-reserved-bg text-crm-reserved-ink")}>
                       <I size={13} weight="bold" /> {s.kind === "high" ? "High demand" : "Low demand"}
                     </span>
                     <p className="flex-1 text-[15px] font-medium text-crm-ink">{s.text}</p>
@@ -185,7 +185,7 @@ export function DemandPage() {
         {specials.length > 0 && (
           <p className="mt-5 text-[13px] text-crm-muted">
             {specials.length} special price{specials.length === 1 ? "" : "s"} active —{" "}
-            <Link href="/dashboard/admin/pricing" className="text-crm-brand-text hover:underline">
+            <Link href="/dashboard/admin/pricing" className="text-crm-info-ink hover:underline">
               see Pricing
             </Link>
           </p>

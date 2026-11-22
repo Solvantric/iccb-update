@@ -433,8 +433,54 @@ export interface LeadTrace {
 export interface LeadActivity {
   at: string;
   by: string;
-  kind: "created" | "stage" | "assign" | "note" | "call" | "lost" | "reopen";
+  kind: "created" | "stage" | "assign" | "note" | "call" | "lost" | "reopen" | "step";
   text: string;
+}
+
+/* ─── Lead journey: what the team did at each funnel step ────────────────── */
+
+/** Typical work at each step, offered as quick choices when logging an update. */
+export const LEAD_STEP_ACTIONS: Record<LeadStage, readonly string[]> = {
+  discover: ["First call", "WhatsApp message", "Email", "Researched the client", "Found the decision maker"],
+  interested: ["Follow-up call", "Sent brochure", "Shared hall options & rates", "Client meeting", "Office visit"],
+  appraisal: ["Site visit at ICCB", "Sent quotation", "Menu tasting", "Price negotiation", "Revised quotation"],
+  confirmed: ["Date held", "Contract sent", "Advance requested", "Advance received", "Planning call"],
+  customer: ["Handed over to operations", "Event-day check", "Feedback call", "Thank-you message"],
+};
+
+/** How the employee reached the client. */
+export const LEAD_STEP_MODES = ["Phone call", "WhatsApp", "Email", "Video call", "Met at ICCB", "Visited client"] as const;
+export type LeadStepMode = (typeof LEAD_STEP_MODES)[number];
+/** Modes where the employee met the client somewhere, so "where" is asked. */
+export const IN_PERSON_MODES: readonly LeadStepMode[] = ["Met at ICCB", "Visited client"];
+
+export type LeadStepOutcome = "positive" | "neutral" | "negative";
+export const LEAD_STEP_OUTCOMES: Record<LeadStepOutcome, string> = { positive: "Went well", neutral: "No decision yet", negative: "Not good" };
+
+/** One piece of work an employee did on a lead, at one funnel step. */
+export interface LeadStepLog {
+  id: string;
+  stage: LeadStage;
+  /** When it happened (ISO). */
+  at: string;
+  /** Employee who did it. */
+  byId?: string;
+  by: string;
+  action: string;
+  mode: LeadStepMode;
+  /** Where they met: client office address, ICCB hall, etc. */
+  place?: string;
+  /** ICCB halls shown to the client. */
+  hallIds?: string[];
+  /** People they met or spoke to. */
+  metWith?: string;
+  /** Quotation or advance amount in BDT. */
+  amount?: number;
+  outcome: LeadStepOutcome;
+  /** What the employee did. */
+  note: string;
+  /** What the client said or asked for. */
+  clientSaid?: string;
 }
 
 export interface Lead extends BaseRecord {
@@ -467,6 +513,8 @@ export interface Lead extends BaseRecord {
   nextAt?: string;
   nextAction?: string;
   activity: LeadActivity[];
+  /** Detailed work log per funnel step (newest first). */
+  journey?: LeadStepLog[];
 }
 
 export const LOST_REASONS = ["Price too high", "Date not available", "Chose another venue", "Event cancelled", "No response"] as const;

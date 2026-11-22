@@ -88,7 +88,7 @@ function ClientCard({ b }: { b: Booking }) {
               ]}
             />
             {client && (
-              <Link href={`/dashboard/clients?c=${client.id}`} className="mt-4 inline-flex items-center gap-1 text-[13px] text-crm-brand-text hover:underline">
+              <Link href={`/dashboard/clients?c=${client.id}`} className="mt-4 inline-flex items-center gap-1 text-[13px] text-crm-info-ink hover:underline">
                 Open client{otherBookings ? ` · ${otherBookings} other booking${otherBookings > 1 ? "s" : ""}` : ""} <ArrowRight size={13} className="rtl:rotate-180" />
               </Link>
             )}
@@ -245,7 +245,7 @@ export function DetailsTab({ booking: b }: { booking: Booking }) {
           <ol className="px-5 pb-5">
             {history.map((h, i) => (
               <li key={i} className="relative border-s border-crm-line ps-4 pb-4 last:pb-0">
-                <span className={`absolute -start-[4.5px] top-1.5 h-2 w-2 rounded-full ring-2 ring-crm-surface ${i === 0 ? "bg-crm-brand" : "bg-crm-line"}`} />
+                <span className={`absolute -start-[4.5px] top-1.5 h-2 w-2 rounded-full ring-2 ring-crm-surface ${i === 0 ? "bg-crm-info" : "bg-crm-line"}`} />
                 <p className="text-[13.5px] text-crm-ink">{h.text}</p>
                 <p className="text-[12px] text-crm-muted">
                   {h.by} · {timeAgo(h.at)}

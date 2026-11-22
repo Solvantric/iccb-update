@@ -57,7 +57,7 @@ export function SignInPage() {
                     className="group crm-card crm-card-hover flex h-full w-full flex-col p-5 text-start"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="grid h-10 w-10 place-items-center rounded-[10px] bg-crm-tint text-crm-brand-text">
+                      <span className="grid h-10 w-10 place-items-center rounded-[10px] bg-crm-info-bg text-crm-info-ink">
                         <I size={20} />
                       </span>
                       <ArrowRight size={16} className="text-crm-muted transition-transform group-hover:translate-x-0.5 rtl:rotate-180" />
@@ -65,7 +65,7 @@ export function SignInPage() {
                     <p className="mt-4 text-[15px] font-semibold text-crm-ink">{ROLE_LABELS[role]}</p>
                     <p className="mt-1 flex-1 text-[13px] text-crm-muted">{desc}</p>
                     <div className="mt-4 flex items-center gap-2 border-t border-crm-line pt-3">
-                      <Avatar name={u.name} size={24} />
+                      <Avatar name={u.name} id={u.id} size={24} />
                       <span className="text-[12.5px] text-crm-ink-2">{u.name}</span>
                     </div>
                   </button>

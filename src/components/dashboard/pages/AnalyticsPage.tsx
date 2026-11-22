@@ -7,10 +7,11 @@ import { useBookings, useHalls } from "@/lib/crm/hooks";
 import { StatusPill } from "../ui/status";
 import { DEVICES, TRAFFIC_SOURCES, type AnalyticsType } from "@/types/crm";
 import { db } from "@/lib/crm/db";
+import { cn } from "@/lib/utils/cn";
 import { fmtDate, num, timeAgo } from "@/lib/crm/format";
 import { Button, Card, CardTitle, FilterRow, PageHeader, Segmented } from "../ui/core";
 import { FilterSelect } from "../ui/filters";
-import { Kpi, SimpleBars } from "../ui/data";
+import { Kpi, perfFill, perfInk, SimpleBars } from "../ui/data";
 import { Item, m, Stagger } from "../ui/motion";
 
 type Range = "7" | "30" | "90";
@@ -84,6 +85,8 @@ export function AnalyticsPage() {
   }, [bookings, range]);
   const peak = Math.max(1, ...data.daily.map((d) => d.value));
   const top = data.funnel[0]?.value || 1;
+  const bestConv = Math.max(0, ...data.perSource.map((x) => x.conv));
+  const topDevice = Math.max(0, ...data.devices.map((d) => d.value));
 
   return (
     <>
@@ -114,16 +117,16 @@ export function AnalyticsPage() {
       </FilterRow>
       <Stagger className="grid grid-cols-2 gap-5 xl:grid-cols-4">
         <Item>
-          <Kpi label="Visitors" value={data.visits} icon={Eye} />
+          <Kpi label="Visitors" value={data.visits} icon={Eye} tone="good" />
         </Item>
         <Item>
-          <Kpi label="Form submissions" value={data.submits} icon={PaperPlaneTilt} />
+          <Kpi label="Form submissions" value={data.submits} icon={PaperPlaneTilt} tone="good" />
         </Item>
         <Item>
-          <Kpi label="Conversion" value={data.conversion} icon={ChartLineUp} format={(n) => `${n.toFixed(1)}%`} hint="Submissions ÷ visitors" />
+          <Kpi label="Conversion" value={data.conversion} icon={ChartLineUp} format={(n) => `${n.toFixed(1)}%`} hint="Submissions ÷ visitors" tone="good" />
         </Item>
         <Item>
-          <Kpi label="Avg. daily visitors" value={data.avgDaily} icon={CalendarBlank} format={(n) => n.toFixed(1)} hint={`Over ${range} days`} />
+          <Kpi label="Avg. daily visitors" value={data.avgDaily} icon={CalendarBlank} format={(n) => n.toFixed(1)} hint={`Over ${range} days`} tone="good" />
         </Item>
       </Stagger>
 
@@ -134,8 +137,8 @@ export function AnalyticsPage() {
             <m.span
               key={d.day}
               title={`${fmtDate(d.day, "EEE, d MMM")}: ${d.value} visitors`}
-              className="flex-1 origin-bottom rounded-t-[3px] bg-crm-brand/70 hover:bg-crm-brand"
-              style={{ height: `${Math.max(4, (d.value / peak) * 100)}%` }}
+              className="flex-1 origin-bottom rounded-t-[3px] opacity-80 hover:opacity-100"
+              style={{ height: `${Math.max(4, (d.value / peak) * 100)}%`, background: perfFill(d.value, peak) }}
               initial={{ scaleY: 0 }}
               animate={{ scaleY: 1 }}
               transition={{ duration: 0.4, delay: i * 0.01 }}
@@ -152,7 +155,7 @@ export function AnalyticsPage() {
         <Card className="lg:col-span-3">
           <CardTitle title="Visitors by source" />
           <div className="px-3 pb-4">
-            <SimpleBars key={range} data={data.sources} height={260} />
+            <SimpleBars key={range} data={data.sources} height={260} colorByValue />
           </div>
         </Card>
         <Card className="lg:col-span-2">
@@ -172,7 +175,7 @@ export function AnalyticsPage() {
                     </span>
                   </div>
                   <div className="h-2.5 overflow-hidden rounded-full bg-crm-surface-2">
-                    <m.div key={range} className="h-full origin-left rounded-full bg-crm-brand rtl:origin-right" style={{ opacity: 1 - i * 0.18 }} initial={{ scaleX: 0 }} animate={{ scaleX: pct / 100 }} transition={{ duration: 0.5, delay: i * 0.05 }} />
+                    <m.div key={range} className="h-full origin-left rounded-full rtl:origin-right" style={{ background: perfFill(f.value, top) }} initial={{ scaleX: 0 }} animate={{ scaleX: pct / 100 }} transition={{ duration: 0.5, delay: i * 0.05 }} />
                   </div>
                 </li>
               );
@@ -199,12 +202,12 @@ export function AnalyticsPage() {
                   <tr key={x.src} className="border-b border-crm-line last:border-0">
                     <td className="px-5 py-2.5 text-crm-ink">
                       {x.src}
-                      {i === 0 && x.visits > 0 && <span className="ms-2 rounded-full bg-crm-tint px-2 py-0.5 text-[11px] text-crm-brand-text">Top</span>}
+                      {i === 0 && x.visits > 0 && <span className="ms-2 rounded-full bg-crm-success-bg px-2 py-0.5 text-[11px] font-medium text-crm-success">Top</span>}
                     </td>
                     <td className="px-3 py-2.5 text-end tabular">{num(x.visits)}</td>
                     <td className="px-3 py-2.5 text-end text-crm-muted tabular">{Math.round(x.share)}%</td>
                     <td className="px-3 py-2.5 text-end tabular">{num(x.submits)}</td>
-                    <td className="px-5 py-2.5 text-end font-medium text-crm-ink tabular">{x.conv.toFixed(1)}%</td>
+                    <td className="px-5 py-2.5 text-end font-medium tabular" style={{ color: x.visits ? perfInk(x.conv, bestConv) : undefined }}>{x.conv.toFixed(1)}%</td>
                   </tr>
                 ))}
               </tbody>
@@ -225,7 +228,7 @@ export function AnalyticsPage() {
                     </span>
                   </div>
                   <span className="block h-2 overflow-hidden rounded-full bg-crm-surface-2">
-                    <m.span className="block h-full origin-left rounded-full bg-crm-brand/70 rtl:origin-right" initial={{ scaleX: 0 }} animate={{ scaleX: v.views / max }} transition={{ duration: 0.5 }} />
+                    <m.span className="block h-full origin-left rounded-full rtl:origin-right" style={{ background: perfFill(v.views, max) }} initial={{ scaleX: 0 }} animate={{ scaleX: v.views / max }} transition={{ duration: 0.5 }} />
                   </span>
                 </li>
               );
@@ -255,11 +258,11 @@ export function AnalyticsPage() {
             ).map(([k, v]) => (
               <div key={k} className="bg-crm-surface px-4 py-3">
                 <p className="text-[12px] text-crm-muted">{k}</p>
-                <p className="text-[18px] font-semibold text-crm-ink tabular">{v}</p>
+                <p className={cn("text-[18px] font-semibold tabular", !v ? "text-crm-ink" : k === "Confirmed" ? "text-crm-success" : k === "Cancelled" ? "text-crm-danger" : k === "Still reserved" ? "text-crm-reserved-ink" : "text-crm-ink")}>{v}</p>
               </div>
             ))}
             <div className="col-span-2 bg-crm-surface px-4 py-3 text-[13px] text-crm-ink-2">
-              Form → confirmed booking: <span className="font-semibold text-crm-ink">{web.rate.toFixed(0)}%</span>
+              Form → confirmed booking: <span className="font-semibold" style={{ color: web.total ? perfInk(web.rate, 50) : undefined }}>{web.rate.toFixed(0)}%</span>
             </div>
           </div>
           <div className="lg:col-span-3">
@@ -297,7 +300,7 @@ export function AnalyticsPage() {
                 <li key={d.label} className="flex items-center justify-between gap-3 text-[13.5px]">
                   <span className="w-20 text-crm-ink">{d.label}</span>
                   <span className="h-2 flex-1 overflow-hidden rounded-full bg-crm-surface-2">
-                    <m.span className="block h-full origin-left rounded-full bg-crm-ink-2/60 rtl:origin-right" initial={{ scaleX: 0 }} animate={{ scaleX: pct / 100 }} transition={{ duration: 0.5 }} />
+                    <m.span className="block h-full origin-left rounded-full rtl:origin-right" style={{ background: perfFill(d.value, topDevice) }} initial={{ scaleX: 0 }} animate={{ scaleX: pct / 100 }} transition={{ duration: 0.5 }} />
                   </span>
                   <span className="w-24 text-end text-crm-muted tabular">
                     {num(d.value)} · {Math.round(pct)}%
